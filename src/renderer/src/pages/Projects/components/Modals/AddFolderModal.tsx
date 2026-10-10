@@ -1,56 +1,61 @@
 import { Folder } from "@schemas/store.schema";
 import { Form, Input, Modal } from "antd";
-import { FC, useEffect } from "react";
+import { FC } from "react";
+
+type FolderFormValues = Pick<Folder, "name" | "description">;
 
 type AddOrEditFolderModalProps = {
 	isOpen: boolean;
 	editModalData?: Folder;
-	onFinish: (folder: Folder, id?: Folder['id']) => void;
+	onFinish: (folder: FolderFormValues, id?: Folder['id']) => void;
 	onClose: () => void;
 };
 
 export const AddOrEditFolderModal: FC<AddOrEditFolderModalProps> = ({ isOpen, editModalData, onClose, onFinish }) => {
-	const [form] = Form.useForm<Folder>()
+	const [form] = Form.useForm<FolderFormValues>()
 
-	const handleOk: ((e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void) = () => {
-		const fields = form.getFieldsValue();
-		onFinish?.(fields, editModalData?.id);
-		form.resetFields();
-		onClose?.();
-	};
+	const isEdit = !!editModalData;
 
-	const handleCancel: ((e: React.KeyboardEvent<HTMLElement> | React.MouseEvent<HTMLButtonElement, MouseEvent>) => void) = () => {
-		form.resetFields();
-		onClose?.();
-	};
-
-	useEffect(() => {
-		if (editModalData) {
-			form.setFieldsValue(editModalData)
+	const handleOk = async (): Promise<void> => {
+		let values: FolderFormValues;
+		try {
+			values = await form.validateFields();
+		} catch {
+			return;
 		}
-	}, [editModalData, form, isOpen])
+
+		onFinish({ name: values.name.trim(), description: values.description?.trim() || undefined }, editModalData?.id);
+		onClose();
+	};
 
 	return (
 		<Modal
-			title="Новая папка"
-			closable={{ "aria-label": "Custom Close Button" }}
+			title={isEdit ? "Редактирование папки" : "Новая папка"}
 			open={isOpen}
 			onOk={handleOk}
-			onCancel={handleCancel}
+			onCancel={onClose}
+			okText={isEdit ? "Сохранить" : "Создать"}
+			cancelText="Отмена"
+			destroyOnHidden
 		>
-			<Form form={form} layout="vertical">
+			<Form
+				form={form}
+				layout="vertical"
+				preserve={false}
+				initialValues={editModalData ? { name: editModalData.name, description: editModalData.description } : undefined}
+			>
 				<Form.Item
 					label="Название"
 					name="name"
-					rules={[{ required: true, message: "Please input your username!" }]}
+					rules={[{ required: true, whitespace: true, message: "Введите название папки" }]}
 				>
-					<Input />
+					<Input placeholder="Например: Работа" autoFocus />
 				</Form.Item>
 				<Form.Item
 					label="Описание"
 					name="description"
 				>
-					<Input.TextArea maxLength={100}/>					
+					<Input.TextArea maxLength={100} showCount autoSize={{ minRows: 2, maxRows: 4 }} />
 				</Form.Item>
 			</Form>
 		</Modal>

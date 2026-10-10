@@ -154,11 +154,8 @@ code {
 }
 
 .page-title {
-  font-size: 35px;
-  font-weight: bold;
-}
-.ant-breadcrumb-separator {
-  font-size: 34px;
+  font-size: 28px;
+  font-weight: 700;
 }
 
 @media (max-width: 720px) {

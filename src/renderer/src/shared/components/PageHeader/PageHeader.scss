@@ -1,0 +1,65 @@
+.page-header {
+	margin-bottom: 20px;
+
+	&__breadcrumbs {
+		margin-bottom: 6px;
+		font-size: 14px;
+
+		.anticon {
+			margin-right: 6px;
+		}
+
+		a {
+			display: inline-flex;
+			align-items: center;
+		}
+	}
+
+	&__row {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		min-height: 48px;
+	}
+
+	&__icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		width: 44px;
+		height: 44px;
+		border-radius: 10px;
+		font-size: 22px;
+		color: #fff;
+		background: linear-gradient(135deg, #3b82f6, #8b3df0);
+	}
+
+	&__titles {
+		min-width: 0;
+		flex: 1;
+
+		.page-title {
+			margin: 0;
+			line-height: 1.2;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+	}
+
+	&__description {
+		margin-top: 2px;
+		color: rgba(0, 0, 0, 0.45);
+		font-size: 14px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	&__extra {
+		display: flex;
+		gap: 8px;
+		flex-shrink: 0;
+	}
+}

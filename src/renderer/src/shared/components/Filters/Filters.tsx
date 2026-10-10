@@ -1,48 +1,45 @@
 import { Search } from "@renderer/shared/components/Search/Search";
-import { Form, Switch } from "antd";
-import { FC } from "react";
-
-type FormValues = {
-	search?: string;
-	onlyProjects?: boolean;
-	withoutFolder?: boolean;
-};
+import { Flex, Select } from "antd";
+import { ClockCircleOutlined, SortAscendingOutlined } from "@ant-design/icons";
+import { FC, ReactNode } from "react";
+import type { ProjectFiltersValue, ProjectSort } from "@renderer/shared/utils/projectFilters";
 
 type FiltersProps = {
-	onFiltersChange: (formValues: FormValues) => void;
-	showSwitchProjects?: boolean;
-	showSwitchFolders?: boolean;
+	value: ProjectFiltersValue;
+	onChange: (value: ProjectFiltersValue) => void;
+	placeholder?: string;
+	extra?: ReactNode;
 };
 
+const sortOptions: { value: ProjectSort; label: ReactNode }[] = [
+	{ value: "recent", label: <span><ClockCircleOutlined /> Недавние</span> },
+	{ value: "name", label: <span><SortAscendingOutlined /> По названию</span> },
+];
+
 export const Filters: FC<FiltersProps> = ({
-	showSwitchProjects = false,
-	showSwitchFolders = false,
-	onFiltersChange,
+	value,
+	onChange,
+	placeholder = "Поиск по названию, пути или репозиторию...",
+	extra,
 }) => {
-	const [form] = Form.useForm<FormValues>();
-
-	const onFormChange = (): void => {
-		const formValues = form.getFieldsValue();
-		onFiltersChange(formValues);
-	};
-
 	return (
-		<div>
-			<Form form={form} onValuesChange={onFormChange}>
-				<Form.Item name="search">
-					<Search placeholder="Поиск проектов..." />
-				</Form.Item>
-				{showSwitchProjects && (
-					<Form.Item label="Показать только проекты" name="onlyProjects">
-						<Switch />
-					</Form.Item>
-				)}
-				{showSwitchFolders && (
-					<Form.Item label="Только проекты без папок" name="withoutFolder">
-						<Switch />
-					</Form.Item>
-				)}
-			</Form>
-		</div>
+		<Flex gap={12} align="center" wrap="wrap" style={{ marginBottom: 20 }}>
+			<div style={{ flex: 1, minWidth: 280 }}>
+				<Search
+					value={value.search}
+					placeholder={placeholder}
+					onChange={(search) => onChange({ ...value, search })}
+				/>
+			</div>
+			{extra}
+			<Select
+				size="large"
+				value={value.sort}
+				options={sortOptions}
+				onChange={(sort) => onChange({ ...value, sort })}
+				style={{ width: 180 }}
+				aria-label="Сортировка"
+			/>
+		</Flex>
 	);
 };

@@ -8,7 +8,6 @@ export type AppStore = {
 	settings: StoreType["settings"];
 	projects: StoreType["projects"];
 	folders: StoreType["folders"];
-	selectedFolder: Folder | null;
 
 	load: () => Promise<void>;
 
@@ -20,7 +19,6 @@ export type AppStore = {
 	removeProject: (id: string) => void;
 
 	setFolders: (f: StoreType["folders"]) => void;
-	setSelectedFolder: (f: Folder | null) => void;
 	addFolder: (f: Folder) => void;
 	updateFolder: (id: string, f: Partial<Folder>) => void;
 	removeFolder: (id: string) => void;
@@ -46,10 +44,7 @@ export const useAppStore = create<AppStore>((set) => ({
 
 	settings: initialSettings,
 	projects: [],
-	filteredProjects: [],
-	filteredFolders: [],
 	folders: [],
-	selectedFolder: null,
 
 	// --- LOAD ---
 	load: async () => {
@@ -116,8 +111,4 @@ export const useAppStore = create<AppStore>((set) => ({
 		set((state) => ({
 			folders: state.folders.filter((f) => f.id !== id),
 		})),
-
-	setSelectedFolder: (selectedFolder) => {
-		set({ selectedFolder });
-	},
 }));

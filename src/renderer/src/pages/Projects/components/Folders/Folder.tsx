@@ -2,17 +2,19 @@ import {
 	CardTitle,
 	ProjectCardWrapper,
 } from "@renderer/shared/components/UI/ProjectCardWrapper/ProjectCardWrapper";
-import { Avatar, CardMetaProps, Tooltip, Typography } from "antd";
+import { CardAction, CardActionLabel } from "@renderer/shared/components/UI/CardAction/CardAction";
+import { Avatar, CardMetaProps, Typography } from "antd";
 import { Meta } from "antd/es/list/Item";
-import { FolderOutlined } from "@ant-design/icons";
 import { FC } from "react";
 import {
 	EditOutlined,
 	ClockCircleOutlined,
-	FolderOpenOutlined,
+	FolderOutlined,
 } from "@ant-design/icons";
 import { Folder as FolderType } from "@schemas/store.schema";
 import { useNavigate } from "react-router-dom";
+import { formatRelativeTime } from "@renderer/shared/utils/relativeTime";
+import { pluralize } from "@renderer/shared/utils/pluralize";
 
 const FolderIcon: FC = () => (
 	<Avatar
@@ -25,62 +27,58 @@ const FolderIcon: FC = () => (
 
 type FolderDescriptionProps = {
 	description: FolderType["description"];
-	lastDate: FolderType["lastDate"];
+	lastActivity?: string;
 };
 
 const FolderDescription: FC<FolderDescriptionProps> = ({
 	description,
-	lastDate,
+	lastActivity,
 }) => {
 	return (
 		<div>
-			{description && (
-				<div>
-					<Typography.Text type="secondary">{description}</Typography.Text>
-				</div>
-			)}
-			{lastDate && (
-				<div>
-					<Typography.Text type="secondary">
-						<ClockCircleOutlined /> 0ч назад
-					</Typography.Text>
-				</div>
-			)}
+			<Typography.Text type="secondary" ellipsis={{ tooltip: description }} style={{ width: "100%" }}>
+				{description || "Без описания"}
+			</Typography.Text>
+			<div>
+				<Typography.Text type="secondary">
+					<ClockCircleOutlined /> {lastActivity ? formatRelativeTime(lastActivity) : "Нет проектов"}
+				</Typography.Text>
+			</div>
 		</div>
 	);
 };
 
 type FolderProps = {
 	folder: FolderType;
+	projectsCount: number;
+	lastActivity?: string;
 	onDelete: (id: FolderType["id"], deleteAllProjects: boolean) => void;
 	onEdit: (folder: FolderType) => void;
 };
 
-export const Folder: FC<FolderProps> = ({ folder, onDelete, onEdit }) => {
+export const Folder: FC<FolderProps> = ({ folder, projectsCount, lastActivity, onDelete, onEdit }) => {
 
 	const navigate = useNavigate();
 
-	const handleEdit: React.MouseEventHandler<HTMLSpanElement> = (e) => {
-		e.stopPropagation();
-		onEdit && onEdit(folder);
-	}
-
 	const actions = [
-		<div key={"count"}>3 проекта</div>,
-		<Tooltip key="open" title="Открыть в проводнике">
-			<FolderOpenOutlined style={{ color: "#a15a08" }} />
-		</Tooltip>,
-		<Tooltip key="edit" title="Редактировать">
-			<EditOutlined style={{ color: "#4566d1" }} onClick={handleEdit} />
-		</Tooltip>,
+		<CardActionLabel key="count">
+			{projectsCount} {pluralize(projectsCount, ["проект", "проекта", "проектов"])}
+		</CardActionLabel>,
+		<CardAction
+			key="edit"
+			title="Редактировать"
+			icon={<EditOutlined />}
+			color="#4566d1"
+			onClick={() => onEdit(folder)}
+		/>,
 	];
 
 	const sharedCardMetaProps: CardMetaProps = {
 		avatar: <FolderIcon />,
 		description: (
 			<FolderDescription
-				description={folder?.description}
-				lastDate={folder?.lastDate}
+				description={folder.description}
+				lastActivity={lastActivity}
 			/>
 		),
 	};
@@ -92,6 +90,7 @@ export const Folder: FC<FolderProps> = ({ folder, onDelete, onEdit }) => {
 			onDelete={(deleteFolderProjects) => onDelete(folder.id, deleteFolderProjects)}
 			type="folder"
 			name={folder.name}
+			projectsCount={projectsCount}
 			onCardClick={() => navigate(`/folder/${folder.id}`)}
 		>
 			<Meta

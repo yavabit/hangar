@@ -1,5 +1,7 @@
 import { FC } from "react";
+import { SettingOutlined } from "@ant-design/icons";
 import { Versions } from "@renderer/shared/components/Versions";
+import { PageHeader } from "@renderer/shared/components/PageHeader/PageHeader";
 import { Disclaimer } from "@renderer/shared/components/UI/Disclaimer/Disclaimer";
 import { SettingsForm } from "./SettingsForm/SettingsForm";
 
@@ -7,6 +9,7 @@ export const Settings: FC = () => {
 
 	return (
 		<div>
+			<PageHeader icon={<SettingOutlined />} title="Настройки" description="IDE, консоль, алиасы путей и Git" />
 			<Disclaimer 
 				variant="info"
 				title="Примечание: Конфиденциальность данных" 

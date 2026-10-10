@@ -12,8 +12,33 @@
 	background-color: #3689ee;
 	color: white;
 }
+.add-folder-card {
+	border: 1px dashed #d9d9d9;
+	background: rgba(255, 255, 255, 0.6);
+
+	.ant-card-body {
+		height: 100%;
+		display: flex;
+		align-items: center;
+	}
+}
 .add-folder {
 	display: flex;
 	align-items: center;
-	cursor: pointer;
+	gap: 16px;
+	width: 100%;
+	color: gray;
+	transition: color 0.2s ease;
+
+	.add-folder__icon {
+		font-size: 32px;
+	}
+
+	.add-folder__text {
+		font-size: 22px;
+	}
+
+	.add-folder-card:hover & {
+		color: #1677ff;
+	}
 }
