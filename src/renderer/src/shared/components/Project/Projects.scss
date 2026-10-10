@@ -1,0 +1,40 @@
+.project-title__with-lnk {
+	display: flex;
+	align-items: center;
+	
+	.fav-ico-lnk-wrapper {
+        opacity: 0;
+        transform: translateX(-10px);
+        transition: all 0.3s ease;
+        width: 0;
+        overflow: hidden;
+        display: flex;
+		margin-top: 3px;
+        align-items: center;
+        margin-right: 0;
+		&.animated {
+			opacity: 1;
+                transform: translateX(0);
+                width: 28px;
+                margin-right: 4px;
+                overflow: visible;
+		}
+    }	
+}
+.project-card {
+    &:hover {
+        .project-title__with-lnk {
+            .fav-ico-lnk-wrapper {
+                opacity: 1;
+                transform: translateX(0);
+                width: 28px;
+                margin-right: 4px;
+                overflow: visible;
+            }
+        }
+    }
+}
+
+.ant-list-item-meta-content {
+	overflow: hidden;
+}

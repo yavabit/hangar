@@ -1,0 +1,19 @@
+.ant-list-item-meta {
+	display: flex;
+	.ant-list-item-meta-content {
+		flex: 1;
+		margin-left: 10px;
+	}
+	.ant-list-item-meta-title {
+		line-height: 20px;
+	}
+}
+.folder-icon {
+	background-color: #3689ee;
+	color: white;
+}
+.add-folder {
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+}

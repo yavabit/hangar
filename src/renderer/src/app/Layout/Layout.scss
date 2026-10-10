@@ -1,0 +1,41 @@
+@import '../../shared/assets/base.css';
+
+.main-layout {
+    /* background-color: var(--color-background-mute); */
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        SF Mono,
+        Menlo,
+        Consolas,
+        Liberation Mono,
+        monospace;
+    font-size: 85%;
+    min-height: 100vh;
+    /* background-image: url('../../shared/assets/wavy-lines.svg'); */
+    background-size: cover;
+	padding: 15px 15px;
+    border-left: 1px solid #dadada;
+}
+.logo {
+    display: flex;
+    color: black;
+    width: 100%;
+    align-items: center;
+    height: 60px;
+    padding: 0px 15px;
+    border-bottom: 1px solid #dadada;;
+    .demo-logo-vertical {
+        background-image: url(../../shared/assets/logo/logo.svg);
+        height: 50px;
+        width: 50px;
+        background-repeat: no-repeat;
+        background-size: contain;
+    }
+    .title-logo {
+        margin-left: auto;
+    }
+}
+.ant-menu.ant-menu-root {
+    border-right: none !important;
+}
