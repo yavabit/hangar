@@ -3,6 +3,7 @@ import type { Folder, Project, StoreType } from "@schemas/store.schema";
 
 export type AppStore = {
 	hydrated: boolean;
+	loadError: string | null;
 
 	settings: StoreType["settings"];
 	projects: StoreType["projects"];
@@ -41,6 +42,7 @@ const initialSettings: StoreType["settings"] = {
 
 export const useAppStore = create<AppStore>((set) => ({
 	hydrated: false,
+	loadError: null,
 
 	settings: initialSettings,
 	projects: [],
@@ -51,14 +53,21 @@ export const useAppStore = create<AppStore>((set) => ({
 
 	// --- LOAD ---
 	load: async () => {
-		const state = await window.api.app.get();
+		set({ loadError: null });
 
-		set({
-			settings: state.settings,
-			projects: state.projects,
-			folders: state.folders,
-			hydrated: true,
-		});
+		try {
+			const state = await window.api.app.get();
+
+			set({
+				settings: state.settings,
+				projects: state.projects,
+				folders: state.folders,
+				hydrated: true,
+			});
+		} catch (e) {
+			console.error(e);
+			set({ loadError: e instanceof Error ? e.message : String(e) });
+		}
 	},
 
 	// --- SETTINGS ---

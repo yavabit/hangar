@@ -4,8 +4,8 @@ body {
   display: flex;
   scrollbar-width: thin;
   scrollbar-gutter: stable;
-  background-image: url('./wavy-lines.svg');
-  background-size: cover;
+  background: #f4f5fb;
+  color: rgba(0, 0, 0, 0.88);
   user-select: none;
 }
 

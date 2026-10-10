@@ -1,13 +1,17 @@
 import { useAppStore } from "@renderer/store/app.store";
-import { useEffect } from "react";
-import { Loading } from "@renderer/shared/components/UI/Loading/Loading";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
+import { Button, Result } from "antd";
+import { motion } from "framer-motion";
 import { Router } from "./router";
+import { getSplashRemainingTime, hideSplash } from "./splash";
 
-function App(): React.JSX.Element {
+function App(): React.JSX.Element | null {
 	const load = useAppStore((s) => s.load);
 	const hydrated = useAppStore((s) => s.hydrated);
+	const loadError = useAppStore((s) => s.loadError);
 	const setProjects = useAppStore((s) => s.setProjects);
+
+	const [splashDone, setSplashDone] = useState(false);
 
 	useEffect(() => {
 		void load();
@@ -21,39 +25,47 @@ function App(): React.JSX.Element {
 		return unsubscribe;
 	}, [setProjects]);
 
-	return (
-		<AnimatePresence mode="wait">
-			{!hydrated && (
-				<motion.div
-					key="loader"
-					initial={{ opacity: 1 }}
-					animate={{ opacity: 1 }}
-					exit={{
-						opacity: 0,
-						transition: { duration: 0.35, ease: "easeOut" },
-					}}
-				>
-					<Loading />
-				</motion.div>
-			)}
+	useEffect(() => {
+		if (!hydrated && !loadError) {
+			return;
+		}
 
-			{hydrated && (
-				<motion.div
-					className="app"
-					initial={{ opacity: 0, y: 24, scale: 0.98 }}
-					animate={{ opacity: 1, y: 0, scale: 1 }}
-					transition={{
-						duration: 1.25,
-						ease: [0.25, 0.1, 0.25, 1],
-					}}
-					style={{
-						willChange: "transform, opacity",
-					}}
-				>
-					<Router />
-				</motion.div>
-			)}
-		</AnimatePresence>
+		const timer = setTimeout(() => {
+			hideSplash();
+			setSplashDone(true);
+		}, loadError ? 0 : getSplashRemainingTime());
+
+		return () => clearTimeout(timer);
+	}, [hydrated, loadError]);
+
+	if (loadError && !hydrated) {
+		return (
+			<Result
+				status="error"
+				title="Не удалось загрузить данные"
+				subTitle={loadError}
+				extra={
+					<Button type="primary" onClick={() => void load()}>
+						Повторить
+					</Button>
+				}
+			/>
+		);
+	}
+
+	if (!hydrated) {
+		return null;
+	}
+
+	return (
+		<motion.div
+			className="app"
+			initial={{ opacity: 0, y: 12 }}
+			animate={splashDone ? { opacity: 1, y: 0 } : undefined}
+			transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
+		>
+			<Router />
+		</motion.div>
 	);
 }
 

@@ -1,16 +1,129 @@
 <!doctype html>
-<html>
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Electron</title>
+    <title>Project Launcher</title>
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:"
     />
+    <style>
+      html,
+      body {
+        background: #f4f5fb;
+      }
+
+      .splash {
+        position: fixed;
+        inset: 0;
+        z-index: 2000;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 14px;
+        background:
+          radial-gradient(circle at 30% 25%, rgba(59, 130, 246, 0.14), transparent 45%),
+          radial-gradient(circle at 70% 75%, rgba(139, 61, 240, 0.12), transparent 45%),
+          #f4f5fb;
+        font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        transition:
+          opacity 0.45s ease,
+          transform 0.45s ease;
+      }
+
+      .splash--hidden {
+        opacity: 0;
+        transform: scale(1.03);
+        pointer-events: none;
+      }
+
+      .splash__logo {
+        width: 96px;
+        height: 96px;
+        filter: drop-shadow(0 12px 24px rgba(91, 91, 240, 0.35));
+        animation:
+          splash-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both,
+          splash-float 2.4s ease-in-out 0.6s infinite;
+      }
+
+      .splash__title {
+        margin-top: 6px;
+        font-size: 24px;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        color: #1f2340;
+        animation: splash-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s both;
+      }
+
+      .splash__status {
+        font-size: 13px;
+        color: #7a7f99;
+        animation: splash-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both;
+      }
+
+      .splash__progress {
+        position: relative;
+        width: 160px;
+        height: 3px;
+        overflow: hidden;
+        border-radius: 3px;
+        background: rgba(91, 91, 240, 0.15);
+        animation: splash-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both;
+      }
+
+      .splash__progress::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: -40%;
+        width: 40%;
+        border-radius: 3px;
+        background: linear-gradient(90deg, #3b82f6, #8b3df0);
+        animation: splash-progress 1.1s ease-in-out infinite;
+      }
+
+      @keyframes splash-in {
+        from {
+          opacity: 0;
+          transform: translateY(10px) scale(0.96);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      @keyframes splash-float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-6px);
+        }
+      }
+
+      @keyframes splash-progress {
+        from {
+          left: -40%;
+        }
+        to {
+          left: 100%;
+        }
+      }
+    </style>
   </head>
 
   <body>
+    <div id="splash" class="splash" role="status" aria-live="polite">
+      <img class="splash__logo" src="/src/shared/assets/logo/logo.svg" alt="" />
+      <div class="splash__title">Project Launcher</div>
+      <div class="splash__progress"></div>
+      <div class="splash__status">Загружаем проекты…</div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
