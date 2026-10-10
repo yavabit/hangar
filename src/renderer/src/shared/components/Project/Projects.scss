@@ -1,38 +1,65 @@
 .project-title__with-lnk {
 	display: flex;
 	align-items: center;
-	
+	min-width: 0;
+
 	.fav-ico-lnk-wrapper {
-        opacity: 0;
-        transform: translateX(-10px);
-        transition: all 0.3s ease;
-        width: 0;
-        overflow: hidden;
-        display: flex;
+		opacity: 0;
+		transform: translateX(-10px);
+		transition: all 0.3s ease;
+		width: 0;
+		overflow: hidden;
+		display: flex;
+		flex-shrink: 0;
 		margin-top: 3px;
-        align-items: center;
-        margin-right: 0;
-		&.animated {
+		align-items: center;
+		margin-right: 0;
+
+		// Избранный проект показывает звезду всегда, остальные — только при наведении
+		&.animated,
+		&.is-favorite {
 			opacity: 1;
-                transform: translateX(0);
-                width: 28px;
-                margin-right: 4px;
-                overflow: visible;
+			transform: translateX(0);
+			width: 28px;
+			margin-right: 4px;
+			overflow: visible;
 		}
-    }	
+	}
 }
 .project-card {
-    &:hover {
-        .project-title__with-lnk {
-            .fav-ico-lnk-wrapper {
-                opacity: 1;
-                transform: translateX(0);
-                width: 28px;
-                margin-right: 4px;
-                overflow: visible;
-            }
-        }
-    }
+	&:hover {
+		.project-title__with-lnk {
+			.fav-ico-lnk-wrapper {
+				opacity: 1;
+				transform: translateX(0);
+				width: 28px;
+				margin-right: 4px;
+				overflow: visible;
+			}
+		}
+	}
+
+	.ant-card-head-title {
+		min-width: 0;
+	}
+}
+
+.project-card__line {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-width: 0;
+	line-height: 22px;
+
+	.anticon,
+	svg {
+		flex-shrink: 0;
+	}
+}
+
+.project-card__text {
+	flex: 1;
+	min-width: 0;
 }
 
 .ant-list-item-meta-content {

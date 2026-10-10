@@ -1,18 +1,20 @@
-import { useState } from "react";
+import { FC, useState } from "react";
 import { Tooltip } from "antd";
 import { StarOutlined, StarFilled } from "@ant-design/icons";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import styles from "./FavoriteStar.module.scss";
 
-export const FavoriteStar: FC<{
+type FavoriteStarProps = {
 	isFavorite: boolean;
 	onFavorite: (id: string) => void;
 	itemId: string;
 	className?: string;
-}> = ({ isFavorite, onFavorite, itemId, className = "" }) => {
+};
+
+export const FavoriteStar: FC<FavoriteStarProps> = ({ isFavorite, onFavorite, itemId, className = "" }) => {
 	const [isAnimating, setIsAnimating] = useState(false);
 
-	const handleClick = (e: React.MouseEvent) => {
+	const handleClick = (e: React.MouseEvent): void => {
 		e.stopPropagation();
 
 		setIsAnimating(true);
@@ -25,7 +27,9 @@ export const FavoriteStar: FC<{
 	};
 
 	return (
-		<div className={`${styles["favorite-star-wrapper"]} ${className} ${isAnimating ? "animated" : ""}`}>
+		<div
+			className={`${styles["favorite-star-wrapper"]} ${className} ${isAnimating ? "animated" : ""} ${isFavorite ? "is-favorite" : ""}`}
+		>
 			<Tooltip
 				title={isFavorite ? "Удалить из избранного" : "Добавить в избранное"}
 			>

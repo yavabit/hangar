@@ -7,8 +7,10 @@ import styles from "./ProjectCardWrapper.module.scss";
 
 const { Text } = Typography;
 
+type CardType = "project" | "folder";
+
 export const CardTitle: FC<{ title: string }> = ({ title }) => (
-	<div style={{ fontSize: 20, fontWeight: 500 }}>{title}</div>
+	<div className={styles.title} title={title}>{title}</div>
 );
 
 type ProjectCardWrapperProps = {
@@ -18,23 +20,36 @@ type ProjectCardWrapperProps = {
 	onDelete?: (deleteFolderProjects: boolean) => void;
 	onCardClick?: () => void;
 	className?: string;
-	type?: "project" | "folder";
+	type?: CardType;
 	name?: string;
+	projectsCount?: number;
 };
 
-const DeleteConfirmDescription = ({ type, name, onAllDelete }) => {
+type DeleteConfirmDescriptionProps = {
+	type: CardType;
+	name?: string;
+	projectsCount: number;
+	deleteProjects: boolean;
+	onDeleteProjectsChange: (value: boolean) => void;
+};
+
+const DeleteConfirmDescription: FC<DeleteConfirmDescriptionProps> = ({
+	type,
+	name,
+	projectsCount,
+	deleteProjects,
+	onDeleteProjectsChange,
+}) => {
 	if (type === "project") {
-		return `Вы действительно хотите удалить проект «${name}»?`;
+		return <Text>Вы действительно хотите удалить проект <Text strong>«{name}»</Text>?</Text>;
 	}
 
-	if (type === "folder") {
-		return (
-			<div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-				<div>
-					<Text>
-						Вы действительно хотите удалить папку <Text strong>«{name}»</Text>?
-					</Text>
-				</div>
+	return (
+		<div style={{ display: "flex", flexDirection: "column", gap: 10, maxWidth: 320 }}>
+			<Text>
+				Вы действительно хотите удалить папку <Text strong>«{name}»</Text>?
+			</Text>
+			{projectsCount > 0 && (
 				<div
 					style={{
 						display: "flex",
@@ -45,12 +60,16 @@ const DeleteConfirmDescription = ({ type, name, onAllDelete }) => {
 						borderRadius: 8,
 					}}
 				>
-					<Switch size="small" onChange={onAllDelete} />
-					<Text type="secondary">Удалить все проекты в папке</Text>
+					<Switch size="small" checked={deleteProjects} onChange={onDeleteProjectsChange} />
+					<Text type="secondary">
+						{deleteProjects
+							? "Проекты из папки будут удалены"
+							: "Проекты останутся в общем списке"}
+					</Text>
 				</div>
-			</div>
-		);
-	}
+			)}
+		</div>
+	);
 };
 
 export const ProjectCardWrapper: FC<ProjectCardWrapperProps> = ({
@@ -60,39 +79,57 @@ export const ProjectCardWrapper: FC<ProjectCardWrapperProps> = ({
 	onDelete,
 	onCardClick,
 	className,
-	type,
-	name
+	type = "project",
+	name,
+	projectsCount = 0,
 }) => {
 
-	const [allDelete, setAllDelete] = useState(false);
+	const [deleteProjects, setDeleteProjects] = useState(false);
 
-	const handleDelete = (e) => {
-		e.stopPropagation();
-		onDelete && onDelete(allDelete);
-	}
+	const handleDelete = (e?: React.MouseEvent<HTMLElement>): void => {
+		e?.stopPropagation();
+		onDelete?.(deleteProjects);
+	};
+
+	const handleOpenChange = (open: boolean): void => {
+		if (open) {
+			setDeleteProjects(false);
+		}
+	};
 
 	return (
 		<Card
 			{...sharedCardProps}
 			variant="borderless"
-			className={styles.card + (className ? ` ${className}` : "")}
+			className={`${styles.card} ${onCardClick ? styles.clickable : ""} ${className ?? ""}`}
 			onClick={onCardClick}
 		>
 			{deletable && (
-				<Popconfirm
-					title={`Удаление ${type == "folder" ? "папки" : "проекта"}`}
-					description={<DeleteConfirmDescription type={type} name={name} onAllDelete={setAllDelete}/>}
-					onConfirm={handleDelete}
-					okText="Да"
-					cancelText="Нет"
-				>
-					<Button
-						type="text"
-						icon={<DeleteOutlined />}
-						className={styles.deleteButton}
-						onClick={(e) => e.stopPropagation()}
-					/>
-				</Popconfirm>
+				<span onClick={(e) => e.stopPropagation()}>
+					<Popconfirm
+						title={`Удаление ${type === "folder" ? "папки" : "проекта"}`}
+						description={
+							<DeleteConfirmDescription
+								type={type}
+								name={name}
+								projectsCount={projectsCount}
+								deleteProjects={deleteProjects}
+								onDeleteProjectsChange={setDeleteProjects}
+							/>
+						}
+						onConfirm={handleDelete}
+						onOpenChange={handleOpenChange}
+						okText="Удалить"
+						okButtonProps={{ danger: true }}
+						cancelText="Отмена"
+					>
+						<Button
+							type="text"
+							icon={<DeleteOutlined />}
+							className={styles.deleteButton}
+						/>
+					</Popconfirm>
+				</span>
 			)}
 			{children}
 		</Card>
