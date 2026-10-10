@@ -11,12 +11,12 @@ export class FoldersStorage {
 		return store.get("folders").find((folder) => folder.id === id);
 	}
 
-	static add(project: Folder): Folder {
+	static add(folder: Omit<Folder, "id">): Folder {
 		const folders = store.get("folders");
 
 		const folderID = crypto.randomUUID();
 
-		const addFolder = { ...project, id: folderID };
+		const addFolder = { ...folder, id: folderID };
 
 		folders.push(addFolder);
 

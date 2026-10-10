@@ -3,11 +3,13 @@ import { useAppNotification } from "./useAppNotification";
 import { foldersApi } from "../api/folders.api";
 import { Folder } from "@schemas/store.schema";
 
+export type FolderInput = Omit<Folder, "id">;
+
 type UseFolderType = {
 	folders: Folder[];
-	addFolder: (folder: Folder) => Promise<void>;
+	addFolder: (folder: FolderInput) => Promise<void>;
 	updateFolder: (id: Folder["id"], patch: Partial<Folder>) => Promise<void>;
-	removeFolder:(id: Folder["id"], deleteFolderProjects: boolean) => Promise<void>;
+	removeFolder: (id: Folder["id"], deleteFolderProjects: boolean) => Promise<void>;
 };
 
 export const useFolders = (): UseFolderType => {
@@ -16,15 +18,16 @@ export const useFolders = (): UseFolderType => {
 	const addLocal = useAppStore((s) => s.addFolder);
 	const updateLocal = useAppStore((s) => s.updateFolder);
 	const removeLocal = useAppStore((s) => s.removeFolder);
+	const setProjects = useAppStore((s) => s.setProjects);
 
 	const { showSuccess, showError } = useAppNotification();
 
-	const addFolder = async (folder: Folder): Promise<void> => {
+	const addFolder = async (folder: FolderInput): Promise<void> => {
 		try {
 			const newFolder = await foldersApi.add(folder);
 			addLocal(newFolder);
 
-			showSuccess("folder_add", { message: "Папка добавлена" });
+			showSuccess("folder_add", { message: "Папка добавлена", description: newFolder.name });
 		} catch(e) {
 			showError("folder_add", { message: "Ошибка добавления папки" });
 			console.log(e)
@@ -32,7 +35,7 @@ export const useFolders = (): UseFolderType => {
 	};
 
 	const updateFolder = async (id: Folder["id"], patch: Partial<Folder>): Promise<void> => {
-		const prev = folders;
+		const prev = useAppStore.getState().folders;
 
 		updateLocal(id, patch);
 
@@ -46,14 +49,21 @@ export const useFolders = (): UseFolderType => {
 		}
 	};
 
-	const removeFolder = async (id: Folder["id"], _deleteFolderProjects: boolean): Promise<void> => {
-		const prev = folders;
+	const removeFolder = async (id: Folder["id"], deleteFolderProjects: boolean): Promise<void> => {
+		const prev = useAppStore.getState().folders;
 
 		removeLocal(id);
 
 		try {
-			await foldersApi.remove(id);
-			showSuccess("folder_remove", { message: "Папка удалена" });
+			const projects = await foldersApi.remove(id, deleteFolderProjects);
+			setProjects(projects);
+
+			showSuccess("folder_remove", {
+				message: "Папка удалена",
+				description: deleteFolderProjects
+					? "Проекты из папки тоже удалены"
+					: "Проекты из папки перенесены в общий список",
+			});
 		} catch {
 			useAppStore.setState({ folders: prev });
 

@@ -1,4 +1,8 @@
-export const projectsApi = {
+import type { ElectronApi } from "../../../../shared/api/api.types";
+
+type ProjectsApi = ElectronApi["projects"];
+
+export const projectsApi: ProjectsApi = {
 	getAll: () => window.api.projects.getAll(),
 
 	add: (project) => window.api.projects.add(project),
@@ -7,9 +11,9 @@ export const projectsApi = {
 
 	update: (id, data) => window.api.projects.update(id, data),
 
-	openFolder: (projectPath: string) => window.api.projects.openFolder(projectPath),
+	openFolder: (projectPath) => window.api.projects.openFolder(projectPath),
 
-	openInIde: (projectPath: string) => window.api.projects.openInIde(projectPath),
+	openInIde: (projectPath) => window.api.projects.openInIde(projectPath),
+
+	inspectPath: (projectPath) => window.api.projects.inspectPath(projectPath),
 };
-
-export type ProjectsAPI = typeof projectsApi;

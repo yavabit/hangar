@@ -10,8 +10,20 @@ export function registerProjectsIpc(): void {
 		return ProjectsStorage.getAll();
 	});
 
-	ipcMain.handle("projects:add", (_, project) => {
-		return ProjectsStorage.add(project);
+	ipcMain.handle("projects:add", (event, project: Omit<Project, "id">) => {
+		const newProject = ProjectsStorage.add({
+			...project,
+			isFavorite: project.isFavorite ?? false,
+			lastOpened: project.lastOpened || new Date().toISOString(),
+		});
+
+		void ProjectService.refreshProjectLastOpened(newProject.id).then((projects) => {
+			if (projects && !event.sender.isDestroyed()) {
+				event.sender.send("app:lastOpenedUpdated", projects);
+			}
+		});
+
+		return newProject;
 	});
 
 	ipcMain.handle("projects:update", (_, id: Project["id"], patch: Partial<Project>) => {
@@ -24,6 +36,10 @@ export function registerProjectsIpc(): void {
 
 	ipcMain.handle("projects:openFolder", async (_, projectPath: string) => {
 		return ProjectService.openFolder(projectPath);
+	});
+
+	ipcMain.handle("projects:inspectPath", async (_, projectPath: string) => {
+		return ProjectService.inspectPath(projectPath);
 	});
 
 	ipcMain.handle("projects:openInIde", async (_, projectPath: string) => {

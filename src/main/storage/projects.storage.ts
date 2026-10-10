@@ -38,4 +38,18 @@ export class ProjectsStorage {
 
 		store.set("projects", projects);
 	}
+
+	static removeByFolder(folderId: string): void {
+		const projects = store.get("projects").filter((p) => p.folderId !== folderId);
+
+		store.set("projects", projects);
+	}
+
+	static detachFromFolder(folderId: string): void {
+		const projects = store
+			.get("projects")
+			.map((p) => (p.folderId === folderId ? { ...p, folderId: undefined } : p));
+
+		store.set("projects", projects);
+	}
 }

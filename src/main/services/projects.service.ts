@@ -1,8 +1,9 @@
 import { shell } from "electron";
 import { spawn } from "child_process";
 import { promises as fs } from "fs";
-import { join } from "path";
+import { basename, join } from "path";
 import { Project } from "../../shared/schemas/store.schema";
+import type { PathInfo } from "../../shared/api/api.types";
 import { ProjectsStorage } from "../storage/projects.storage";
 
 export type IdeType = "vscode" | "webstorm" | "intellij";
@@ -151,6 +152,45 @@ export class ProjectService {
 				resolve();
 			});
 		});
+	}
+
+	static async inspectPath(projectPath: string): Promise<PathInfo> {
+		return {
+			name: basename(projectPath),
+			gitUrl: await this.getGitRemoteUrl(projectPath),
+		};
+	}
+
+	private static async getGitRemoteUrl(projectPath: string): Promise<string | undefined> {
+		let config: string;
+		try {
+			config = await fs.readFile(join(projectPath, ".git", "config"), "utf8");
+		} catch {
+			return undefined;
+		}
+
+		const remotes = [...config.matchAll(/\[remote "([^"]+)"\]([^[]*)/g)].map((match) => ({
+			name: match[1],
+			url: /^\s*url\s*=\s*(.+?)\s*$/m.exec(match[2])?.[1],
+		}));
+
+		const origin = remotes.find((remote) => remote.name === "origin" && remote.url);
+		return origin?.url ?? remotes.find((remote) => remote.url)?.url;
+	}
+
+	static async refreshProjectLastOpened(id: Project["id"]): Promise<Project[] | null> {
+		const project = ProjectsStorage.getAll().find((p) => p.id === id);
+		if (!project) {
+			return null;
+		}
+
+		const latestDate = await this.getLatestFileModifiedDate(project.path);
+		if (!latestDate) {
+			return null;
+		}
+
+		ProjectsStorage.update(id, { lastOpened: latestDate.toISOString() });
+		return ProjectsStorage.getAll();
 	}
 
 	static async refreshLastOpenedTimestamps(): Promise<Project[]> {

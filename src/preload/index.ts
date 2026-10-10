@@ -15,11 +15,12 @@ const api: ElectronApi = {
 		update: (id, data) => ipcRenderer.invoke("projects:update", id, data),
 		openFolder: (projectPath) => ipcRenderer.invoke("projects:openFolder", projectPath),
 		openInIde: (projectPath) => ipcRenderer.invoke("projects:openInIde", projectPath),
+		inspectPath: (projectPath) => ipcRenderer.invoke("projects:inspectPath", projectPath),
 	},
 	folders: {
 		getAll: () => ipcRenderer.invoke("folders:getAll"),
 		add: (folder) => ipcRenderer.invoke("folders:add", folder),
-		remove: (id) => ipcRenderer.invoke("folders:remove", id),
+		remove: (id, deleteProjects) => ipcRenderer.invoke("folders:remove", id, deleteProjects),
 		update: (id, data) => ipcRenderer.invoke("folders:update", id, data),
 	},
 	fileSystem: {
