@@ -1,25 +1,47 @@
 import { FC, ReactNode, useState } from "react";
-import { FolderOutlined, SettingOutlined, CodeOutlined, StarOutlined } from "@ant-design/icons";
-import { Layout, Menu } from "antd";
-import { Link } from "react-router-dom";
+import { AppstoreOutlined, SettingOutlined, CodeOutlined, StarOutlined } from "@ant-design/icons";
+import { Badge, Layout, Menu } from "antd";
+import { Link, useLocation } from "react-router-dom";
+import { useAppStore } from "@renderer/store/app.store";
+import logo from "@renderer/shared/assets/logo/logo.svg";
 
 import "./Layout.scss";
 
 const { Content, Sider } = Layout;
 
-const menuItems = [
-	{ key: "/fav", label: <Link to="/fav">Избранное</Link>, icon: <StarOutlined /> },
-	{ key: "/", label: <Link to="/">Проекты</Link>, icon: <FolderOutlined /> },
-	{ key: "/scripts", label: <Link to="/scripts">Скрипты</Link>, icon: <CodeOutlined /> },
-	{
-		key: "/settings",
-		label: <Link to="/settings">Настройки</Link>,
-		icon: <SettingOutlined />,
-	},
-];
+const getSelectedKey = (pathname: string): string => {
+	if (pathname.startsWith("/folder/")) {
+		return "/";
+	}
+
+	return pathname;
+};
 
 export const FullLayout: FC<{ children: ReactNode }> = ({ children }) => {
 	const [collapsed, setCollapsed] = useState(false);
+	const { pathname } = useLocation();
+
+	const favoritesCount = useAppStore((s) => s.projects.filter((p) => p.isFavorite).length);
+
+	const menuItems = [
+		{ key: "/", label: <Link to="/">Проекты</Link>, icon: <AppstoreOutlined /> },
+		{
+			key: "/fav",
+			label: (
+				<Link to="/fav" className="menu-link-with-count">
+					Избранное
+					{favoritesCount > 0 && <Badge count={favoritesCount} color="#faad14" size="small" />}
+				</Link>
+			),
+			icon: <StarOutlined />,
+		},
+		{ key: "/scripts", label: <Link to="/scripts">Скрипты</Link>, icon: <CodeOutlined /> },
+		{
+			key: "/settings",
+			label: <Link to="/settings">Настройки</Link>,
+			icon: <SettingOutlined />,
+		},
+	];
 
 	return (
 		<Layout style={{ minHeight: "100vh" }}>
@@ -34,15 +56,21 @@ export const FullLayout: FC<{ children: ReactNode }> = ({ children }) => {
 					position: 'sticky',
 					insetInlineStart: 0,
 					top: 0,
-				}}	
+				}}
 			>
-				<div className="logo">
-					<div className="demo-logo-vertical" />
-					{!collapsed && <div className="title-logo">Project Launcher</div>}
-				</div>
+				<Link to="/" className={`sidebar-logo ${collapsed ? "sidebar-logo--collapsed" : ""}`}>
+					<img className="sidebar-logo__image" src={logo} alt="" />
+					{!collapsed && (
+						<div className="sidebar-logo__title">
+							Project
+							<br />
+							Launcher
+						</div>
+					)}
+				</Link>
 				<Menu
 					theme="light"
-					defaultSelectedKeys={["/"]}
+					selectedKeys={[getSelectedKey(pathname)]}
 					mode="inline"
 					items={menuItems}
 				/>
