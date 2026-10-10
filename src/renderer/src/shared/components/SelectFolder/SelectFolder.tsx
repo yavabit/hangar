@@ -6,27 +6,26 @@ import { api } from "@renderer/shared/api";
 const { Text } = Typography;
 
 type SelectFolderProps = {
-	onSelect: (path: string) => void;
+	value?: string;
+	onChange?: (path: string) => void;
+	onSelect?: (path: string) => void;
 	path?: string;
 };
 
-export const SelectFolder: FC<SelectFolderProps> = ({ onSelect, path }) => {
+export const SelectFolder: FC<SelectFolderProps> = ({ value, onChange, onSelect, path }) => {
 	const [localPath, setLocalPath] = useState<string | undefined>(path);
 	const [loading, setLoading] = useState<boolean>(false);
 
-	const handleSelectFolder = async (): Promise<void> => {
-		if (!api.fileSystem.selectFolder) {
-			message.warning("Функция выбора папки недоступна.");
-			return;
-		}
+	const currentPath = value ?? localPath;
 
+	const handleSelectFolder = async (): Promise<void> => {
 		setLoading(true);
 		try {
 			const folderPath = await api.fileSystem.selectFolder();
 			if (folderPath) {
 				setLocalPath(folderPath);
+				onChange?.(folderPath);
 				onSelect?.(folderPath);
-				message.success(`Выбрана папка: ${folderPath}`);
 			}
 		} catch (error: unknown) {
 			message.error("Ошибка при выборе папки");
@@ -50,17 +49,18 @@ export const SelectFolder: FC<SelectFolderProps> = ({ onSelect, path }) => {
 		>
 			<FolderOpenOutlined style={{ color: "#bfbfbf" }} />
 			<Text
+				title={currentPath}
 				style={{
 					flex: 1,
 					fontSize: 14,
-					color: localPath ? "#333" : "#bfbfbf",
+					color: currentPath ? "#333" : "#bfbfbf",
 					fontFamily: "monospace",
 					overflow: "hidden",
 					textOverflow: "ellipsis",
 					whiteSpace: "nowrap",
 				}}
 			>
-				{localPath || "Папка не выбрана"}
+				{currentPath || "Папка не выбрана"}
 			</Text>
 			<Button
 				type="text"
