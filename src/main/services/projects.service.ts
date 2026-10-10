@@ -7,6 +7,30 @@ import { ProjectsStorage } from "../storage/projects.storage";
 
 export type IdeType = "vscode" | "webstorm" | "intellij";
 
+const IGNORED_DIRS = new Set([
+	"node_modules",
+	".git",
+	".svn",
+	".hg",
+	".idea",
+	".next",
+	".nuxt",
+	".turbo",
+	".cache",
+	".gradle",
+	"dist",
+	"build",
+	"out",
+	"target",
+	"coverage",
+	"vendor",
+	"bin",
+	"obj",
+	"__pycache__",
+	".venv",
+	"venv",
+]);
+
 export class ProjectService {
 	static async openFolder(projectPath: string): Promise<void> {
 		const error = await shell.openPath(projectPath);
@@ -177,7 +201,9 @@ export class ProjectService {
 				const entryPath = join(currentPath, entry.name);
 
 				if (entry.isDirectory()) {
-					queue.push(entryPath);
+					if (!IGNORED_DIRS.has(entry.name)) {
+						queue.push(entryPath);
+					}
 					continue;
 				}
 

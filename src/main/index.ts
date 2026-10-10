@@ -11,11 +11,17 @@ import { ProjectService } from './services/projects.service'
 
 const LAST_OPENED_REFRESH_INTERVAL_MS = 5 * 60 * 1000;
 
+const WINDOW_BACKGROUND = '#f4f5fb'
+
 function createWindow(): BrowserWindow {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 1400,
     height: 800,
+    minWidth: 960,
+    minHeight: 600,
+    title: 'Project Launcher',
+    backgroundColor: WINDOW_BACKGROUND,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -30,7 +36,9 @@ function createWindow(): BrowserWindow {
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
-    shell.openExternal(details.url)
+    if (/^https?:\/\//i.test(details.url)) {
+      shell.openExternal(details.url)
+    }
     return { action: 'deny' }
   })
 
@@ -65,7 +73,7 @@ app.whenReady().then(() => {
   ipcMain.on('ping', () => console.log('pong'))
 
   const mainWindow = createWindow()
-  startLastOpenedRefresh(mainWindow)
+  mainWindow.webContents.once('did-finish-load', () => startLastOpenedRefresh(mainWindow))
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
@@ -77,14 +85,17 @@ app.whenReady().then(() => {
     const refresh = async (): Promise<void> => {
       try {
         const allProjects = await ProjectService.refreshLastOpenedTimestamps();
-        window.webContents.send("app:lastOpenedUpdated", allProjects);
+        if (!window.isDestroyed()) {
+          window.webContents.send("app:lastOpenedUpdated", allProjects);
+        }
       } catch (error) {
         console.error("Failed to refresh project lastOpened timestamps", error);
       }
     };
 
     void refresh();
-    setInterval(refresh, LAST_OPENED_REFRESH_INTERVAL_MS);
+    const timer = setInterval(refresh, LAST_OPENED_REFRESH_INTERVAL_MS);
+    window.on('closed', () => clearInterval(timer));
   }
 })
 
