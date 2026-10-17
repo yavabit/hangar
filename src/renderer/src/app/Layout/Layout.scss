@@ -1,5 +1,4 @@
 .main-layout {
-    /* background-color: var(--color-background-mute); */
     font-family:
         ui-monospace,
         SFMono-Regular,
@@ -10,8 +9,6 @@
         monospace;
     font-size: 85%;
     min-height: 100vh;
-    /* background-image: url('../../shared/assets/wavy-lines.svg'); */
-    background-size: cover;
 	padding: 20px 24px;
     border-left: 1px solid #ececec;
 }
@@ -46,6 +43,47 @@
         font-size: 15px;
         font-weight: 600;
         line-height: 1.15;
+        white-space: nowrap;
+    }
+}
+.sidebar-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: calc(100% - 16px);
+    margin: 12px 8px 0;
+    padding: 6px 10px;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    background: #fafafa;
+    color: rgba(0, 0, 0, 0.45);
+    font: inherit;
+    cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+        border-color: #91caff;
+        color: #1677ff;
+    }
+
+    &--collapsed {
+        justify-content: center;
+    }
+
+    &__text {
+        flex: 1;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    kbd {
+        padding: 0 5px;
+        border: 1px solid #d9d9d9;
+        border-radius: 4px;
+        font-family: inherit;
+        font-size: 11px;
+        line-height: 16px;
+        background: #fff;
         white-space: nowrap;
     }
 }

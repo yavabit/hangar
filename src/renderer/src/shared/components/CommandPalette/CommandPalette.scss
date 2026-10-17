@@ -1,0 +1,110 @@
+.command-palette {
+	&__input {
+		padding: 14px 18px !important;
+		font-size: 18px !important;
+		border-bottom: 1px solid #f0f0f0 !important;
+		border-radius: 0 !important;
+	}
+
+	&__list {
+		max-height: 420px;
+		overflow: auto;
+		padding: 6px;
+	}
+
+	&__empty {
+		padding: 32px;
+		text-align: center;
+		color: rgba(0, 0, 0, 0.45);
+	}
+
+	&__item {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+		padding: 8px 12px;
+		border-radius: 8px;
+		cursor: pointer;
+
+		&--active {
+			background: #eef3ff;
+		}
+	}
+
+	&__icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 20px;
+		flex-shrink: 0;
+	}
+
+	&__dot {
+		width: 6px;
+		height: 6px;
+		border-radius: 50%;
+		background: #d9d9d9;
+	}
+
+	&__main {
+		flex: 1;
+		min-width: 0;
+	}
+
+	&__title {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		font-size: 15px;
+		font-weight: 500;
+	}
+
+	&__subtitle {
+		display: flex;
+		min-width: 0;
+		font-size: 12px;
+		color: rgba(0, 0, 0, 0.45);
+	}
+
+	&__meta {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-end;
+		flex-shrink: 0;
+		max-width: 35%;
+		font-size: 12px;
+
+		.ant-typography {
+			font-size: 12px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			max-width: 100%;
+		}
+	}
+
+	&__footer {
+		display: flex;
+		gap: 16px;
+		padding: 8px 16px;
+		border-top: 1px solid #f0f0f0;
+		background: #fafafa;
+		font-size: 12px;
+		color: rgba(0, 0, 0, 0.5);
+
+		kbd {
+			display: inline-block;
+			min-width: 18px;
+			margin: 0 2px;
+			padding: 0 4px;
+			border: 1px solid #d9d9d9;
+			border-bottom-width: 2px;
+			border-radius: 4px;
+			font-family: inherit;
+			font-size: 11px;
+			line-height: 16px;
+			text-align: center;
+			background: #fff;
+		}
+	}
+}

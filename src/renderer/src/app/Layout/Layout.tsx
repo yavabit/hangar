@@ -1,8 +1,9 @@
-import { FC, ReactNode, useState } from "react";
-import { AppstoreOutlined, SettingOutlined, CodeOutlined, StarOutlined } from "@ant-design/icons";
-import { Badge, Layout, Menu } from "antd";
-import { Link, useLocation } from "react-router-dom";
+import { FC, useState } from "react";
+import { AppstoreOutlined, SettingOutlined, CodeOutlined, SearchOutlined, StarOutlined } from "@ant-design/icons";
+import { Badge, Layout, Menu, Tooltip } from "antd";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import { useAppStore } from "@renderer/store/app.store";
+import { CommandPalette } from "@renderer/shared/components/CommandPalette/CommandPalette";
 import logo from "@renderer/shared/assets/logo/logo.svg";
 
 import "./Layout.scss";
@@ -17,7 +18,7 @@ const getSelectedKey = (pathname: string): string => {
 	return pathname;
 };
 
-export const FullLayout: FC<{ children: ReactNode }> = ({ children }) => {
+export const FullLayout: FC = () => {
 	const [collapsed, setCollapsed] = useState(false);
 	const { pathname } = useLocation();
 
@@ -68,6 +69,21 @@ export const FullLayout: FC<{ children: ReactNode }> = ({ children }) => {
 						</div>
 					)}
 				</Link>
+				<Tooltip title={collapsed ? "Найти проект (Ctrl+K)" : undefined} placement="right">
+					<button
+						type="button"
+						className={`sidebar-search ${collapsed ? "sidebar-search--collapsed" : ""}`}
+						onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { code: "KeyK", ctrlKey: true }))}
+					>
+						<SearchOutlined />
+						{!collapsed && (
+							<>
+								<span className="sidebar-search__text">Найти проект</span>
+								<kbd>Ctrl K</kbd>
+							</>
+						)}
+					</button>
+				</Tooltip>
 				<Menu
 					theme="light"
 					selectedKeys={[getSelectedKey(pathname)]}
@@ -77,7 +93,10 @@ export const FullLayout: FC<{ children: ReactNode }> = ({ children }) => {
 			</Sider>
 			<Layout>
 				<Content style={{ width: "100%" }}>
-					<div className="main-layout">{children}</div>
+					<div className="main-layout">
+						<Outlet />
+					</div>
+					<CommandPalette />
 				</Content>
 			</Layout>
 		</Layout>
