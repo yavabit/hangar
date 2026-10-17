@@ -1,14 +1,19 @@
 import { useAppStore } from "@renderer/store/app.store";
 import { useAppNotification } from "./useAppNotification";
 import { projectsApi } from "../api/projects.api";
-import { Project } from "@schemas/store.schema";
+import { getIpcErrorMessage } from "../utils/ipcError";
+import { pluralize } from "../utils/pluralize";
+import { Folder, Project } from "@schemas/store.schema";
+import type { NewProject } from "@common/api/api.types";
 
-export type ProjectInput = Omit<Project, "id" | "lastOpened"> & Partial<Pick<Project, "lastOpened">>;
+export type ProjectInput = NewProject;
 
 type UseProjectType = {
 	projects: Project[];
 	addProject: (project: ProjectInput) => Promise<void>;
+	addProjects: (projects: ProjectInput[]) => Promise<void>;
 	updateProject: (id: Project["id"], patch: Partial<Project>) => Promise<void>;
+	moveProject: (id: Project["id"], folder: Folder | null) => Promise<void>;
 	removeProject: (id: Project["id"]) => Promise<void>;
 	toggleFavorite: (id: Project["id"]) => Promise<void>;
 	openProjectFolder: (id: Project["id"]) => Promise<void>;
@@ -27,10 +32,7 @@ export const useProjects = (): UseProjectType => {
 
 	const addProject = async (project: ProjectInput): Promise<void> => {
 		try {
-			const newProject = await projectsApi.add({
-				...project,
-				lastOpened: project.lastOpened ?? new Date().toISOString(),
-			});
+			const newProject = await projectsApi.add(project);
 			addLocal(newProject);
 
 			showSuccess("project_add", {
@@ -40,6 +42,24 @@ export const useProjects = (): UseProjectType => {
 		} catch (e) {
 			showError("project_add", {
 				message: "Ошибка добавления проекта",
+				description: getIpcErrorMessage(e),
+			});
+			throw e;
+		}
+	};
+
+	const addProjects = async (items: ProjectInput[]): Promise<void> => {
+		try {
+			const created = await projectsApi.addMany(items);
+			useAppStore.setState((state) => ({ projects: [...state.projects, ...created] }));
+
+			showSuccess("project_import", {
+				message: `Добавлено ${created.length} ${pluralize(created.length, ["проект", "проекта", "проектов"])}`,
+			});
+		} catch (e) {
+			showError("project_import", {
+				message: "Ошибка импорта проектов",
+				description: getIpcErrorMessage(e),
 			});
 			throw e;
 		}
@@ -62,9 +82,36 @@ export const useProjects = (): UseProjectType => {
 
 			showError("project_update", {
 				message: "Ошибка обновления",
+				description: getIpcErrorMessage(e),
 			});
 
 			throw e;
+		}
+	};
+
+	const moveProject = async (id: Project["id"], folder: Folder | null): Promise<void> => {
+		const project = findProject(id);
+		if (!project || (project.folderId ?? null) === (folder?.id ?? null)) {
+			return;
+		}
+
+		updateLocal(id, { folderId: folder?.id });
+
+		try {
+			await projectsApi.update(id, { folderId: folder?.id });
+
+			showSuccess("project_move", {
+				message: folder ? `Перемещено в «${folder.name}»` : "Убрано из папки",
+				description: project.name,
+				duration: 2,
+			});
+		} catch (e) {
+			updateLocal(id, { folderId: project.folderId });
+
+			showError("project_move", {
+				message: "Не удалось переместить проект",
+				description: getIpcErrorMessage(e),
+			});
 		}
 	};
 
@@ -120,58 +167,44 @@ export const useProjects = (): UseProjectType => {
 	};
 
 	const openProjectFolder = async (id: Project["id"]): Promise<void> => {
-		const project = findProject(id);
-		if (!project) {
-			showError("project_open_folder", {
-				message: "Проект не найден",
-			});
-			return;
-		}
-
 		try {
-			await projectsApi.openFolder(project.path);
+			await projectsApi.openFolder(id);
 			showSuccess("project_open_folder", {
 				message: "Папка проекта открыта",
+				description: findProject(id)?.name,
 				duration: 2,
 			});
 		} catch (e) {
 			showError("project_open_folder", {
 				message: "Не удалось открыть папку проекта",
-				description: project.path,
+				description: getIpcErrorMessage(e),
 			});
-			throw e;
 		}
 	};
 
 	const openProjectInIde = async (id: Project["id"]): Promise<void> => {
-		const project = findProject(id);
-		if (!project) {
-			showError("project_open_ide", {
-				message: "Проект не найден",
-			});
-			return;
-		}
-
 		try {
-			await projectsApi.openInIde(project.path);
+			const updated = await projectsApi.openInIde(id);
+			updateLocal(id, updated);
 			showSuccess("project_open_ide", {
 				message: "Проект открыт в IDE",
-				description: project.name,
+				description: updated.name,
 				duration: 2,
 			});
 		} catch (e) {
 			showError("project_open_ide", {
 				message: "Не удалось открыть проект в IDE",
-				description: "Проверьте IDE по умолчанию в настройках",
+				description: getIpcErrorMessage(e),
 			});
-			throw e;
 		}
 	};
 
 	return {
 		projects,
 		addProject,
+		addProjects,
 		updateProject,
+		moveProject,
 		removeProject,
 		toggleFavorite,
 		openProjectFolder,

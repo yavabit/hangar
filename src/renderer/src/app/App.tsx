@@ -10,6 +10,7 @@ function App(): React.JSX.Element | null {
 	const hydrated = useAppStore((s) => s.hydrated);
 	const loadError = useAppStore((s) => s.loadError);
 	const setProjects = useAppStore((s) => s.setProjects);
+	const setHealth = useAppStore((s) => s.setHealth);
 
 	const [splashDone, setSplashDone] = useState(false);
 
@@ -18,12 +19,14 @@ function App(): React.JSX.Element | null {
 	}, [load]);
 
 	useEffect(() => {
-		const unsubscribe = window.api.app.onLastOpenedUpdated((projects) => {
-			setProjects(projects);
-		});
+		const unsubscribeProjects = window.api.projects.onChanged(setProjects);
+		const unsubscribeHealth = window.api.projects.onHealth(setHealth);
 
-		return unsubscribe;
-	}, [setProjects]);
+		return () => {
+			unsubscribeProjects();
+			unsubscribeHealth();
+		};
+	}, [setProjects, setHealth]);
 
 	useEffect(() => {
 		if (!hydrated && !loadError) {

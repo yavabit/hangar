@@ -1,31 +1,35 @@
 import type { Folder, Project } from "@schemas/store.schema";
 
-export type ProjectSort = "recent" | "name";
+/** opened — недавно открытые из лаунчера, modified — недавно изменённые файлы */
+export type ProjectSort = "opened" | "modified" | "name";
 
 export type ProjectFiltersValue = {
 	search: string;
 	sort: ProjectSort;
 };
 
-export const DEFAULT_PROJECT_FILTERS: ProjectFiltersValue = {
-	search: "",
-	sort: "recent",
-};
-
 const normalize = (value?: string): string => value?.trim().toLowerCase() ?? "";
 
-const getTime = (timestamp: string): number => {
+const getTime = (timestamp?: string): number => {
+	if (!timestamp) {
+		return 0;
+	}
 	const time = new Date(timestamp).getTime();
 	return Number.isNaN(time) ? 0 : time;
 };
 
-export const matchesProject = (project: Project, search: string): boolean => {
+/**
+ * @param resolvePath полный путь проекта: искать можно и по алиасу, и по реальному пути
+ */
+export const matchesProject = (project: Project, search: string, resolvePath?: (path: string) => string): boolean => {
 	const query = normalize(search);
 	if (!query) {
 		return true;
 	}
 
-	return [project.name, project.path, project.gitUrl].some((field) => normalize(field).includes(query));
+	return [project.name, project.path, resolvePath?.(project.path), project.gitUrl].some((field) =>
+		normalize(field).includes(query),
+	);
 };
 
 export const matchesFolder = (folder: Folder, search: string): boolean => {
@@ -37,23 +41,37 @@ export const matchesFolder = (folder: Folder, search: string): boolean => {
 	return [folder.name, folder.description].some((field) => normalize(field).includes(query));
 };
 
+const byName = (a: Project, b: Project): number => a.name.localeCompare(b.name, "ru", { sensitivity: "base" });
+
 export const sortProjects = (projects: Project[], sort: ProjectSort): Project[] => {
 	const sorted = [...projects];
 
-	if (sort === "name") {
-		return sorted.sort((a, b) => a.name.localeCompare(b.name, "ru", { sensitivity: "base" }));
+	switch (sort) {
+		case "name":
+			return sorted.sort(byName);
+		case "modified":
+			return sorted.sort((a, b) => getTime(b.lastModified) - getTime(a.lastModified));
+		case "opened":
+			return sorted.sort(
+				(a, b) =>
+					getTime(b.lastOpenedAt) - getTime(a.lastOpenedAt) ||
+					getTime(b.lastModified) - getTime(a.lastModified),
+			);
 	}
-
-	return sorted.sort((a, b) => getTime(b.lastOpened) - getTime(a.lastOpened));
 };
 
-export const applyProjectFilters = (projects: Project[], filters: ProjectFiltersValue): Project[] => {
+export const applyProjectFilters = (
+	projects: Project[],
+	filters: ProjectFiltersValue,
+	resolvePath?: (path: string) => string,
+): Project[] => {
 	return sortProjects(
-		projects.filter((project) => matchesProject(project, filters.search)),
+		projects.filter((project) => matchesProject(project, filters.search, resolvePath)),
 		filters.sort,
 	);
 };
 
+/** Самая свежая дата изменения среди проектов (для карточки папки) */
 export const getLatestActivity = (projects: Project[]): string | undefined => {
-	return sortProjects(projects, "recent")[0]?.lastOpened;
+	return sortProjects(projects, "modified")[0]?.lastModified;
 };

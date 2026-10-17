@@ -1,5 +1,5 @@
-export const fileSystemApi = {
-	selectFolder: () => window.api.fileSystem.selectFolder(),
-};
+import type { ElectronApi } from "@common/api/api.types";
 
-export type FileSystemApi = typeof fileSystemApi;
+export const fileSystemApi: ElectronApi["fileSystem"] = {
+	selectFolder: (defaultPath) => window.api.fileSystem.selectFolder(defaultPath),
+};

@@ -1,4 +1,4 @@
-import type { ElectronApi } from "../../../../shared/api/api.types";
+import type { ElectronApi } from "@common/api/api.types";
 
 type FoldersApi = ElectronApi["folders"];
 

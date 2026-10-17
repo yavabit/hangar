@@ -1,50 +1,42 @@
 import { create } from "zustand";
-import type { Folder, Project, StoreType } from "@schemas/store.schema";
+import { DEFAULT_SETTINGS, type AppSettings, type Folder, type Project } from "@schemas/store.schema";
+import type { ProjectsHealth } from "@common/api/api.types";
 
 export type AppStore = {
 	hydrated: boolean;
 	loadError: string | null;
 
-	settings: StoreType["settings"];
-	projects: StoreType["projects"];
-	folders: StoreType["folders"];
+	settings: AppSettings;
+	projects: Project[];
+	folders: Folder[];
+	/** Есть ли папка на диске и состояние git. Приходит из main, не сохраняется */
+	health: ProjectsHealth;
 
 	load: () => Promise<void>;
 
-	setSettings: (s: StoreType["settings"]) => void;
+	setSettings: (s: AppSettings) => void;
 
-	setProjects: (p: StoreType["projects"]) => void;
+	setProjects: (p: Project[]) => void;
 	addProject: (p: Project) => void;
 	updateProject: (id: string, p: Partial<Project>) => void;
 	removeProject: (id: string) => void;
 
-	setFolders: (f: StoreType["folders"]) => void;
+	setHealth: (health: ProjectsHealth) => void;
+
+	setFolders: (f: Folder[]) => void;
 	addFolder: (f: Folder) => void;
 	updateFolder: (id: string, f: Partial<Folder>) => void;
 	removeFolder: (id: string) => void;
-};
-
-const initialSettings: StoreType["settings"] = {
-	common: {
-		pathAliases: [],
-		defaultIDE: "vscode",
-		defaultConsole: "powershell",
-		taskTrackerUrl: "",
-	},
-	git: {
-		gitSynch: false,
-		gitProvider: "gitlab",
-		url: "",
-	},
 };
 
 export const useAppStore = create<AppStore>((set) => ({
 	hydrated: false,
 	loadError: null,
 
-	settings: initialSettings,
+	settings: DEFAULT_SETTINGS,
 	projects: [],
 	folders: [],
+	health: {},
 
 	// --- LOAD ---
 	load: async () => {
@@ -57,6 +49,7 @@ export const useAppStore = create<AppStore>((set) => ({
 				settings: state.settings,
 				projects: state.projects,
 				folders: state.folders,
+				health: state.health,
 				hydrated: true,
 			});
 		} catch (e) {
@@ -91,6 +84,10 @@ export const useAppStore = create<AppStore>((set) => ({
 		set((state) => ({
 			projects: state.projects.filter((p) => p.id !== id),
 		})),
+
+	setHealth: (health) => {
+		set({ health });
+	},
 
 	// --- FOLDERS ---
 	setFolders: (folders) => {
