@@ -59,9 +59,16 @@ export const StatusRefreshSettingsSchema = z.object({
 	intervalMinutes: z.number().min(1).max(240),
 });
 
+export const ThemeModeSchema = z.enum(["system", "light", "dark"]);
+
+export const AppearanceSettingsSchema = z.object({
+	theme: ThemeModeSchema,
+});
+
 export const AppSettingsSchema = z.object({
 	common: CommonSettingsSchema,
 	statusRefresh: StatusRefreshSettingsSchema,
+	appearance: AppearanceSettingsSchema,
 });
 
 export const StoreSchema = z.object({
@@ -78,6 +85,8 @@ export type Folder = z.infer<typeof FolderSchema>;
 export type AppSettings = z.infer<typeof AppSettingsSchema>;
 
 export type StatusRefreshSettings = z.infer<typeof StatusRefreshSettingsSchema>;
+
+export type ThemeMode = z.infer<typeof ThemeModeSchema>;
 
 export type StoreType = z.infer<typeof StoreSchema>;
 
@@ -97,10 +106,14 @@ export const DEFAULT_SETTINGS: AppSettings = {
 		background: false,
 		intervalMinutes: 5,
 	},
+	appearance: {
+		theme: "system",
+	},
 };
 
 /** Сохранённые настройки поверх значений по умолчанию: новые поля появляются без миграций */
 export const withDefaultSettings = (settings: Partial<AppSettings> | undefined): AppSettings => ({
 	common: { ...DEFAULT_SETTINGS.common, ...settings?.common },
 	statusRefresh: { ...DEFAULT_SETTINGS.statusRefresh, ...settings?.statusRefresh },
+	appearance: { ...DEFAULT_SETTINGS.appearance, ...settings?.appearance },
 });

@@ -8,7 +8,8 @@ import { ProjectsStorage } from "./storage/projects.storage";
 import { ProjectService } from "./services/projects.service";
 import { StatusService } from "./services/status.service";
 import { getRegisteredHotkey } from "./hotkey";
-import { sendToRenderer, setQuitting, showMainWindow } from "./window";
+import { setQuitting, showMainWindow } from "./window";
+import { showPalette } from "./palette";
 
 const MAX_FAVORITES = 10;
 const MAX_RECENT = 5;
@@ -36,10 +37,6 @@ const openProject = async (project: Project): Promise<void> => {
 	}
 };
 
-const openPalette = (): void => {
-	showMainWindow();
-	sendToRenderer("app:openPalette", { fromHotkey: false });
-};
 
 const projectItem = (project: Project): MenuItemConstructorOptions => ({
 	label: project.name,
@@ -62,10 +59,10 @@ const buildMenu = (): Menu => {
 	const hotkey = getRegisteredHotkey();
 
 	const template: MenuItemConstructorOptions[] = [
-		{ label: "Открыть Project Launcher", click: showMainWindow },
+		{ label: "Открыть Hangar", click: showMainWindow },
 		{
 			label: "Найти проект…",
-			click: openPalette,
+			click: showPalette,
 			...(hotkey ? { accelerator: hotkey, registerAccelerator: false } : {}),
 		},
 		{ type: "separator" },
@@ -99,7 +96,7 @@ export function createTray(): void {
 	const image = nativeImage.createFromPath(icon).resize({ width: 16, height: 16, quality: "best" });
 
 	tray = new Tray(image);
-	tray.setToolTip("Project Launcher");
+	tray.setToolTip("Hangar");
 	tray.on("click", showMainWindow);
 
 	rebuildTrayMenu();
@@ -121,8 +118,8 @@ export function showTrayHintOnce(): void {
 		: "Откройте его значком в трее";
 
 	if (process.platform === "win32") {
-		tray.displayBalloon({ title: "Project Launcher работает в трее", content, iconType: "info" });
+		tray.displayBalloon({ title: "Hangar работает в трее", content, iconType: "info" });
 	} else {
-		new Notification({ title: "Project Launcher работает в трее", body: content }).show();
+		new Notification({ title: "Hangar работает в трее", body: content }).show();
 	}
 }

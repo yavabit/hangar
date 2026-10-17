@@ -1,4 +1,4 @@
-import { ipcMain } from "electron";
+import { ipcMain, nativeTheme } from "electron";
 
 import { SettingsStorage } from "../storage/settings.storage";
 import { applyGlobalHotkey } from "../hotkey";
@@ -21,6 +21,7 @@ export function registerSettingsIpc(): void {
 			warnings.push(hotkeyWarning);
 		}
 
+		nativeTheme.themeSource = settings.appearance.theme;
 		StatusService.applySchedule(() => !!getMainWindow()?.isVisible());
 		void StatusService.refresh("existence");
 

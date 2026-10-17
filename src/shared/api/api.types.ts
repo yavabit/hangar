@@ -1,4 +1,5 @@
 import type { AppSettings, Folder, Project } from "../schemas/store.schema";
+import type { StackId } from "../utils/stacks";
 
 export type SaveSettingsResult = {
 	settings: AppSettings;
@@ -6,11 +7,20 @@ export type SaveSettingsResult = {
 	warnings: string[];
 };
 
+export type WindowInfo = {
+	platform: NodeJS.Platform;
+	/** Окно с полупрозрачным фоном Windows 11 (Mica) */
+	mica: boolean;
+};
+
 export type AppState = {
 	settings: AppSettings;
 	projects: Project[];
 	folders: Folder[];
 	health: ProjectsHealth;
+	/** Когда статусы проверялись полностью */
+	checkedAt: string | null;
+	window: WindowInfo;
 };
 
 /** Сведения о папке проекта, найденные на диске */
@@ -38,6 +48,8 @@ export type ProjectHealth = {
 	exists: boolean;
 	/** null — не git-репозиторий или git не установлен */
 	git: GitInfo | null;
+	/** Стек, определённый по файлам проекта */
+	stack: StackId | null;
 };
 
 export type ProjectsHealth = Record<Project["id"], ProjectHealth>;
@@ -75,6 +87,8 @@ export interface ElectronApi {
 		openFolder: (id: string) => Promise<Project>;
 		/** Открывает проект в IDE и запоминает время открытия */
 		openInIde: (id: string) => Promise<Project>;
+		/** Открывает консоль по умолчанию в папке проекта */
+		openTerminal: (id: string) => Promise<void>;
 		inspectPath: (projectPath: string) => Promise<PathInfo>;
 		scan: (rootPath: string, depth: number) => Promise<ScanCandidate[]>;
 		/** Переводит полные пути проектов внутри папки алиаса на сам алиас */
@@ -83,6 +97,7 @@ export interface ElectronApi {
 		refreshStatus: (force?: boolean) => Promise<void>;
 		onChanged: (callback: (projects: Project[]) => void) => () => void;
 		onHealth: (callback: (health: ProjectsHealth) => void) => () => void;
+		onCheckedAt: (callback: (checkedAt: string) => void) => () => void;
 	};
 
 	git: {
@@ -106,8 +121,13 @@ export interface ElectronApi {
 
 	app: {
 		get: () => Promise<AppState>;
-		/** Прячет окно (в трей) */
-		hide: () => Promise<void>;
-		onOpenPalette: (callback: (options: { fromHotkey: boolean }) => void) => () => void;
+		/** Показывает отдельное окно быстрого поиска поверх всех окон */
+		showPalette: () => Promise<void>;
+		hidePalette: () => Promise<void>;
+		/** Окно быстрого поиска показано: пора очистить запрос и поставить фокус */
+		onPaletteShown: (callback: () => void) => () => void;
+		/** Показывает главное окно и открывает в нём страницу */
+		openInMain: (route: string) => Promise<void>;
+		onNavigate: (callback: (route: string) => void) => () => void;
 	};
 }

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, globalShortcut } from 'electron'
+import { app, BrowserWindow, dialog, globalShortcut, nativeTheme } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { registerSettingsIpc } from './ipc/settings.ipc'
 import { registerProjectsIpc } from './ipc/projects.ipc'
@@ -12,6 +12,7 @@ import { StatusService } from './services/status.service'
 import { applyGlobalHotkey } from './hotkey'
 import { createTray, showTrayHintOnce } from './tray'
 import { createMainWindow, getMainWindow, sendToRenderer, setQuitting, showMainWindow } from './window'
+import { createPaletteWindow } from './palette'
 
 const PROJECTS_EVENT_DEBOUNCE_MS = 100
 
@@ -22,9 +23,10 @@ if (!app.requestSingleInstanceLock()) {
 
   app.whenReady().then(() => {
     // Set app user model id for windows
-    electronApp.setAppUserModelId('com.yavabit.projectlauncher')
+    electronApp.setAppUserModelId('com.yavabit.hangar')
 
     const validation = validateStore()
+    nativeTheme.themeSource = SettingsStorage.get().appearance.theme
 
     registerAppIpc()
     registerSettingsIpc()
@@ -38,11 +40,12 @@ if (!app.requestSingleInstanceLock()) {
     })
 
     const mainWindow = createMainWindow({ onHiddenToTray: showTrayHintOnce })
+    createPaletteWindow()
 
     if (!validation.ok) {
       void dialog.showMessageBox(mainWindow, {
         type: 'warning',
-        title: 'Project Launcher',
+        title: 'Hangar',
         message: 'Данные приложения не прошли проверку',
         detail: `${validation.message}\n\nКопия файла сохранена: ${validation.backupPath ?? '-'}`,
       })
@@ -60,6 +63,7 @@ if (!app.requestSingleInstanceLock()) {
       )
     })
     StatusService.onUpdate((health) => sendToRenderer('projects:health', health))
+    StatusService.onChecked((checkedAt) => sendToRenderer('projects:checkedAt', checkedAt))
 
     mainWindow.webContents.once('did-finish-load', () => void StatusService.refresh('force'))
     mainWindow.on('focus', () => void StatusService.onWindowFocus())

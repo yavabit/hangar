@@ -1,5 +1,5 @@
 import { shell } from "electron";
-import { spawn } from "child_process";
+import { execFile, spawn } from "child_process";
 import { promises as fs } from "fs";
 import { basename, join } from "path";
 import { Project } from "../../shared/schemas/store.schema";
@@ -89,6 +89,59 @@ export class ProjectService {
 		const { path } = await this.getExistingProjectPath(id);
 		await this.openInIde(path, SettingsStorage.get().common.defaultIDE);
 		return ProjectsStorage.update(id, { lastOpenedAt: new Date().toISOString() });
+	}
+
+	/** Открывает консоль по умолчанию из настроек в папке проекта */
+	static async openProjectTerminal(id: Project["id"]): Promise<void> {
+		const { path } = await this.getExistingProjectPath(id);
+		await this.openTerminal(path, SettingsStorage.get().common.defaultConsole);
+	}
+
+	private static async openTerminal(cwd: string, consoleName: string): Promise<void> {
+		if (process.platform === "win32") {
+			const program = { cmd: "cmd.exe", powershell: "powershell.exe", bash: "bash.exe", zsh: "bash.exe" }[consoleName] ?? "powershell.exe";
+			await this.ensureInPath(program);
+			const args = program === "powershell.exe" ? "-NoExit" : program === "bash.exe" ? "--login -i" : "";
+			return this.spawnDetached("cmd.exe", [`/c start "" ${program} ${args}`], cwd, true);
+		}
+
+		if (process.platform === "darwin") {
+			return this.spawnDetached("open", ["-a", "Terminal", cwd], cwd);
+		}
+
+		for (const terminal of ["x-terminal-emulator", "gnome-terminal", "konsole", "xterm"]) {
+			try {
+				return await this.spawnDetached(terminal, [], cwd);
+			} catch {
+				continue;
+			}
+		}
+		throw new Error("Не удалось найти терминал");
+	}
+
+	private static ensureInPath(program: string): Promise<void> {
+		return new Promise((resolve, reject) => {
+			execFile("where", [program], { windowsHide: true }, (error) =>
+				error ? reject(new Error(`${program} не найден. Выберите другую консоль в настройках`)) : resolve(),
+			);
+		});
+	}
+
+	private static spawnDetached(command: string, args: string[], cwd: string, verbatim = false): Promise<void> {
+		return new Promise((resolve, reject) => {
+			const child = spawn(command, args, {
+				cwd,
+				detached: true,
+				stdio: "ignore",
+				windowsHide: false,
+				windowsVerbatimArguments: verbatim,
+			});
+			child.once("error", reject);
+			child.once("spawn", () => {
+				child.unref();
+				resolve();
+			});
+		});
 	}
 
 	static async openFolder(projectPath: string): Promise<void> {

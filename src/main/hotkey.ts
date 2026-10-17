@@ -1,10 +1,10 @@
 import { globalShortcut } from "electron";
-import { sendToRenderer, showMainWindow } from "./window";
+import { showPalette } from "./palette";
 
 let registered: string | null = null;
 
 /**
- * Назначает глобальное сочетание клавиш, которое показывает окно и открывает поиск.
+ * Назначает глобальное сочетание клавиш, которое открывает окно быстрого поиска.
  * Возвращает текст предупреждения, если назначить не удалось.
  */
 export function applyGlobalHotkey(accelerator: string): string | null {
@@ -22,10 +22,7 @@ export function applyGlobalHotkey(accelerator: string): string | null {
 	}
 
 	try {
-		const ok = globalShortcut.register(accelerator, () => {
-			showMainWindow();
-			sendToRenderer("app:openPalette", { fromHotkey: true });
-		});
+		const ok = globalShortcut.register(accelerator, showPalette);
 
 		if (!ok) {
 			return `Сочетание ${accelerator} уже занято другим приложением`;

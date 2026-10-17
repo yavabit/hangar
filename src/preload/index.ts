@@ -24,12 +24,14 @@ const api: ElectronApi = {
 		update: (id, data) => ipcRenderer.invoke("projects:update", id, data),
 		openFolder: (id) => ipcRenderer.invoke("projects:openFolder", id),
 		openInIde: (id) => ipcRenderer.invoke("projects:openInIde", id),
+		openTerminal: (id) => ipcRenderer.invoke("projects:openTerminal", id),
 		inspectPath: (projectPath) => ipcRenderer.invoke("projects:inspectPath", projectPath),
 		scan: (rootPath, depth) => ipcRenderer.invoke("projects:scan", rootPath, depth),
 		applyAlias: (aliasId) => ipcRenderer.invoke("projects:applyAlias", aliasId),
 		refreshStatus: (force) => ipcRenderer.invoke("projects:refreshStatus", force),
 		onChanged: (callback) => subscribe("projects:changed", callback),
 		onHealth: (callback) => subscribe("projects:health", callback),
+		onCheckedAt: (callback) => subscribe("projects:checkedAt", callback),
 	},
 	git: {
 		branches: (projectId) => ipcRenderer.invoke("git:branches", projectId),
@@ -46,8 +48,11 @@ const api: ElectronApi = {
 	},
 	app: {
 		get: () => ipcRenderer.invoke("app:get"),
-		hide: () => ipcRenderer.invoke("app:hide"),
-		onOpenPalette: (callback) => subscribe("app:openPalette", callback),
+		showPalette: () => ipcRenderer.invoke("app:showPalette"),
+		hidePalette: () => ipcRenderer.invoke("app:hidePalette"),
+		onPaletteShown: (callback) => subscribe("palette:shown", () => callback()),
+		openInMain: (route) => ipcRenderer.invoke("app:openInMain", route),
+		onNavigate: (callback) => subscribe("app:navigate", callback),
 	},
 };
 

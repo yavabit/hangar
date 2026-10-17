@@ -4,11 +4,13 @@ import { ProjectsStorage } from "../storage/projects.storage";
 import { SettingsStorage } from "../storage/settings.storage";
 import { GitService } from "./git.service";
 import { ProjectService } from "./projects.service";
+import { detectStack } from "./stack.service";
 
 const CONCURRENCY = 4;
 const MINUTE_MS = 60 * 1000;
 
 type Listener = (health: ProjectsHealth) => void;
+type CheckedListener = (checkedAt: string) => void;
 
 /**
  * force — полная проверка сейчас;
@@ -44,15 +46,25 @@ class StatusServiceImpl {
 	private lastDeepRefresh = 0;
 	private running: Promise<void> | null = null;
 	private listeners = new Set<Listener>();
+	private checkedListeners = new Set<CheckedListener>();
 	private timer: NodeJS.Timeout | null = null;
 
 	getHealth(): ProjectsHealth {
 		return this.health;
 	}
 
+	getCheckedAt(): string | null {
+		return this.lastDeepRefresh ? new Date(this.lastDeepRefresh).toISOString() : null;
+	}
+
 	onUpdate(listener: Listener): () => void {
 		this.listeners.add(listener);
 		return () => this.listeners.delete(listener);
+	}
+
+	onChecked(listener: CheckedListener): () => void {
+		this.checkedListeners.add(listener);
+		return () => this.checkedListeners.delete(listener);
 	}
 
 	async refresh(mode: RefreshMode = "auto"): Promise<void> {
@@ -114,6 +126,8 @@ class StatusServiceImpl {
 
 		if (deep) {
 			this.lastDeepRefresh = Date.now();
+			const checkedAt = this.getCheckedAt() as string;
+			this.checkedListeners.forEach((listener) => listener(checkedAt));
 			await ProjectService.refreshLastModifiedTimestamps();
 		}
 	}
@@ -123,13 +137,15 @@ class StatusServiceImpl {
 		const exists = await ProjectService.isDirectory(path);
 
 		if (!exists) {
-			return { exists, git: null };
+			return { exists, git: null, stack: null };
 		}
 
 		const prev = this.health[project.id];
+		const fresh = deep || !prev?.exists;
 		return {
 			exists,
-			git: deep || !prev ? await GitService.getInfo(path) : prev.git,
+			git: fresh ? await GitService.getInfo(path) : prev.git,
+			stack: fresh ? await detectStack(path) : prev.stack,
 		};
 	}
 

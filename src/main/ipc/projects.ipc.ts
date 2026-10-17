@@ -64,6 +64,10 @@ export function registerProjectsIpc(): void {
 		return project;
 	});
 
+	ipcMain.handle("projects:openTerminal", (_, id: Project["id"]) => {
+		return ProjectService.openProjectTerminal(id);
+	});
+
 	ipcMain.handle("projects:inspectPath", (_, projectPath: string) => {
 		return ProjectService.inspectPath(projectPath);
 	});
