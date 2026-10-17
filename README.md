@@ -1,36 +1,58 @@
-# project-launcher
+# Project Launcher
 
-An Electron application with React and TypeScript
+Десктопный хаб для быстрого переключения между проектами. Все рабочие и личные проекты собраны в одном окне: найти, открыть в IDE или в проводнике, посмотреть состояние git — в пару нажатий.
 
-## Recommended IDE Setup
+## Возможности
 
-- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+- **Поиск по Ctrl+K** — палитра с поиском по названию, пути и папке. Enter открывает проект в IDE, Ctrl+Enter — в проводнике.
+- **Глобальное сочетание клавиш** (по умолчанию `Ctrl+Shift+Space`) вызывает лаунчер из любого приложения. После запуска проекта окно само прячется.
+- **Трей.** Крестик сворачивает приложение в трей; в меню трея — избранные и недавние проекты.
+- **Папки и избранное.** Проекты раскладываются по папкам перетаскиванием, избранное — отдельной страницей.
+- **Алиасы путей.** Путь проекта можно хранить через алиас (`@work/shop-frontend`). Если рабочая папка переедет, достаточно поменять путь алиаса в настройках.
+- **Git без лишних запросов.** Ветка, незакоммиченные изменения, неотправленные коммиты и отставание по последнему `fetch`, переключение веток прямо с карточки. Ссылка на репозиторий определяется из `.git/config`.
+- **«Папка не найдена».** Если папку проекта переместили или удалили, карточка подсветится, а открыть такой проект не получится, пока не исправите путь.
+- **Импорт.** Укажите папку — лаунчер найдёт внутри проекты (папки с `.git`, `package.json`, `go.mod` и т.п.) и добавит выбранные.
+- **Таск-трекер.** Адрес трекера задаётся в настройках, в проекте остаётся дописать номер задачи.
 
-## Project Setup
+## Стек
 
-### Install
+Electron + [electron-vite](https://electron-vite.org), React 19, TypeScript, Ant Design 6, Zustand, Zod, electron-store.
 
-```bash
-$ npm install
-```
-
-### Development
-
-```bash
-$ npm run dev
-```
-
-### Build
+## Запуск
 
 ```bash
-# For windows
-$ npm run build:win
-
-# For macOS
-$ npm run build:mac
-
-# For Linux
-$ npm run build:linux
+npm install
+npm run dev
 ```
 
-React → Zustand → IPC sync inside store
+Для работы git-статусов нужен установленный `git` в `PATH`. Для открытия в IDE — CLI выбранной IDE (`code`, `webstorm`, `idea`), иначе используется ссылка-протокол IDE.
+
+## Сборка
+
+```bash
+npm run build:win     # Windows
+npm run build:mac     # macOS
+npm run build:linux   # Linux
+```
+
+Перед сборкой выполняется проверка типов (`npm run typecheck`). Линтер — `npm run lint`.
+
+## Устройство
+
+```
+src/
+  main/        процесс Electron: окно, трей, глобальный хоткей, IPC, работа с диском и git
+    ipc/       обработчики запросов от интерфейса
+    services/  проекты, git, проверка состояния папок
+    storage/   хранилище на electron-store
+  preload/     мост между main и renderer (window.api)
+  renderer/    интерфейс на React
+    src/pages/   страницы: проекты, папка, избранное, настройки
+    src/shared/  компоненты, хуки, API-обёртки, утилиты
+    src/store/   состояние приложения (zustand)
+  shared/      общее для main и renderer: схема данных, типы API, утилиты алиасов
+```
+
+Данные хранятся локально в `launcher-data.json` в папке пользовательских данных приложения (на Windows — `%APPDATA%\project-launcher`). Схема описана в `src/shared/schemas/store.schema.ts`; если данные не прошли проверку, рядом сохраняется копия файла.
+
+Состояние папок и git не сохраняется, а пересчитывается: при старте, при возврате в окно (не чаще интервала из настроек), по таймеру, если он включён, и по кнопке обновления.
