@@ -1,5 +1,7 @@
 import Store from "electron-store";
-import { copyFileSync, existsSync } from "fs";
+import { app } from "electron";
+import { copyFileSync, existsSync, mkdirSync } from "fs";
+import { dirname, join } from "path";
 
 import {
 	DEFAULT_SETTINGS,
@@ -11,6 +13,26 @@ import {
 
 //@ts-ignore def export
 const StoreClass = (Store.default ?? Store) as typeof Store;
+
+const STORE_FILE = "launcher-data.json";
+
+/**
+ * До переименования приложение называлось project-launcher и хранило данные в одноимённой папке.
+ * Если в новой папке данных ещё нет, переносим их оттуда, чтобы ничего не потерялось.
+ */
+const importLegacyData = (): void => {
+	const target = join(app.getPath("userData"), STORE_FILE);
+	const legacy = join(app.getPath("appData"), "project-launcher", STORE_FILE);
+
+	if (existsSync(target) || !existsSync(legacy)) {
+		return;
+	}
+
+	mkdirSync(dirname(target), { recursive: true });
+	copyFileSync(legacy, target);
+};
+
+importLegacyData();
 
 export const store = new StoreClass<StoreType>({
 	name: "launcher-data",

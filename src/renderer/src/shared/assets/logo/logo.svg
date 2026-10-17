@@ -1,17 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
 	<defs>
-		<linearGradient id="pl-bg" gradientUnits="userSpaceOnUse" x1="96" y1="64" x2="928" y2="960">
-			<stop offset="0" stop-color="#3B82F6"/>
-			<stop offset="0.55" stop-color="#5B5BF0"/>
-			<stop offset="1" stop-color="#8B3DF0"/>
+		<linearGradient id="hg-tile" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#262a35"/>
+			<stop offset="1" stop-color="#0f1116"/>
 		</linearGradient>
-		<linearGradient id="pl-shine" x1="0" y1="0" x2="0" y2="1">
-			<stop offset="0" stop-color="#FFFFFF" stop-opacity="0.2"/>
-			<stop offset="0.55" stop-color="#FFFFFF" stop-opacity="0"/>
+		<linearGradient id="hg-shine" x1="0" y1="0" x2="0" y2="1">
+			<stop offset="0" stop-color="#ffffff" stop-opacity="0.14"/>
+			<stop offset="0.5" stop-color="#ffffff" stop-opacity="0"/>
+		</linearGradient>
+		<linearGradient id="hg-arch" gradientUnits="userSpaceOnUse" x1="250" y1="250" x2="780" y2="780">
+			<stop offset="0" stop-color="#b6b6ff"/>
+			<stop offset="1" stop-color="#7474f5"/>
 		</linearGradient>
 	</defs>
-	<rect x="32" y="32" width="960" height="960" rx="224" fill="url(#pl-bg)"/>
-	<rect x="32" y="32" width="960" height="960" rx="224" fill="url(#pl-shine)"/>
-	<path fill="#FFFFFF" d="M276 288H418C438 288 455 297 467 313L498 356H748C774 356 796 378 796 404V696C796 722 774 744 748 744H276C250 744 228 722 228 696V336C228 310 250 288 276 288Z"/>
-	<path fill="none" stroke="url(#pl-bg)" stroke-width="60" stroke-linecap="round" stroke-linejoin="round" d="M420 652L604 468M478 468H604V594"/>
+	<rect x="40" y="40" width="944" height="944" rx="232" fill="url(#hg-tile)"/>
+	<rect x="40" y="40" width="944" height="944" rx="232" fill="url(#hg-shine)"/>
+	<rect x="42" y="42" width="940" height="940" rx="230" fill="none" stroke="#ffffff" stroke-opacity="0.1" stroke-width="4"/>
+	<path d="M282 760 V500 A230 230 0 0 1 742 500 V760" fill="none" stroke="url(#hg-arch)" stroke-width="84" stroke-linecap="round"/>
+	<path d="M412 606 L512 506 L612 606" fill="none" stroke="#f4f5f8" stroke-width="84" stroke-linecap="round" stroke-linejoin="round"/>
+	<path d="M512 512 V760" fill="none" stroke="#f4f5f8" stroke-width="84" stroke-linecap="round"/>
 </svg>

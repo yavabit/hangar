@@ -1,7 +1,8 @@
 {
-  "name": "project-launcher",
+  "name": "hangar",
+  "productName": "Hangar",
   "version": "1.0.0",
-  "description": "An Electron application with React and TypeScript",
+  "description": "Hangar — хаб для быстрого переключения между проектами",
   "main": "./out/main/index.js",
   "author": "yavabit toscha.zhilenkov@gmail.com",
   "homepage": "https://github.com/yavabit/project-launcher",
