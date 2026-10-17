@@ -1,15 +1,26 @@
 import { z } from "zod";
 
+/**
+ * Версия формата данных. До первого релиза не повышается и миграций нет:
+ * недостающие настройки добираются из значений по умолчанию.
+ */
+export const STORE_VERSION = 1;
+
 export const ProjectSchema = z.object({
 	id: z.uuid(),
 	name: z.string(),
+	/** Полный путь или путь через алиас: "@work/shop-frontend" */
 	path: z.string(),
-	lastOpened: z.string(),
+	/** Дата последнего изменения файлов проекта */
+	lastModified: z.string().optional(),
+	/** Когда проект последний раз открывали из лаунчера */
+	lastOpenedAt: z.string().optional(),
 	isFavorite: z.boolean(),
 	folderId: z.uuid().optional(),
 	icon: z.string().optional(),
 	gitUrl: z.string().optional(),
-	gitStatus: z.enum(["outdated", "uptodate", "uncommited"]).optional(),
+	/** Часть ссылки после адреса таск-трекера из настроек: "issues/42" */
+	taskPath: z.string().optional(),
 });
 
 export const FolderSchema = z.object({
@@ -33,17 +44,24 @@ export const CommonSettingsSchema = z.object({
 	defaultConsole: z.string(),
 	taskTrackerUrl: z.string(),
 	pathAliases: z.array(PathAliasSchema).optional(),
+	/** Глобальное сочетание клавиш для вызова поиска. Пустая строка — выключено */
+	globalHotkey: z.string(),
+	/** Крестик окна сворачивает приложение в трей */
+	minimizeToTray: z.boolean(),
 });
 
-export const GitSettingsSchema = z.object({
-	gitSynch: z.boolean(),
-	gitProvider: z.enum(["github", "gitlab"]).optional(),
-	url: z.string().optional(),
+export const StatusRefreshSettingsSchema = z.object({
+	/** Проверять git и даты изменения при возврате в окно */
+	onFocus: z.boolean(),
+	/** Проверять по таймеру, пока окно открыто */
+	background: z.boolean(),
+	/** Минимальный интервал между проверками и период таймера, в минутах */
+	intervalMinutes: z.number().min(1).max(240),
 });
 
 export const AppSettingsSchema = z.object({
 	common: CommonSettingsSchema,
-	git: GitSettingsSchema,
+	statusRefresh: StatusRefreshSettingsSchema,
 });
 
 export const StoreSchema = z.object({
@@ -59,6 +77,30 @@ export type Folder = z.infer<typeof FolderSchema>;
 
 export type AppSettings = z.infer<typeof AppSettingsSchema>;
 
+export type StatusRefreshSettings = z.infer<typeof StatusRefreshSettingsSchema>;
+
 export type StoreType = z.infer<typeof StoreSchema>;
 
 export type PathAliasSchemaType = z.infer<typeof PathAliasSchema>;
+
+export const DEFAULT_SETTINGS: AppSettings = {
+	common: {
+		pathAliases: [],
+		defaultIDE: "vscode",
+		defaultConsole: "powershell",
+		taskTrackerUrl: "",
+		globalHotkey: "CommandOrControl+Shift+Space",
+		minimizeToTray: true,
+	},
+	statusRefresh: {
+		onFocus: true,
+		background: false,
+		intervalMinutes: 5,
+	},
+};
+
+/** Сохранённые настройки поверх значений по умолчанию: новые поля появляются без миграций */
+export const withDefaultSettings = (settings: Partial<AppSettings> | undefined): AppSettings => ({
+	common: { ...DEFAULT_SETTINGS.common, ...settings?.common },
+	statusRefresh: { ...DEFAULT_SETTINGS.statusRefresh, ...settings?.statusRefresh },
+});

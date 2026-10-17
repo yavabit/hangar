@@ -10,6 +10,7 @@ export default defineConfig({
       alias: {
         '@renderer': resolve('src/renderer/src'),
         '@schemas': resolve('src/shared/schemas'),
+        '@common': resolve('src/shared'),
         '@shared': resolve('src/renderer/src/shared'),
       }
     },

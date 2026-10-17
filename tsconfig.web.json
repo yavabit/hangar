@@ -17,6 +17,9 @@
       "@schemas/*": [
         "src/shared/schemas/*"
       ],
+      "@common/*": [
+        "src/shared/*"
+      ],
       "@shared/*": [
         "src/renderer/src/shared/*"
       ]

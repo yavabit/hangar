@@ -1,7 +1,15 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { electronAPI } from "@electron-toolkit/preload";
 import { ElectronApi } from "../shared/api/api.types";
-import type { StoreType } from "../shared/schemas/store.schema";
+
+/** Подписка на событие из main. Возвращает функцию отписки */
+const subscribe = <T>(channel: string, callback: (payload: T) => void): (() => void) => {
+	const listener = (_event: unknown, payload: T): void => callback(payload);
+	ipcRenderer.on(channel, listener);
+	return (): void => {
+		ipcRenderer.removeListener(channel, listener);
+	};
+};
 
 const api: ElectronApi = {
 	settings: {
@@ -11,11 +19,21 @@ const api: ElectronApi = {
 	projects: {
 		getAll: () => ipcRenderer.invoke("projects:getAll"),
 		add: (project) => ipcRenderer.invoke("projects:add", project),
+		addMany: (projects) => ipcRenderer.invoke("projects:addMany", projects),
 		remove: (id) => ipcRenderer.invoke("projects:remove", id),
 		update: (id, data) => ipcRenderer.invoke("projects:update", id, data),
-		openFolder: (projectPath) => ipcRenderer.invoke("projects:openFolder", projectPath),
-		openInIde: (projectPath) => ipcRenderer.invoke("projects:openInIde", projectPath),
+		openFolder: (id) => ipcRenderer.invoke("projects:openFolder", id),
+		openInIde: (id) => ipcRenderer.invoke("projects:openInIde", id),
 		inspectPath: (projectPath) => ipcRenderer.invoke("projects:inspectPath", projectPath),
+		scan: (rootPath, depth) => ipcRenderer.invoke("projects:scan", rootPath, depth),
+		applyAlias: (aliasId) => ipcRenderer.invoke("projects:applyAlias", aliasId),
+		refreshStatus: (force) => ipcRenderer.invoke("projects:refreshStatus", force),
+		onChanged: (callback) => subscribe("projects:changed", callback),
+		onHealth: (callback) => subscribe("projects:health", callback),
+	},
+	git: {
+		branches: (projectId) => ipcRenderer.invoke("git:branches", projectId),
+		switchBranch: (projectId, branch) => ipcRenderer.invoke("git:switchBranch", projectId, branch),
 	},
 	folders: {
 		getAll: () => ipcRenderer.invoke("folders:getAll"),
@@ -24,18 +42,13 @@ const api: ElectronApi = {
 		update: (id, data) => ipcRenderer.invoke("folders:update", id, data),
 	},
 	fileSystem: {
-		selectFolder: () => ipcRenderer.invoke('dialog:selectFolder'),
+		selectFolder: (defaultPath) => ipcRenderer.invoke("dialog:selectFolder", defaultPath),
 	},
 	app: {
-		get: () => ipcRenderer.invoke('app:get'),
-		onLastOpenedUpdated: (callback) => {
-			const listener = (_event: unknown, projects: StoreType["projects"]): void => callback(projects);
-			ipcRenderer.on("app:lastOpenedUpdated", listener);
-			return (): void => {
-				ipcRenderer.removeListener("app:lastOpenedUpdated", listener);
-			};
-		},
-	}
+		get: () => ipcRenderer.invoke("app:get"),
+		hide: () => ipcRenderer.invoke("app:hide"),
+		onOpenPalette: (callback) => subscribe("app:openPalette", callback),
+	},
 };
 
 if (process.contextIsolated) {

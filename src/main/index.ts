@@ -1,106 +1,90 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
-import { join } from 'path'
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import icon from '../../resources/icon.png?asset'
+import { app, BrowserWindow, dialog, globalShortcut } from 'electron'
+import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { registerSettingsIpc } from './ipc/settings.ipc'
 import { registerProjectsIpc } from './ipc/projects.ipc'
 import { registerFileSystemIpc } from './ipc/file-system.ipc'
 import { registerAppIpc } from './ipc/app.ipc'
 import { registerFoldersIpc } from './ipc/folders.ipc'
-import { ProjectService } from './services/projects.service'
+import { registerGitIpc } from './ipc/git.ipc'
+import { store, validateStore } from './storage/store'
+import { SettingsStorage } from './storage/settings.storage'
+import { StatusService } from './services/status.service'
+import { applyGlobalHotkey } from './hotkey'
+import { createTray, showTrayHintOnce } from './tray'
+import { createMainWindow, getMainWindow, sendToRenderer, setQuitting, showMainWindow } from './window'
 
-const LAST_OPENED_REFRESH_INTERVAL_MS = 5 * 60 * 1000;
+const PROJECTS_EVENT_DEBOUNCE_MS = 100
 
-const WINDOW_BACKGROUND = '#f4f5fb'
+if (!app.requestSingleInstanceLock()) {
+  app.quit()
+} else {
+  app.on('second-instance', showMainWindow)
 
-function createWindow(): BrowserWindow {
-  // Create the browser window.
-  const mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 800,
-    minWidth: 960,
-    minHeight: 600,
-    title: 'Project Launcher',
-    backgroundColor: WINDOW_BACKGROUND,
-    show: false,
-    autoHideMenuBar: true,
-    ...(process.platform === 'linux' ? { icon } : {}),
-    webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+  app.whenReady().then(() => {
+    // Set app user model id for windows
+    electronApp.setAppUserModelId('com.yavabit.projectlauncher')
+
+    const validation = validateStore()
+
+    registerAppIpc()
+    registerSettingsIpc()
+    registerFoldersIpc()
+    registerProjectsIpc()
+    registerFileSystemIpc()
+    registerGitIpc()
+
+    app.on('browser-window-created', (_, window) => {
+      optimizer.watchWindowShortcuts(window)
+    })
+
+    const mainWindow = createMainWindow({ onHiddenToTray: showTrayHintOnce })
+
+    if (!validation.ok) {
+      void dialog.showMessageBox(mainWindow, {
+        type: 'warning',
+        title: 'Project Launcher',
+        message: 'Данные приложения не прошли проверку',
+        detail: `${validation.message}\n\nКопия файла сохранена: ${validation.backupPath ?? '-'}`,
+      })
     }
-  })
 
-  mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
-  })
+    createTray()
+    applyGlobalHotkey(SettingsStorage.get().common.globalHotkey)
 
-  mainWindow.webContents.setWindowOpenHandler((details) => {
-    if (/^https?:\/\//i.test(details.url)) {
-      shell.openExternal(details.url)
-    }
-    return { action: 'deny' }
-  })
+    let projectsTimer: NodeJS.Timeout | undefined
+    store.onDidChange('projects', () => {
+      clearTimeout(projectsTimer)
+      projectsTimer = setTimeout(
+        () => sendToRenderer('projects:changed', store.get('projects')),
+        PROJECTS_EVENT_DEBOUNCE_MS,
+      )
+    })
+    StatusService.onUpdate((health) => sendToRenderer('projects:health', health))
 
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
-  } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
-  }
+    mainWindow.webContents.once('did-finish-load', () => void StatusService.refresh('force'))
+    mainWindow.on('focus', () => void StatusService.onWindowFocus())
+    StatusService.applySchedule(() => !!getMainWindow()?.isVisible())
 
-  return mainWindow
-}
-
-app.whenReady().then(() => {
-  // Set app user model id for windows
-  electronApp.setAppUserModelId('com.electron')
-
-  registerAppIpc();
-
-  registerSettingsIpc();
-
-  registerFoldersIpc();
-
-  registerProjectsIpc();
-
-  registerFileSystemIpc();
-
-  app.on('browser-window-created', (_, window) => {
-    optimizer.watchWindowShortcuts(window)
-  })
-
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
-
-  const mainWindow = createWindow()
-  mainWindow.webContents.once('did-finish-load', () => startLastOpenedRefresh(mainWindow))
-
-  app.on('activate', function () {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
-  })
-
-  function startLastOpenedRefresh(window: BrowserWindow): void {
-    const refresh = async (): Promise<void> => {
-      try {
-        const allProjects = await ProjectService.refreshLastOpenedTimestamps();
-        if (!window.isDestroyed()) {
-          window.webContents.send("app:lastOpenedUpdated", allProjects);
-        }
-      } catch (error) {
-        console.error("Failed to refresh project lastOpened timestamps", error);
+    app.on('activate', function () {
+      // On macOS it's common to re-create a window in the app when the
+      // dock icon is clicked and there are no other windows open.
+      if (BrowserWindow.getAllWindows().length === 0) {
+        createMainWindow({ onHiddenToTray: showTrayHintOnce })
+      } else {
+        showMainWindow()
       }
-    };
+    })
+  })
 
-    void refresh();
-    const timer = setInterval(refresh, LAST_OPENED_REFRESH_INTERVAL_MS);
-    window.on('closed', () => clearInterval(timer));
-  }
-})
+  app.on('before-quit', setQuitting)
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
-})
+  app.on('will-quit', () => {
+    globalShortcut.unregisterAll()
+  })
+
+  app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+      app.quit()
+    }
+  })
+}

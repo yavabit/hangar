@@ -1,49 +1,84 @@
 import { ipcMain } from "electron";
 
 import { ProjectsStorage } from "../storage/projects.storage";
-import { SettingsStorage } from "../storage/settings.storage";
 import { Project } from "../../shared/schemas/store.schema";
+import type { NewProject } from "../../shared/api/api.types";
 import { ProjectService } from "../services/projects.service";
+import { StatusService } from "../services/status.service";
+
+const withDefaults = (project: NewProject): Omit<Project, "id"> => ({
+	...project,
+	isFavorite: project.isFavorite ?? false,
+	lastModified: project.lastModified || new Date().toISOString(),
+});
+
+/** Реальная дата изменения и состояние папки считаются в фоне, чтобы не держать UI */
+const inspectInBackground = (projects: Project[]): void => {
+	void (async () => {
+		for (const project of projects) {
+			await ProjectService.refreshProjectLastModified(project.id);
+			await StatusService.refreshProject(project.id);
+		}
+	})();
+};
 
 export function registerProjectsIpc(): void {
 	ipcMain.handle("projects:getAll", () => {
 		return ProjectsStorage.getAll();
 	});
 
-	ipcMain.handle("projects:add", (event, project: Omit<Project, "id">) => {
-		const newProject = ProjectsStorage.add({
-			...project,
-			isFavorite: project.isFavorite ?? false,
-			lastOpened: project.lastOpened || new Date().toISOString(),
-		});
+	ipcMain.handle("projects:add", (_, project: NewProject) => {
+		const created = ProjectsStorage.add(withDefaults(project));
+		inspectInBackground([created]);
+		return created;
+	});
 
-		void ProjectService.refreshProjectLastOpened(newProject.id).then((projects) => {
-			if (projects && !event.sender.isDestroyed()) {
-				event.sender.send("app:lastOpenedUpdated", projects);
-			}
-		});
-
-		return newProject;
+	ipcMain.handle("projects:addMany", (_, projects: NewProject[]) => {
+		const created = ProjectsStorage.addMany(projects.map(withDefaults));
+		inspectInBackground(created);
+		return created;
 	});
 
 	ipcMain.handle("projects:update", (_, id: Project["id"], patch: Partial<Project>) => {
-		return ProjectsStorage.update(id, patch);
+		const prev = ProjectsStorage.getById(id);
+		const updated = ProjectsStorage.update(id, patch);
+
+		if (prev && patch.path !== undefined && patch.path !== prev.path) {
+			inspectInBackground([updated]);
+		}
+
+		return updated;
 	});
 
 	ipcMain.handle("projects:remove", (_, id: string) => {
 		ProjectsStorage.remove(id);
 	});
 
-	ipcMain.handle("projects:openFolder", async (_, projectPath: string) => {
-		return ProjectService.openFolder(projectPath);
+	ipcMain.handle("projects:openFolder", (_, id: Project["id"]) => {
+		return ProjectService.openProjectFolder(id);
 	});
 
-	ipcMain.handle("projects:inspectPath", async (_, projectPath: string) => {
+	ipcMain.handle("projects:openInIde", async (_, id: Project["id"]) => {
+		const project = await ProjectService.openProjectInIde(id);
+		void StatusService.refreshProject(id);
+		return project;
+	});
+
+	ipcMain.handle("projects:inspectPath", (_, projectPath: string) => {
 		return ProjectService.inspectPath(projectPath);
 	});
 
-	ipcMain.handle("projects:openInIde", async (_, projectPath: string) => {
-		const { common } = SettingsStorage.get();
-		return ProjectService.openInIde(projectPath, common.defaultIDE);
+	ipcMain.handle("projects:scan", (_, rootPath: string, depth: number) => {
+		return ProjectService.scanForProjects(rootPath, depth);
+	});
+
+	ipcMain.handle("projects:applyAlias", (_, aliasId: string) => {
+		const count = ProjectService.applyAlias(aliasId);
+		void StatusService.refresh("existence");
+		return count;
+	});
+
+	ipcMain.handle("projects:refreshStatus", (_, force?: boolean) => {
+		return StatusService.refresh(force ? "force" : "auto");
 	});
 }

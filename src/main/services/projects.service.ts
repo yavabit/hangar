@@ -3,8 +3,10 @@ import { spawn } from "child_process";
 import { promises as fs } from "fs";
 import { basename, join } from "path";
 import { Project } from "../../shared/schemas/store.schema";
-import type { PathInfo } from "../../shared/api/api.types";
+import type { PathInfo, ScanCandidate } from "../../shared/api/api.types";
+import { resolveAliasPath, toAliasPath } from "../../shared/utils/pathAliases";
 import { ProjectsStorage } from "../storage/projects.storage";
+import { SettingsStorage } from "../storage/settings.storage";
 
 export type IdeType = "vscode" | "webstorm" | "intellij";
 
@@ -32,7 +34,63 @@ const IGNORED_DIRS = new Set([
 	"venv",
 ]);
 
+/** Файлы, по которым папка без git считается проектом при импорте */
+const PROJECT_MARKERS = [
+	"package.json",
+	"pyproject.toml",
+	"requirements.txt",
+	"go.mod",
+	"Cargo.toml",
+	"pom.xml",
+	"build.gradle",
+	"build.gradle.kts",
+	"composer.json",
+	"Gemfile",
+];
+
+const MAX_SCAN_RESULTS = 500;
+
 export class ProjectService {
+	/** Полный путь проекта с учётом алиасов из настроек */
+	static resolvePath(path: string): string {
+		return resolveAliasPath(path, SettingsStorage.getAliases());
+	}
+
+	static async isDirectory(path: string): Promise<boolean> {
+		try {
+			return (await fs.stat(path)).isDirectory();
+		} catch {
+			return false;
+		}
+	}
+
+	private static async getExistingProjectPath(id: Project["id"]): Promise<{ project: Project; path: string }> {
+		const project = ProjectsStorage.getById(id);
+		if (!project) {
+			throw new Error("Проект не найден");
+		}
+
+		const path = this.resolvePath(project.path);
+		if (!(await this.isDirectory(path))) {
+			throw new Error(`Папка не найдена: ${path}`);
+		}
+
+		return { project, path };
+	}
+
+	static async openProjectFolder(id: Project["id"]): Promise<Project> {
+		const { project, path } = await this.getExistingProjectPath(id);
+		await this.openFolder(path);
+		return project;
+	}
+
+	/** Открывает проект в IDE из настроек и запоминает время открытия */
+	static async openProjectInIde(id: Project["id"]): Promise<Project> {
+		const { path } = await this.getExistingProjectPath(id);
+		await this.openInIde(path, SettingsStorage.get().common.defaultIDE);
+		return ProjectsStorage.update(id, { lastOpenedAt: new Date().toISOString() });
+	}
+
 	static async openFolder(projectPath: string): Promise<void> {
 		const error = await shell.openPath(projectPath);
 
@@ -155,9 +213,14 @@ export class ProjectService {
 	}
 
 	static async inspectPath(projectPath: string): Promise<PathInfo> {
+		const resolvedPath = this.resolvePath(projectPath);
+		const exists = await this.isDirectory(resolvedPath);
+
 		return {
-			name: basename(projectPath),
-			gitUrl: await this.getGitRemoteUrl(projectPath),
+			name: basename(resolvedPath),
+			gitUrl: exists ? await this.getGitRemoteUrl(resolvedPath) : undefined,
+			resolvedPath,
+			exists,
 		};
 	}
 
@@ -178,37 +241,101 @@ export class ProjectService {
 		return origin?.url ?? remotes.find((remote) => remote.url)?.url;
 	}
 
-	static async refreshProjectLastOpened(id: Project["id"]): Promise<Project[] | null> {
-		const project = ProjectsStorage.getAll().find((p) => p.id === id);
-		if (!project) {
-			return null;
+	/**
+	 * Ищет проекты внутри папки: каталоги с .git или файлом-маркером (package.json и т.п.).
+	 * Внутрь найденного проекта поиск не заходит.
+	 */
+	static async scanForProjects(rootPath: string, maxDepth: number): Promise<ScanCandidate[]> {
+		const results: ScanCandidate[] = [];
+		const aliases = SettingsStorage.getAliases();
+		let level = [rootPath];
+
+		for (let depth = 0; depth <= maxDepth && level.length && results.length < MAX_SCAN_RESULTS; depth++) {
+			const nextLevel: string[] = [];
+
+			for (const dir of level) {
+				let entries;
+				try {
+					entries = await fs.readdir(dir, { withFileTypes: true });
+				} catch {
+					continue;
+				}
+
+				const names = new Set(entries.map((entry) => entry.name));
+				const hasGit = names.has(".git");
+				const isProject = depth > 0 && (hasGit || PROJECT_MARKERS.some((marker) => names.has(marker)));
+
+				if (isProject) {
+					results.push({
+						path: toAliasPath(dir, aliases) ?? dir,
+						name: basename(dir),
+						gitUrl: hasGit ? await this.getGitRemoteUrl(dir) : undefined,
+						hasGit,
+					});
+					continue;
+				}
+
+				for (const entry of entries) {
+					if (entry.isDirectory() && !entry.name.startsWith(".") && !IGNORED_DIRS.has(entry.name)) {
+						nextLevel.push(join(dir, entry.name));
+					}
+				}
+			}
+
+			level = nextLevel;
 		}
 
-		const latestDate = await this.getLatestFileModifiedDate(project.path);
-		if (!latestDate) {
-			return null;
-		}
-
-		ProjectsStorage.update(id, { lastOpened: latestDate.toISOString() });
-		return ProjectsStorage.getAll();
+		return results.sort((a, b) => a.path.localeCompare(b.path));
 	}
 
-	static async refreshLastOpenedTimestamps(): Promise<Project[]> {
-		const projects = ProjectsStorage.getAll();
+	/** Перевод полных путей проектов внутри папки алиаса на сам алиас */
+	static applyAlias(aliasId: string): number {
+		const aliases = SettingsStorage.getAliases();
+		const alias = aliases.find((a) => a.id === aliasId);
+		if (!alias) {
+			throw new Error("Алиас не найден. Сохраните настройки и попробуйте снова");
+		}
 
-		for (const project of projects) {
-			const latestDate = await this.getLatestFileModifiedDate(project.path);
+		let count = 0;
+		const projects = ProjectsStorage.getAll().map((project) => {
+			const aliased = toAliasPath(project.path, [alias]);
+			if (!aliased) {
+				return project;
+			}
+			count++;
+			return { ...project, path: aliased };
+		});
+
+		if (count) {
+			ProjectsStorage.setAll(projects);
+		}
+		return count;
+	}
+
+	static async refreshProjectLastModified(id: Project["id"]): Promise<void> {
+		const project = ProjectsStorage.getById(id);
+		if (!project) {
+			return;
+		}
+
+		const latestDate = await this.getLatestFileModifiedDate(this.resolvePath(project.path));
+		if (latestDate) {
+			ProjectsStorage.update(id, { lastModified: latestDate.toISOString() });
+		}
+	}
+
+	static async refreshLastModifiedTimestamps(): Promise<void> {
+		for (const project of ProjectsStorage.getAll()) {
+			const latestDate = await this.getLatestFileModifiedDate(this.resolvePath(project.path));
 			if (!latestDate) {
 				continue;
 			}
 
 			const latestIso = latestDate.toISOString();
-			if (project.lastOpened !== latestIso) {
-				ProjectsStorage.update(project.id, { lastOpened: latestIso });
+			if (project.lastModified !== latestIso) {
+				ProjectsStorage.update(project.id, { lastModified: latestIso });
 			}
 		}
-
-		return ProjectsStorage.getAll();
 	}
 
 	private static async getLatestFileModifiedDate(projectPath: string): Promise<Date | null> {
