@@ -146,16 +146,19 @@ const ProjectDescription: FC<Pick<ProjectProps, "item" | "folder" | "health">> =
 			)}
 			<div className="project-card__line project-card__dates">
 				{item.lastOpenedAt && (
-					<Tooltip title={`Открыт из лаунчера: ${formatDateTime(item.lastOpenedAt)}`}>
-						<Typography.Text type="secondary">
-							<ExportOutlined /> открыт {formatRelativeTime(item.lastOpenedAt)}
-						</Typography.Text>
-					</Tooltip>
+					<>
+						<Tooltip title={`Открыт из лаунчера: ${formatDateTime(item.lastOpenedAt)}`}>
+							<span className="project-card__date">
+								<ExportOutlined /> {formatRelativeTime(item.lastOpenedAt)}
+							</span>
+						</Tooltip>
+						<span className="project-card__date-separator">·</span>
+					</>
 				)}
 				<Tooltip title={`Последнее изменение файлов: ${formatDateTime(item.lastModified)}`}>
-					<Typography.Text type="secondary">
+					<span className="project-card__date">
 						<ClockCircleOutlined /> изменён {formatRelativeTime(item.lastModified)}
-					</Typography.Text>
+					</span>
 				</Tooltip>
 			</div>
 		</div>

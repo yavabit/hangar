@@ -86,8 +86,13 @@
 }
 
 .project-card__dates {
-	gap: 14px;
+	gap: 0 6px;
 	flex-wrap: wrap;
+	color: rgba(0, 0, 0, 0.45);
+}
+
+.project-card__date {
+	white-space: nowrap;
 }
 
 .project-card--missing {
