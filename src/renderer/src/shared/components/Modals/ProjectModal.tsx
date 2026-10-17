@@ -1,17 +1,21 @@
-import { FC, useState } from "react";
-import { Form, Input, Modal, Select, Switch } from "antd";
-import { FolderOutlined } from "@ant-design/icons";
-import { SelectFolder } from "@renderer/shared/components/SelectFolder/SelectFolder";
+import { FC, useCallback, useEffect, useRef, useState } from "react";
+import { Form, Input, Modal, Select, Space, Switch, Tooltip, Typography } from "antd";
+import { FolderOutlined, LinkOutlined } from "@ant-design/icons";
+import { ProjectPathInput } from "@renderer/shared/components/ProjectPathInput/ProjectPathInput";
 import { useProjects } from "@renderer/shared/hooks/useProjects";
+import { usePathAliases } from "@renderer/shared/hooks/usePathAliases";
 import { useAppStore } from "@renderer/store/app.store";
-import { projectsApi } from "@renderer/shared/api/projects.api";
+import type { PathInfo } from "@common/api/api.types";
 import type { Folder, Project } from "@schemas/store.schema";
+
+import "./ProjectModal.scss";
 
 type ProjectFormValues = {
 	name: string;
 	path: string;
 	folderId?: Folder["id"];
 	gitUrl?: string;
+	taskPath?: string;
 	isFavorite: boolean;
 };
 
@@ -22,14 +26,30 @@ type ProjectModalProps = {
 	defaults?: Partial<ProjectFormValues>;
 };
 
+const getFolderName = (path: string): string => path.split(/[\\/]+/).filter(Boolean).pop() ?? "";
+
 export const ProjectModal: FC<ProjectModalProps> = ({ isOpen, onClose, project, defaults }) => {
 	const { addProject, updateProject } = useProjects();
+	const { resolvePath } = usePathAliases();
 	const folders = useAppStore((s) => s.folders);
+	const taskTrackerUrl = useAppStore((s) => s.settings.common.taskTrackerUrl.trim());
 
 	const [form] = Form.useForm<ProjectFormValues>();
 	const [saving, setSaving] = useState(false);
+	const [pathInfo, setPathInfo] = useState<PathInfo | null>(null);
 
 	const isEdit = !!project;
+
+	/** Название и ссылку на git подставляем сами, пока пользователь не ввёл их вручную */
+	const nameTouched = useRef(isEdit);
+	const gitTouched = useRef(isEdit);
+
+	useEffect(() => {
+		if (isOpen) {
+			nameTouched.current = isEdit;
+			gitTouched.current = isEdit;
+		}
+	}, [isOpen, isEdit]);
 
 	const initialValues: Partial<ProjectFormValues> = project
 		? {
@@ -37,23 +57,30 @@ export const ProjectModal: FC<ProjectModalProps> = ({ isOpen, onClose, project, 
 			path: project.path,
 			folderId: folders.some((f) => f.id === project.folderId) ? project.folderId : undefined,
 			gitUrl: project.gitUrl,
+			taskPath: project.taskPath,
 			isFavorite: project.isFavorite,
 		}
 		: { isFavorite: false, ...defaults };
 
-	const handlePathSelect = async (path: string): Promise<void> => {
-		try {
-			const info = await projectsApi.inspectPath(path);
-
-			if (!form.getFieldValue("name")) {
-				form.setFieldValue("name", info.name);
-			}
-
-			if (info.gitUrl && !form.getFieldValue("gitUrl")) {
+	const handlePathInfo = useCallback(
+		(info: PathInfo | null) => {
+			setPathInfo(info);
+			if (info?.gitUrl && !gitTouched.current && !form.getFieldValue("gitUrl")) {
 				form.setFieldValue("gitUrl", info.gitUrl);
 			}
-		} catch (e) {
-			console.log(e);
+		},
+		[form],
+	);
+
+	const handleValuesChange = (changed: Partial<ProjectFormValues>): void => {
+		if ("name" in changed) {
+			nameTouched.current = true;
+		}
+		if ("gitUrl" in changed) {
+			gitTouched.current = true;
+		}
+		if ("path" in changed && !nameTouched.current) {
+			form.setFieldValue("name", getFolderName(resolvePath(changed.path ?? "")));
 		}
 	};
 
@@ -67,9 +94,10 @@ export const ProjectModal: FC<ProjectModalProps> = ({ isOpen, onClose, project, 
 
 		const data = {
 			name: values.name.trim(),
-			path: values.path,
+			path: values.path.trim(),
 			folderId: values.folderId,
 			gitUrl: values.gitUrl?.trim() || undefined,
+			taskPath: values.taskPath?.trim() || undefined,
 			isFavorite: values.isFavorite,
 		};
 
@@ -88,6 +116,8 @@ export const ProjectModal: FC<ProjectModalProps> = ({ isOpen, onClose, project, 
 		}
 	};
 
+	const pathMissing = !isEdit && !pathInfo?.exists;
+
 	return (
 		<Modal
 			title={isEdit ? "Редактирование проекта" : "Новый проект"}
@@ -95,29 +125,38 @@ export const ProjectModal: FC<ProjectModalProps> = ({ isOpen, onClose, project, 
 			onOk={handleOk}
 			onCancel={onClose}
 			okText={isEdit ? "Сохранить" : "Добавить"}
+			okButtonProps={{ disabled: pathMissing }}
 			cancelText="Отмена"
 			confirmLoading={saving}
+			width={600}
 			destroyOnHidden
+			afterOpenChange={(open) => {
+				if (!open) {
+					setPathInfo(null);
+				}
+			}}
 		>
 			<Form
 				form={form}
 				layout="vertical"
 				initialValues={initialValues}
 				preserve={false}
+				onValuesChange={handleValuesChange}
 			>
 				<Form.Item
 					label="Путь"
 					name="path"
-					rules={[{ required: true, message: "Выберите папку проекта" }]}
+					tooltip="Выберите алиас из настроек и допишите путь внутри него — тогда при смене пути алиаса проект «переедет» вместе с ним"
+					rules={[{ required: true, whitespace: true, message: "Укажите папку проекта" }]}
 				>
-					<SelectFolder onSelect={handlePathSelect} />
+					<ProjectPathInput onInfo={handlePathInfo} />
 				</Form.Item>
 				<Form.Item
 					label="Название проекта"
 					name="name"
 					rules={[{ required: true, whitespace: true, message: "Введите название проекта" }]}
 				>
-					<Input placeholder="Название подставится из имени папки" />
+					<Input placeholder="Подставится из имени папки" />
 				</Form.Item>
 				<Form.Item label="Папка" name="folderId">
 					<Select
@@ -140,6 +179,27 @@ export const ProjectModal: FC<ProjectModalProps> = ({ isOpen, onClose, project, 
 					tooltip="Определяется автоматически из .git/config, если он есть в папке проекта"
 				>
 					<Input placeholder="https://github.com/user/repo.git" allowClear />
+				</Form.Item>
+				<Form.Item
+					label="Таск-трекер"
+					tooltip="Необязательно. Допишите номер задачи или путь к доске — ссылка появится на карточке проекта"
+				>
+					{taskTrackerUrl ? (
+						<Space.Compact block>
+							<Space.Addon className="project-modal__tracker-base">
+								<Tooltip title={taskTrackerUrl}>
+									<LinkOutlined /> {taskTrackerUrl.replace(/^https?:\/\//, "").replace(/\/+$/, "")}/
+								</Tooltip>
+							</Space.Addon>
+							<Form.Item name="taskPath" noStyle>
+								<Input placeholder="PROJ-123" allowClear />
+							</Form.Item>
+						</Space.Compact>
+					) : (
+						<Typography.Text type="secondary">
+							Укажите адрес таск-трекера в настройках, чтобы привязывать задачи к проектам
+						</Typography.Text>
+					)}
 				</Form.Item>
 				<Form.Item noStyle>
 					<span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>

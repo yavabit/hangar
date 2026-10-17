@@ -21,7 +21,7 @@ export const SelectFolder: FC<SelectFolderProps> = ({ value, onChange, onSelect,
 	const handleSelectFolder = async (): Promise<void> => {
 		setLoading(true);
 		try {
-			const folderPath = await api.fileSystem.selectFolder();
+			const folderPath = await api.fileSystem.selectFolder(currentPath || undefined);
 			if (folderPath) {
 				setLocalPath(folderPath);
 				onChange?.(folderPath);
