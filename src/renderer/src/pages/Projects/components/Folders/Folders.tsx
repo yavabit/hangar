@@ -8,6 +8,7 @@ import { AddOrEditFolderModal } from "../Modals/AddFolderModal";
 import "./Folders.scss";
 import type { Folder as FolderType, Project } from "@schemas/store.schema";
 import { useFolders } from "@renderer/shared/hooks/useFolders";
+import { useProjects } from "@renderer/shared/hooks/useProjects";
 import { getLatestActivity } from "@renderer/shared/utils/projectFilters";
 
 const AddFolder: FC<{ onClick: () => void }> = ({ onClick }) => {
@@ -31,6 +32,7 @@ export const Folders: FC<FoldersProps> = ({ items, projects, showCreate = true }
 	const [modal, setModal] = useState<{ open: boolean; folder?: FolderType }>({ open: false });
 
 	const { addFolder, removeFolder, updateFolder } = useFolders()
+	const { moveProject } = useProjects()
 
 	const projectsByFolder = useMemo(() => {
 		const map = new Map<FolderType["id"], Project[]>();
@@ -85,6 +87,8 @@ export const Folders: FC<FoldersProps> = ({ items, projects, showCreate = true }
 								lastActivity={getLatestActivity(folderProjects)}
 								onDelete={removeFolder}
 								onEdit={(f) => setModal({ open: true, folder: f })}
+								onDropProject={(projectId, target) => void moveProject(projectId, target)}
+								containsProject={(projectId) => folderProjects.some((p) => p.id === projectId)}
 							/>
 						</Col>
 					);

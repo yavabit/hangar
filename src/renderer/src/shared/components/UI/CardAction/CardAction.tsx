@@ -8,16 +8,20 @@ type CardActionProps = {
 	icon: ReactNode;
 	color?: string;
 	disabled?: boolean;
+	/** Только индикатор: цвет сохраняется, но нажать нельзя */
+	inactive?: boolean;
 	onClick?: () => void;
 };
 
 /**
  * Кнопка-иконка в нижней панели карточки.
  */
-export const CardAction: FC<CardActionProps> = ({ title, icon, color, disabled = false, onClick }) => {
+export const CardAction: FC<CardActionProps> = ({ title, icon, color, disabled = false, inactive = false, onClick }) => {
+	const clickable = !disabled && !inactive;
+
 	const handleClick = (e: React.MouseEvent): void => {
 		e.stopPropagation();
-		if (!disabled) {
+		if (clickable) {
 			onClick?.();
 		}
 	};
@@ -25,12 +29,13 @@ export const CardAction: FC<CardActionProps> = ({ title, icon, color, disabled =
 	return (
 		<Tooltip title={title}>
 			<span
-				role="button"
-				aria-disabled={disabled}
+				role={clickable ? "button" : undefined}
+				aria-disabled={!clickable}
 				aria-label={typeof title === "string" ? title : undefined}
-				className={`${styles.action} ${disabled ? styles.disabled : ""}`}
+				className={`${styles.action} ${disabled ? styles.disabled : ""} ${inactive ? styles.inactive : ""}`}
 				style={disabled ? undefined : { color }}
 				onClick={handleClick}
+				onDoubleClick={(e) => e.stopPropagation()}
 			>
 				{icon}
 			</span>

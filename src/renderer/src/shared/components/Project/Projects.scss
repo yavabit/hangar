@@ -15,7 +15,6 @@
 		align-items: center;
 		margin-right: 0;
 
-		// Избранный проект показывает звезду всегда, остальные — только при наведении
 		&.animated,
 		&.is-favorite {
 			opacity: 1;
@@ -60,6 +59,53 @@
 .project-card__text {
 	flex: 1;
 	min-width: 0;
+}
+
+.project-card__badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	margin-bottom: 4px;
+
+	.ant-tag {
+		margin: 0;
+	}
+}
+
+.project-card__folder {
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	cursor: pointer;
+	color: #1677ff;
+	background: rgba(22, 119, 255, 0.08);
+
+	&:hover {
+		background: rgba(22, 119, 255, 0.16);
+	}
+}
+
+.project-card__dates {
+	gap: 14px;
+	flex-wrap: wrap;
+}
+
+.project-card--missing {
+	border-style: dashed !important;
+	border-color: #ffa39e !important;
+	background: #fffafa;
+
+	.folder-icon {
+		background-color: #bfbfbf;
+	}
+}
+
+.project-drag-wrapper {
+	height: 100%;
+
+	&--dragging {
+		opacity: 0.4;
+	}
 }
 
 .ant-list-item-meta-content {

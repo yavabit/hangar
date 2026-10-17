@@ -1,0 +1,43 @@
+.branch-switcher {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	flex-shrink: 1;
+	min-width: 0;
+	max-width: 45%;
+	padding: 0 6px;
+	border-radius: 4px;
+	font-size: 12px;
+	line-height: 20px;
+	color: rgba(0, 0, 0, 0.55);
+	background: rgba(0, 0, 0, 0.04);
+	cursor: pointer;
+	transition: background-color 0.2s ease, color 0.2s ease;
+
+	&:hover {
+		color: #1677ff;
+		background: rgba(22, 119, 255, 0.08);
+	}
+
+	&__name {
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	&__arrow {
+		font-size: 9px;
+		flex-shrink: 0;
+	}
+
+	&__no-icon {
+		display: inline-block;
+		width: 12px;
+	}
+
+	&__menu {
+		max-height: 320px;
+		overflow-y: auto;
+	}
+}

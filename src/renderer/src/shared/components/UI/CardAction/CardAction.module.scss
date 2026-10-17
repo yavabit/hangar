@@ -31,6 +31,15 @@
 	}
 }
 
+.inactive {
+	cursor: default;
+
+	&:hover {
+		background-color: transparent;
+		transform: none;
+	}
+}
+
 .label {
 	display: inline-flex;
 	align-items: center;

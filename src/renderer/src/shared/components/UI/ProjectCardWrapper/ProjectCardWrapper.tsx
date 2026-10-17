@@ -19,6 +19,7 @@ type ProjectCardWrapperProps = {
 	deletable?: boolean;
 	onDelete?: (deleteFolderProjects: boolean) => void;
 	onCardClick?: () => void;
+	onCardDoubleClick?: () => void;
 	className?: string;
 	type?: CardType;
 	name?: string;
@@ -78,6 +79,7 @@ export const ProjectCardWrapper: FC<ProjectCardWrapperProps> = ({
 	deletable = false,
 	onDelete,
 	onCardClick,
+	onCardDoubleClick,
 	className,
 	type = "project",
 	name,
@@ -103,9 +105,10 @@ export const ProjectCardWrapper: FC<ProjectCardWrapperProps> = ({
 			variant="borderless"
 			className={`${styles.card} ${onCardClick ? styles.clickable : ""} ${className ?? ""}`}
 			onClick={onCardClick}
+			onDoubleClick={onCardDoubleClick}
 		>
 			{deletable && (
-				<span onClick={(e) => e.stopPropagation()}>
+				<span onClick={(e) => e.stopPropagation()} onDoubleClick={(e) => e.stopPropagation()}>
 					<Popconfirm
 						title={`Удаление ${type === "folder" ? "папки" : "проекта"}`}
 						description={

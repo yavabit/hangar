@@ -11,7 +11,8 @@ import {
 	ClockCircleOutlined,
 	FolderOutlined,
 } from "@ant-design/icons";
-import { Folder as FolderType } from "@schemas/store.schema";
+import { Folder as FolderType, Project } from "@schemas/store.schema";
+import { ProjectDropZone } from "@renderer/shared/components/ProjectDropZone/ProjectDropZone";
 import { useNavigate } from "react-router-dom";
 import { formatRelativeTime } from "@renderer/shared/utils/relativeTime";
 import { pluralize } from "@renderer/shared/utils/pluralize";
@@ -54,9 +55,12 @@ type FolderProps = {
 	lastActivity?: string;
 	onDelete: (id: FolderType["id"], deleteAllProjects: boolean) => void;
 	onEdit: (folder: FolderType) => void;
+	onDropProject: (projectId: Project["id"], folder: FolderType) => void;
+	/** Проект уже лежит в этой папке */
+	containsProject: (projectId: Project["id"]) => boolean;
 };
 
-export const Folder: FC<FolderProps> = ({ folder, projectsCount, lastActivity, onDelete, onEdit }) => {
+export const Folder: FC<FolderProps> = ({ folder, projectsCount, lastActivity, onDelete, onEdit, onDropProject, containsProject }) => {
 
 	const navigate = useNavigate();
 
@@ -84,19 +88,24 @@ export const Folder: FC<FolderProps> = ({ folder, projectsCount, lastActivity, o
 	};
 
 	return (
-		<ProjectCardWrapper
-			sharedCardProps={{ actions }}
-			deletable
-			onDelete={(deleteFolderProjects) => onDelete(folder.id, deleteFolderProjects)}
-			type="folder"
-			name={folder.name}
-			projectsCount={projectsCount}
-			onCardClick={() => navigate(`/folder/${folder.id}`)}
+		<ProjectDropZone
+			onDropProject={(projectId) => onDropProject(projectId, folder)}
+			accepts={(projectId) => !containsProject(projectId)}
 		>
-			<Meta
-				{...sharedCardMetaProps}
-				title={<CardTitle title={folder.name} />}
-			/>
-		</ProjectCardWrapper>
+			<ProjectCardWrapper
+				sharedCardProps={{ actions }}
+				deletable
+				onDelete={(deleteFolderProjects) => onDelete(folder.id, deleteFolderProjects)}
+				type="folder"
+				name={folder.name}
+				projectsCount={projectsCount}
+				onCardClick={() => navigate(`/folder/${folder.id}`)}
+			>
+				<Meta
+					{...sharedCardMetaProps}
+					title={<CardTitle title={folder.name} />}
+				/>
+			</ProjectCardWrapper>
+		</ProjectDropZone>
 	);
 };

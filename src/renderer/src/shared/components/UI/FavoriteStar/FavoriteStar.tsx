@@ -36,6 +36,7 @@ export const FavoriteStar: FC<FavoriteStarProps> = ({ isFavorite, onFavorite, it
 				<motion.div
 					className={styles["fav-ico-lnk"]}
 					onClick={handleClick}
+					onDoubleClick={(e) => e.stopPropagation()}
 					whileHover={{ scale: 1.2 }}
 					whileTap={{ scale: 0.8 }}
 					animate={isAnimating ? "pop" : "idle"}

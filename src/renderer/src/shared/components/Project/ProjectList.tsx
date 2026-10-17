@@ -5,6 +5,8 @@ import { Project as ProjectType } from "@schemas/store.schema";
 import empty from "@shared/assets/icons/empty-folder.png";
 import { useProjects } from "@renderer/shared/hooks/useProjects";
 import { useAppStore } from "@renderer/store/app.store";
+import { useUiStore } from "@renderer/store/ui.store";
+import { PROJECT_DRAG_TYPE } from "@renderer/shared/utils/dragAndDrop";
 import { ProjectModal } from "../Modals/ProjectModal";
 
 type ProjectListProps = {
@@ -25,12 +27,15 @@ export const ProjectList: FC<ProjectListProps> = ({
 
 	const { removeProject, toggleFavorite, openProjectFolder, openProjectInIde } = useProjects();
 	const folders = useAppStore((s) => s.folders);
+	const health = useAppStore((s) => s.health);
+	const draggingProjectId = useUiStore((s) => s.draggingProjectId);
+	const setDraggingProjectId = useUiStore((s) => s.setDraggingProjectId);
 
 	const [editing, setEditing] = useState<{ id: ProjectType["id"] | null; open: boolean }>({ id: null, open: false });
 	const editingProject = items.find((p) => p.id === editing.id);
 
-	const folderNames = useMemo(
-		() => new Map(folders.map((folder) => [folder.id, folder.name])),
+	const foldersById = useMemo(
+		() => new Map(folders.map((folder) => [folder.id, folder])),
 		[folders],
 	);
 
@@ -60,15 +65,27 @@ export const ProjectList: FC<ProjectListProps> = ({
 						xl={4} // 5-6 элементов в строку
 						style={{ minWidth: 350 }}
 					>
-						<Project
-							item={project}
-							folderName={showFolder && project.folderId ? folderNames.get(project.folderId) : undefined}
-							onDelete={removeProject}
-							onFavorite={toggleFavorite}
-							handleOpenFolder={openProjectFolder}
-							handleOpenIde={openProjectInIde}
-							handleEdit={(id) => setEditing({ id, open: true })}
-						/>
+						<div
+							className={`project-drag-wrapper ${draggingProjectId === project.id ? "project-drag-wrapper--dragging" : ""}`}
+							draggable
+							onDragStart={(e) => {
+								e.dataTransfer.setData(PROJECT_DRAG_TYPE, project.id);
+								e.dataTransfer.effectAllowed = "move";
+								setDraggingProjectId(project.id);
+							}}
+							onDragEnd={() => setDraggingProjectId(null)}
+						>
+							<Project
+								item={project}
+								health={health[project.id]}
+								folder={showFolder && project.folderId ? foldersById.get(project.folderId) : undefined}
+								onDelete={removeProject}
+								onFavorite={toggleFavorite}
+								handleOpenFolder={openProjectFolder}
+								handleOpenIde={openProjectInIde}
+								handleEdit={(id) => setEditing({ id, open: true })}
+							/>
+						</div>
 					</Col>
 				))}
 			</Row>
