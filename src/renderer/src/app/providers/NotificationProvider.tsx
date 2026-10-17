@@ -1,11 +1,6 @@
 import type { FC, ReactNode } from "react";
 import { notification } from "antd";
-import {
-  LoadingOutlined,
-  CheckCircleOutlined,
-  InfoCircleOutlined,
-  CloseCircleOutlined,
-} from "@ant-design/icons";
+import { CircleCheck, CircleX, Info, LoaderCircle } from "lucide-react";
 import { NotificationContext, type NotificationOptions } from "../context/notificationContext";
 
 export const NotificationProvider: FC<{ children: ReactNode }> = ({ children }) => {
@@ -22,7 +17,7 @@ export const NotificationProvider: FC<{ children: ReactNode }> = ({ children }) 
       title: options.message ?? "Загрузка...",
       description: options.description ?? "Пожалуйста, подождите",
       duration: 0,
-      icon: <LoadingOutlined spin style={{ color: "#1677ff" }} />,
+      icon: <LoaderCircle size={20} className="spin" style={{ color: "var(--accent)" }} />,
     });
   };
 
@@ -38,7 +33,7 @@ export const NotificationProvider: FC<{ children: ReactNode }> = ({ children }) 
       description: options.description,
       duration: options.duration ?? 3,
       showProgress: true,
-      icon: <CheckCircleOutlined style={{ color: "#52c41a" }} />,
+      icon: <CircleCheck size={20} style={{ color: "var(--success)" }} />,
     });
   };
 
@@ -54,7 +49,7 @@ export const NotificationProvider: FC<{ children: ReactNode }> = ({ children }) 
       description: options.description,
       duration: options.duration ?? 3,
       showProgress: true,
-      icon: <CloseCircleOutlined style={{ color: "#ff4d4f" }} />,
+      icon: <CircleX size={20} style={{ color: "var(--danger)" }} />,
     });
   };
 
@@ -70,7 +65,7 @@ export const NotificationProvider: FC<{ children: ReactNode }> = ({ children }) 
       description: options.description,
       duration: options.duration ?? 3,
       showProgress: true,
-      icon: <InfoCircleOutlined style={{ color: "#1677ff" }} />,
+      icon: <Info size={20} style={{ color: "var(--accent)" }} />,
     });
   };
 

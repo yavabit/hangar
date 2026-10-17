@@ -1,0 +1,61 @@
+.card-shell {
+	position: relative;
+	height: 100%;
+	border-radius: var(--radius-lg);
+	transition:
+		transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
+		background-color 0.2s ease,
+		border-color 0.2s ease,
+		box-shadow 0.22s ease;
+
+	&:hover,
+	&:focus-within {
+		background: var(--glass-bg-hover);
+		border-color: var(--accent-ring);
+		transform: translateY(-2px);
+		box-shadow: var(--glass-shadow), 0 22px 44px -26px var(--accent-ring);
+	}
+
+	&--clickable {
+		cursor: pointer;
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--accent-ring);
+		outline-offset: 2px;
+	}
+
+	&__actions {
+		position: absolute;
+		right: 10px;
+		bottom: 10px;
+		z-index: 2;
+		display: flex;
+		align-items: center;
+		gap: 2px;
+		padding: 3px;
+		border-radius: 11px;
+		background: var(--glass-bg-strong);
+		-webkit-backdrop-filter: blur(16px);
+		backdrop-filter: blur(16px);
+		border: 1px solid var(--glass-border);
+		box-shadow: var(--shadow-pop);
+		opacity: 0;
+		transform: translateY(4px) scale(0.98);
+		pointer-events: none;
+		transition:
+			opacity 0.16s ease,
+			transform 0.16s ease;
+	}
+
+	&:hover &__actions,
+	&:focus-within &__actions {
+		opacity: 1;
+		transform: none;
+		pointer-events: auto;
+	}
+
+	&__delete {
+		display: inline-flex;
+	}
+}

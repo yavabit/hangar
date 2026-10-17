@@ -5,6 +5,14 @@
 	margin-right: 4px;
 }
 
+.search__scope-tag.ant-tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	color: var(--accent);
+	background: var(--accent-soft);
+}
+
 .search__scope-tag {
 	margin: 0;
 	max-width: 240px;
@@ -12,4 +20,13 @@
 	text-overflow: ellipsis;
 	font-size: 13px;
 	line-height: 22px;
+}
+
+.search.ant-input-affix-wrapper {
+	height: 40px;
+	border-radius: var(--radius-md);
+}
+
+.search__icon {
+	color: var(--text-faint);
 }

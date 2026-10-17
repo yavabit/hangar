@@ -1,0 +1,25 @@
+.filters {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-bottom: 22px;
+
+	&__search {
+		flex: 1;
+		min-width: 280px;
+	}
+
+	&__option {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	&__icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		height: 100%;
+	}
+}

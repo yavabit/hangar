@@ -1,7 +1,7 @@
 import { FC, useState } from "react";
 import { Dropdown, Modal, Spin, Tooltip } from "antd";
 import type { MenuProps } from "antd";
-import { BranchesOutlined, CheckOutlined, CloudOutlined, DownOutlined } from "@ant-design/icons";
+import { Check, ChevronDown, Cloud, GitBranch, LoaderCircle } from "lucide-react";
 import { gitApi } from "@renderer/shared/api/git.api";
 import { useAppNotification } from "@renderer/shared/hooks/useAppNotification";
 import { getIpcErrorMessage } from "@renderer/shared/utils/ipcError";
@@ -80,7 +80,7 @@ export const BranchSwitcher: FC<BranchSwitcherProps> = ({ projectId, branch, cha
 				children: branches.local.map((name) => ({
 					key: `${LOCAL_PREFIX}${name}`,
 					label: name,
-					icon: name === branches.current ? <CheckOutlined /> : <span className="branch-switcher__no-icon" />,
+					icon: name === branches.current ? <Check size={14} /> : <span className="branch-switcher__no-icon" />,
 					disabled: name === branches.current,
 				})),
 			},
@@ -92,7 +92,7 @@ export const BranchSwitcher: FC<BranchSwitcherProps> = ({ projectId, branch, cha
 						children: branches.remote.map((name) => ({
 							key: `${REMOTE_PREFIX}${name}`,
 							label: name,
-							icon: <CloudOutlined />,
+							icon: <Cloud size={14} />,
 						})),
 					},
 				]
@@ -110,9 +110,9 @@ export const BranchSwitcher: FC<BranchSwitcherProps> = ({ projectId, branch, cha
 			>
 				<Tooltip title="Текущая ветка. Нажмите, чтобы переключить">
 					<span className="branch-switcher" onClick={stop} onDoubleClick={stop}>
-						{switching ? <Spin size="small" /> : <BranchesOutlined />}
+						{switching ? <LoaderCircle size={12} className="branch-switcher__spin" /> : <GitBranch size={12} strokeWidth={2} />}
 						<span className="branch-switcher__name">{branch ?? "detached HEAD"}</span>
-						<DownOutlined className="branch-switcher__arrow" />
+						<ChevronDown size={11} className="branch-switcher__arrow" />
 					</span>
 				</Tooltip>
 			</Dropdown>

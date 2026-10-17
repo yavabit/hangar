@@ -17,6 +17,8 @@ export const projectsApi: ProjectsApi = {
 
 	openInIde: (id) => window.api.projects.openInIde(id),
 
+	openTerminal: (id) => window.api.projects.openTerminal(id),
+
 	inspectPath: (projectPath) => window.api.projects.inspectPath(projectPath),
 
 	scan: (rootPath, depth) => window.api.projects.scan(rootPath, depth),
@@ -28,4 +30,6 @@ export const projectsApi: ProjectsApi = {
 	onChanged: (callback) => window.api.projects.onChanged(callback),
 
 	onHealth: (callback) => window.api.projects.onHealth(callback),
+
+	onCheckedAt: (callback) => window.api.projects.onCheckedAt(callback),
 };

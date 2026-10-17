@@ -1,26 +1,13 @@
 import { FC, useMemo, useState } from "react";
+import { FolderPlus } from "lucide-react";
 import { Folder } from "./Folder";
-import { Col, Row } from "antd";
-import { ProjectCardWrapper } from "@renderer/shared/components/UI/ProjectCardWrapper/ProjectCardWrapper";
-import { PlusOutlined } from "@ant-design/icons";
 import { AddOrEditFolderModal } from "../Modals/AddFolderModal";
 
 import "./Folders.scss";
 import type { Folder as FolderType, Project } from "@schemas/store.schema";
+import { useAppStore } from "@renderer/store/app.store";
 import { useFolders } from "@renderer/shared/hooks/useFolders";
 import { useProjects } from "@renderer/shared/hooks/useProjects";
-import { getLatestActivity } from "@renderer/shared/utils/projectFilters";
-
-const AddFolder: FC<{ onClick: () => void }> = ({ onClick }) => {
-	return (
-		<ProjectCardWrapper type="folder" onCardClick={onClick} className="add-folder-card">
-			<div className="add-folder">
-				<PlusOutlined className="add-folder__icon" />
-				<span className="add-folder__text">Создать папку</span>
-			</div>
-		</ProjectCardWrapper>
-	);
-};
 
 type FoldersProps = {
 	items: FolderType[];
@@ -30,6 +17,7 @@ type FoldersProps = {
 
 export const Folders: FC<FoldersProps> = ({ items, projects, showCreate = true }) => {
 	const [modal, setModal] = useState<{ open: boolean; folder?: FolderType }>({ open: false });
+	const health = useAppStore((s) => s.health);
 
 	const { addFolder, removeFolder, updateFolder } = useFolders()
 	const { moveProject } = useProjects()
@@ -54,46 +42,25 @@ export const Folders: FC<FoldersProps> = ({ items, projects, showCreate = true }
 
 	return (
 		<div>
-			<Row gutter={[16, 16]}>
-				{/* 16px отступы между колонками по горизонтали и вертикали */}
+			<div className="folders-grid">
+				{items.map((folder) => (
+					<Folder
+						key={folder.id}
+						folder={folder}
+						projects={projectsByFolder.get(folder.id) ?? []}
+						health={health}
+						onDelete={removeFolder}
+						onEdit={(f) => setModal({ open: true, folder: f })}
+						onDropProject={(projectId, target) => void moveProject(projectId, target)}
+					/>
+				))}
 				{showCreate && (
-					<Col
-						xs={24}
-						sm={12}
-						md={8}
-						lg={6}
-						xl={4}
-						style={{ minWidth: 350 }}
-					>
-						<AddFolder onClick={() => setModal({ open: true })} />
-					</Col>
+					<button type="button" className="folder-create" onClick={() => setModal({ open: true })}>
+						<FolderPlus size={20} strokeWidth={1.8} />
+						<span>Новая папка</span>
+					</button>
 				)}
-				{items.map((folder) => {
-					const folderProjects = projectsByFolder.get(folder.id) ?? [];
-
-					return (
-						<Col
-							key={folder.id}
-							xs={24} // 1 элемент в строку (на всю ширину)
-							sm={12} // 2 элемента в строку
-							md={8} // 3 элемента в строку
-							lg={6} // 4 элемента в строку
-							xl={4} // 5-6 элементов в строку
-							style={{ minWidth: 350 }}
-						>
-							<Folder
-								folder={folder}
-								projectsCount={folderProjects.length}
-								lastActivity={getLatestActivity(folderProjects)}
-								onDelete={removeFolder}
-								onEdit={(f) => setModal({ open: true, folder: f })}
-								onDropProject={(projectId, target) => void moveProject(projectId, target)}
-								containsProject={(projectId) => folderProjects.some((p) => p.id === projectId)}
-							/>
-						</Col>
-					);
-				})}
-			</Row>
+			</div>
 			<AddOrEditFolderModal
 				isOpen={modal.open}
 				editModalData={modal.folder}

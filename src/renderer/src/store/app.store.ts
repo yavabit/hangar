@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { DEFAULT_SETTINGS, type AppSettings, type Folder, type Project } from "@schemas/store.schema";
-import type { ProjectsHealth } from "@common/api/api.types";
+import type { ProjectsHealth, WindowInfo } from "@common/api/api.types";
 
 export type AppStore = {
 	hydrated: boolean;
@@ -11,6 +11,9 @@ export type AppStore = {
 	folders: Folder[];
 	/** Есть ли папка на диске и состояние git. Приходит из main, не сохраняется */
 	health: ProjectsHealth;
+	/** Когда статусы проверялись полностью */
+	checkedAt: string | null;
+	window: WindowInfo;
 
 	load: () => Promise<void>;
 
@@ -22,6 +25,7 @@ export type AppStore = {
 	removeProject: (id: string) => void;
 
 	setHealth: (health: ProjectsHealth) => void;
+	setCheckedAt: (checkedAt: string) => void;
 
 	setFolders: (f: Folder[]) => void;
 	addFolder: (f: Folder) => void;
@@ -37,6 +41,8 @@ export const useAppStore = create<AppStore>((set) => ({
 	projects: [],
 	folders: [],
 	health: {},
+	checkedAt: null,
+	window: { platform: "win32", mica: false },
 
 	// --- LOAD ---
 	load: async () => {
@@ -50,6 +56,8 @@ export const useAppStore = create<AppStore>((set) => ({
 				projects: state.projects,
 				folders: state.folders,
 				health: state.health,
+				checkedAt: state.checkedAt,
+				window: state.window,
 				hydrated: true,
 			});
 		} catch (e) {
@@ -87,6 +95,10 @@ export const useAppStore = create<AppStore>((set) => ({
 
 	setHealth: (health) => {
 		set({ health });
+	},
+
+	setCheckedAt: (checkedAt) => {
+		set({ checkedAt });
 	},
 
 	// --- FOLDERS ---

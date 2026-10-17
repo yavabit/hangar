@@ -1,6 +1,6 @@
 import { FC, useState } from "react";
 import { Button, Input, Space, Tooltip } from "antd";
-import { CloseOutlined } from "@ant-design/icons";
+import { X } from "lucide-react";
 import { formatHotkey } from "@renderer/shared/utils/hotkey";
 
 type HotkeyInputProps = {
@@ -95,7 +95,7 @@ export const HotkeyInput: FC<HotkeyInputProps> = ({ value = "", onChange }) => {
 				style={{ cursor: "pointer", fontWeight: value && !recording ? 600 : undefined }}
 			/>
 			<Tooltip title="Отключить">
-				<Button icon={<CloseOutlined />} disabled={!value} onClick={() => onChange?.("")} />
+				<Button icon={<X size={15} />} disabled={!value} onClick={() => onChange?.("")} />
 			</Tooltip>
 		</Space.Compact>
 	);

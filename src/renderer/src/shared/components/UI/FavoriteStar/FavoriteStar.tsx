@@ -1,8 +1,9 @@
 import { FC, useState } from "react";
 import { Tooltip } from "antd";
-import { StarOutlined, StarFilled } from "@ant-design/icons";
+import { Star } from "lucide-react";
 import { motion } from "framer-motion";
-import styles from "./FavoriteStar.module.scss";
+
+import "./FavoriteStar.scss";
 
 type FavoriteStarProps = {
 	isFavorite: boolean;
@@ -11,6 +12,7 @@ type FavoriteStarProps = {
 	className?: string;
 };
 
+/** Звезда избранного: у избранных видна всегда, у остальных — при наведении на карточку */
 export const FavoriteStar: FC<FavoriteStarProps> = ({ isFavorite, onFavorite, itemId, className = "" }) => {
 	const [isAnimating, setIsAnimating] = useState(false);
 
@@ -18,50 +20,28 @@ export const FavoriteStar: FC<FavoriteStarProps> = ({ isFavorite, onFavorite, it
 		e.stopPropagation();
 
 		setIsAnimating(true);
-
 		onFavorite(itemId);
 
 		setTimeout(() => {
 			setIsAnimating(false);
-		}, 1000);
+		}, 700);
 	};
 
 	return (
-		<div
-			className={`${styles["favorite-star-wrapper"]} ${className} ${isAnimating ? "animated" : ""} ${isFavorite ? "is-favorite" : ""}`}
-		>
-			<Tooltip
-				title={isFavorite ? "Удалить из избранного" : "Добавить в избранное"}
+		<Tooltip title={isFavorite ? "Убрать из избранного" : "В избранное"}>
+			<motion.button
+				type="button"
+				aria-label={isFavorite ? "Убрать из избранного" : "Добавить в избранное"}
+				aria-pressed={isFavorite}
+				className={`favorite-star ${isFavorite ? "favorite-star--active" : ""} ${isAnimating ? "favorite-star--animating" : ""} ${className}`}
+				onClick={handleClick}
+				onDoubleClick={(e) => e.stopPropagation()}
+				whileTap={{ scale: 0.8 }}
+				animate={isAnimating ? { scale: [1, 1.35, 1], rotate: [0, 72, 0] } : { scale: 1, rotate: 0 }}
+				transition={{ duration: 0.45, ease: "easeInOut" }}
 			>
-				<motion.div
-					className={styles["fav-ico-lnk"]}
-					onClick={handleClick}
-					onDoubleClick={(e) => e.stopPropagation()}
-					whileHover={{ scale: 1.2 }}
-					whileTap={{ scale: 0.8 }}
-					animate={isAnimating ? "pop" : "idle"}
-					variants={{
-						idle: { scale: 1, rotate: 0 },
-						pop: {
-							scale: [1, 1.4, 1],
-							rotate: [0, 180, 360],
-							transition: { duration: 0.6, ease: "easeInOut" },
-						},
-					}}
-				>
-					{isFavorite ? (
-						<StarFilled
-							className={styles["star-icon"]}
-							style={{ color: "#faad14", fontSize: "20px" }}
-						/>
-					) : (
-						<StarOutlined
-							className={styles["star-icon"]}
-							style={{ fontSize: "20px" }}
-						/>
-					)}
-				</motion.div>
-			</Tooltip>
-		</div>
+				<Star size={15} strokeWidth={2} fill={isFavorite ? "currentColor" : "none"} />
+			</motion.button>
+		</Tooltip>
 	);
 };

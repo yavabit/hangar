@@ -1,6 +1,6 @@
 import { FC, ReactNode } from "react";
 import { Input, Tag, Tooltip } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { Search as SearchIcon } from "lucide-react";
 
 import "./Search.scss";
 
@@ -31,13 +31,12 @@ export const Search: FC<SearchProps> = ({ value, placeholder = 'Поиск...', 
 			placeholder={placeholder}
 			prefix={
 				<span className="search__prefix">
-					<SearchOutlined style={{ color: '#bfbfbf' }} />
+					<SearchIcon size={16} strokeWidth={2} className="search__icon" />
 					{scopeTag && (
 						<Tooltip title="Ищем только здесь. Уберите тег, чтобы искать по всем проектам">
 							<Tag
 								closable
 								icon={scopeTag.icon}
-								color="processing"
 								bordered={false}
 								className="search__scope-tag"
 								onClose={(e) => {
@@ -56,7 +55,7 @@ export const Search: FC<SearchProps> = ({ value, placeholder = 'Поиск...', 
 			onKeyDown={handleKeyDown}
 			allowClear
 			size="large"
-			style={{ backgroundColor: '#f8f8f8' }}
+			className="search glass"
 		/>
 	);
 };

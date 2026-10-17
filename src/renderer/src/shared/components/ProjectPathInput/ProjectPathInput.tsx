@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import { Button, Input, Select, Space, Typography } from "antd";
-import { CheckCircleFilled, FolderOpenOutlined, WarningFilled } from "@ant-design/icons";
+import { CircleCheck, FolderOpen, TriangleAlert } from "lucide-react";
 import { buildAliasPath, findAlias, parseAliasPath, toAliasPath } from "@common/utils/pathAliases";
 import { usePathAliases } from "@renderer/shared/hooks/usePathAliases";
 import { api } from "@renderer/shared/api";
@@ -124,7 +124,7 @@ export const ProjectPathInput: FC<ProjectPathInputProps> = ({ value = "", onChan
 					prefix={parsed ? <Typography.Text type="secondary">/</Typography.Text> : undefined}
 					style={{ fontFamily: "monospace" }}
 				/>
-				<Button icon={<FolderOpenOutlined />} onClick={handleBrowse}>
+				<Button icon={<FolderOpen size={15} />} onClick={handleBrowse}>
 					Обзор
 				</Button>
 			</Space.Compact>
@@ -133,12 +133,12 @@ export const ProjectPathInput: FC<ProjectPathInputProps> = ({ value = "", onChan
 				<div style={{ marginTop: 6, fontSize: 12 }}>
 					{info.exists ? (
 						<Typography.Text type="secondary" style={{ fontSize: 12 }}>
-							<CheckCircleFilled style={{ color: "#52c41a", marginRight: 6 }} />
+							<CircleCheck size={13} style={{ color: "var(--success)", marginRight: 6, verticalAlign: -2 }} />
 							<span style={{ fontFamily: "monospace", wordBreak: "break-all" }}>{info.resolvedPath}</span>
 						</Typography.Text>
 					) : (
 						<Typography.Text type="warning" style={{ fontSize: 12 }}>
-							<WarningFilled style={{ marginRight: 6 }} />
+							<TriangleAlert size={13} style={{ marginRight: 6, verticalAlign: -2 }} />
 							Папка не найдена:{" "}
 							<span style={{ fontFamily: "monospace", wordBreak: "break-all" }}>{info.resolvedPath}</span>
 						</Typography.Text>

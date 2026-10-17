@@ -2,16 +2,37 @@
 <html lang="ru">
   <head>
     <meta charset="UTF-8" />
-    <title>Project Launcher</title>
+    <title>Hangar</title>
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:"
     />
     <style>
+      :root {
+        --splash-bg: #eceff4;
+        --splash-glow-1: rgba(108, 128, 186, 0.42);
+        --splash-glow-2: rgba(124, 124, 240, 0.24);
+        --splash-title: #141821;
+        --splash-text: #5b6272;
+        --splash-track: rgba(81, 80, 216, 0.14);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --splash-bg: #0b0c10;
+          --splash-glow-1: rgba(99, 102, 241, 0.22);
+          --splash-glow-2: rgba(56, 96, 170, 0.24);
+          --splash-title: #ecedef;
+          --splash-text: #8b8f98;
+          --splash-track: rgba(139, 139, 255, 0.16);
+        }
+      }
+
       html,
       body {
-        background: #f4f5fb;
+        margin: 0;
+        background: var(--splash-bg);
       }
 
       .splash {
@@ -24,10 +45,11 @@
         justify-content: center;
         gap: 14px;
         background:
-          radial-gradient(circle at 30% 25%, rgba(59, 130, 246, 0.14), transparent 45%),
-          radial-gradient(circle at 70% 75%, rgba(139, 61, 240, 0.12), transparent 45%),
-          #f4f5fb;
-        font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          radial-gradient(55% 45% at 55% -8%, var(--splash-glow-1), transparent 72%),
+          radial-gradient(38% 40% at 100% 18%, var(--splash-glow-2), transparent 70%),
+          var(--splash-bg);
+        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+        -webkit-app-region: drag;
         transition:
           opacity 0.45s ease,
           transform 0.45s ease;
@@ -40,26 +62,26 @@
       }
 
       .splash__logo {
-        width: 96px;
-        height: 96px;
-        filter: drop-shadow(0 12px 24px rgba(91, 91, 240, 0.35));
+        width: 92px;
+        height: 92px;
+        filter: drop-shadow(0 16px 32px rgba(111, 111, 240, 0.35));
         animation:
           splash-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both,
           splash-float 2.4s ease-in-out 0.6s infinite;
       }
 
       .splash__title {
-        margin-top: 6px;
-        font-size: 24px;
+        margin-top: 8px;
+        font-size: 26px;
         font-weight: 600;
-        letter-spacing: 0.01em;
-        color: #1f2340;
+        letter-spacing: -0.02em;
+        color: var(--splash-title);
         animation: splash-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.1s both;
       }
 
       .splash__status {
         font-size: 13px;
-        color: #7a7f99;
+        color: var(--splash-text);
         animation: splash-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both;
       }
 
@@ -69,7 +91,7 @@
         height: 3px;
         overflow: hidden;
         border-radius: 3px;
-        background: rgba(91, 91, 240, 0.15);
+        background: var(--splash-track);
         animation: splash-in 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both;
       }
 
@@ -81,7 +103,7 @@
         left: -40%;
         width: 40%;
         border-radius: 3px;
-        background: linear-gradient(90deg, #3b82f6, #8b3df0);
+        background: linear-gradient(90deg, #7474f5, #b6b6ff);
         animation: splash-progress 1.1s ease-in-out infinite;
       }
 
@@ -120,9 +142,9 @@
   <body>
     <div id="splash" class="splash" role="status" aria-live="polite">
       <img class="splash__logo" src="/src/shared/assets/logo/logo.svg" alt="" />
-      <div class="splash__title">Project Launcher</div>
+      <div class="splash__title">Hangar</div>
       <div class="splash__progress"></div>
-      <div class="splash__status">Загружаем проекты…</div>
+      <div class="splash__status">Выкатываем проекты…</div>
     </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

@@ -1,5 +1,6 @@
 import { FC, useMemo, useState } from "react";
-import { AppstoreOutlined, FolderOutlined, InboxOutlined, UnorderedListOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
+import { Folders as FoldersIcon, Inbox, Rows3 } from "lucide-react";
 import { Segmented } from "antd";
 import { Filters } from "@renderer/shared/components/Filters/Filters";
 import { ProjectList } from "@renderer/shared/components/Project/ProjectList";
@@ -17,8 +18,10 @@ import { usePathAliases } from "@renderer/shared/hooks/usePathAliases";
 import { applyProjectFilters, matchesFolder } from "@renderer/shared/utils/projectFilters";
 import { pluralize } from "@renderer/shared/utils/pluralize";
 import { Folders } from "./components/Folders/Folders";
+import { Onboarding } from "./components/Onboarding/Onboarding";
 
 export const Projects: FC = () => {
+	const navigate = useNavigate();
 	const folders = useAppStore((s) => s.folders);
 	const projects = useAppStore((s) => s.projects);
 	const view = useUiStore((s) => s.view);
@@ -64,7 +67,7 @@ export const Projects: FC = () => {
 	const unfiledDropTarget = showUnfiledDropTarget && (
 		<ProjectDropZone onDropProject={(projectId) => void moveProject(projectId, null)}>
 			<div className="unfiled-drop-target">
-				<InboxOutlined /> Перетащите сюда, чтобы убрать проект из папки
+				<Inbox size={16} /> Перетащите сюда, чтобы убрать проект из папки
 			</div>
 		</ProjectDropZone>
 	);
@@ -72,16 +75,11 @@ export const Projects: FC = () => {
 	const renderContent = (): React.ReactNode => {
 		if (projects.length === 0 && folders.length === 0) {
 			return (
-				<>
-					<ProjectList
-						items={[]}
-						emptyDescription="Здесь пока пусто. Добавьте первый проект, импортируйте папку с проектами или создайте папку"
-						emptyExtra={addButton}
-					/>
-					<Section title="Папки" count={0}>
-						<Folders items={[]} projects={projects} />
-					</Section>
-				</>
+				<Onboarding
+					onImport={() => setImportModalOpen(true)}
+					onAdd={() => setAddModalOpen(true)}
+					onAliases={() => navigate("/settings")}
+				/>
 			);
 		}
 
@@ -137,7 +135,6 @@ export const Projects: FC = () => {
 	return (
 		<div>
 			<PageHeader
-				icon={<AppstoreOutlined />}
 				title="Проекты"
 				description={`${projects.length} ${pluralize(projects.length, ["проект", "проекта", "проектов"])} · ${folders.length} ${pluralize(folders.length, ["папка", "папки", "папок"])}`}
 				extra={
@@ -156,8 +153,8 @@ export const Projects: FC = () => {
 						value={view}
 						onChange={setView}
 						options={[
-							{ value: "folders", label: "По папкам", icon: <FolderOutlined /> },
-							{ value: "all", label: "Все проекты", icon: <UnorderedListOutlined /> },
+							{ value: "folders", label: <span className="filters__option"><FoldersIcon size={15} /> По папкам</span> },
+							{ value: "all", label: <span className="filters__option"><Rows3 size={15} /> Все</span> },
 						]}
 					/>
 				}

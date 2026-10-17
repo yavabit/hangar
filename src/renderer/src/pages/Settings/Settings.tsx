@@ -1,48 +1,41 @@
 import { FC } from "react";
-import { SettingOutlined } from "@ant-design/icons";
+import { Palette, ShieldCheck } from "lucide-react";
 import { Versions } from "@renderer/shared/components/Versions";
 import { PageHeader } from "@renderer/shared/components/PageHeader/PageHeader";
-import { Disclaimer } from "@renderer/shared/components/UI/Disclaimer/Disclaimer";
+import { ThemeSwitcher } from "@renderer/shared/components/ThemeSwitcher/ThemeSwitcher";
 import { SettingsForm } from "./SettingsForm/SettingsForm";
 
-export const Settings: FC = () => {
+import "./Settings.scss";
 
+export const Settings: FC = () => {
 	return (
-		<div>
-			<PageHeader icon={<SettingOutlined />} title="Настройки" description="IDE, консоль, алиасы путей и Git" />
-			<Disclaimer 
-				variant="info"
-				title="Примечание: Конфиденциальность данных" 
-				description="В настоящий момент приложение не собирает и не хранит ваши данные на стороне
-					какого-либо сервера. Вся информация обрабатывается и сохраняется
-					исключительно на вашем устройстве. После закрытия все временные
-					данные будут удалены. Настройки и прочие данные будут сохранены на устройстве."
-			/>
+		<div className="settings-page">
+			<PageHeader title="Настройки" description="Оформление, IDE, консоль, алиасы путей и быстрый доступ" />
+
+			<section className="settings-card glass">
+				<div className="settings-card__head">
+					<Palette size={18} strokeWidth={1.8} />
+					<div>
+						<div className="settings-card__title">Оформление</div>
+						<div className="settings-card__text">Тема применяется сразу, без сохранения</div>
+					</div>
+				</div>
+				<ThemeSwitcher withLabels />
+			</section>
+
 			<SettingsForm />
-			<div
-				style={{
-					display: "flex",
-					justifyContent: "center",
-					flexDirection: "column",
-					marginTop: "20px",
-					marginBottom: "20px",
-				}}
-			>
-				<div
-					style={{
-						textAlign: "center",
-						marginBottom: "10px",
-						color: "#056279",
-					}}
-				>
-					Platform: {window.electron.process.platform}
-				</div>
+
+			<section className="settings-note">
+				<ShieldCheck size={16} strokeWidth={1.8} />
+				<span>Hangar ничего не отправляет в интернет: проекты и настройки хранятся только на этом устройстве.</span>
+			</section>
+
+			<footer className="settings-footer">
 				<Versions />
-				<div style={{ textAlign: "center", marginTop: "10px", color: "gray" }}>
-					Developed by <a href="https://github.com/yavabit">yavabit</a>. Open
-					source lic.
+				<div>
+					Платформа: {window.electron.process.platform} · Разработано <a href="https://github.com/yavabit">yavabit</a>
 				</div>
-			</div>
+			</footer>
 		</div>
 	);
 };

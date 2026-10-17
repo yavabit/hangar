@@ -1,7 +1,7 @@
 import { FC, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Empty } from "antd";
-import { EditOutlined, FolderOpenOutlined, FolderOutlined, HomeOutlined } from "@ant-design/icons";
+import { FolderOpen, LayoutGrid, Pencil } from "lucide-react";
 import { Filters } from "@renderer/shared/components/Filters/Filters";
 import { ProjectList } from "@renderer/shared/components/Project/ProjectList";
 import { ProjectModal } from "@renderer/shared/components/Modals/ProjectModal";
@@ -17,7 +17,7 @@ import { usePathAliases } from "@renderer/shared/hooks/usePathAliases";
 import { applyProjectFilters } from "@renderer/shared/utils/projectFilters";
 import { pluralize } from "@renderer/shared/utils/pluralize";
 
-const rootCrumb: PageBreadcrumb = { title: "Проекты", icon: <HomeOutlined />, to: "/" };
+const rootCrumb: PageBreadcrumb = { title: "Проекты", icon: <LayoutGrid size={13} />, to: "/" };
 
 export const FolderPage: FC = () => {
 	const { id = "" } = useParams();
@@ -43,7 +43,7 @@ export const FolderPage: FC = () => {
 	if (!folder) {
 		return (
 			<div>
-				<PageHeader breadcrumbs={[rootCrumb]} icon={<FolderOutlined />} title="Папка не найдена" />
+				<PageHeader breadcrumbs={[rootCrumb]} title="Папка не найдена" />
 				<Empty description="Возможно, папка была удалена">
 					<Button type="primary" onClick={() => navigate("/")}>
 						К списку проектов
@@ -62,14 +62,13 @@ export const FolderPage: FC = () => {
 	return (
 		<div>
 			<PageHeader
-				breadcrumbs={[rootCrumb, { title: folder.name, icon: <FolderOpenOutlined /> }]}
-				icon={<FolderOpenOutlined />}
+				breadcrumbs={[rootCrumb, { title: folder.name, icon: <FolderOpen size={13} /> }]}
 				title={folder.name}
 				description={folder.description ? `${folder.description} · ${projectsCount}` : projectsCount}
 				extra={
 					<>
 						<RefreshStatusButton />
-						<Button icon={<EditOutlined />} onClick={() => setEditModalOpen(true)}>
+						<Button icon={<Pencil size={14} />} onClick={() => setEditModalOpen(true)}>
 							Редактировать
 						</Button>
 						{addButton}
@@ -82,7 +81,7 @@ export const FolderPage: FC = () => {
 				placeholder={`Поиск в папке «${folder.name}»...`}
 				scopeTag={{
 					label: folder.name,
-					icon: <FolderOpenOutlined />,
+					icon: <FolderOpen size={12} />,
 					onRemove: () => {
 						setSearch("projects", filters.search);
 						setSearch(`folder:${folder.id}`, "");

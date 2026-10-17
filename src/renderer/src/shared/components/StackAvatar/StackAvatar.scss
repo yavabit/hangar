@@ -1,0 +1,46 @@
+.stack-avatar {
+	--stack: #8b8f98;
+
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	border-radius: 11px;
+	font-family: var(--font-mono);
+	font-weight: 500;
+	letter-spacing: -0.02em;
+	color: var(--stack);
+	background: color-mix(in srgb, var(--stack) 15%, transparent);
+	border: 1px solid color-mix(in srgb, var(--stack) 30%, transparent);
+
+	&--sm {
+		width: 28px;
+		height: 28px;
+		border-radius: 8px;
+		font-size: 11px;
+	}
+
+	&--md {
+		width: 40px;
+		height: 40px;
+		font-size: 14px;
+	}
+
+	&--lg {
+		width: 52px;
+		height: 52px;
+		border-radius: 14px;
+		font-size: 17px;
+	}
+
+	&--unknown {
+		color: var(--text-muted);
+		background: var(--chip-bg);
+		border-color: var(--divider);
+	}
+}
+
+/* На светлом фоне светлые цвета стеков нечитаемы — затемняем */
+:root[data-theme='light'] .stack-avatar:not(.stack-avatar--unknown) {
+	color: color-mix(in srgb, var(--stack) 62%, #000);
+}

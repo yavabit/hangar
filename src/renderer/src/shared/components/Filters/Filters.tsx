@@ -1,8 +1,11 @@
 import { Search, type SearchScopeTag } from "@renderer/shared/components/Search/Search";
-import { Flex, Select } from "antd";
-import { ClockCircleOutlined, ExportOutlined, SortAscendingOutlined } from "@ant-design/icons";
+import { Segmented, Select, Tooltip } from "antd";
+import { ArrowDownAZ, Clock, LayoutGrid, List, SquareArrowOutUpRight } from "lucide-react";
 import { FC, ReactNode } from "react";
 import type { ProjectFiltersValue, ProjectSort } from "@renderer/shared/utils/projectFilters";
+import { useUiStore, type ProjectsLayout } from "@renderer/store/ui.store";
+
+import "./Filters.scss";
 
 type FiltersProps = {
 	value: ProjectFiltersValue;
@@ -13,9 +16,9 @@ type FiltersProps = {
 };
 
 const sortOptions: { value: ProjectSort; label: ReactNode }[] = [
-	{ value: "opened", label: <span><ExportOutlined /> Недавно открытые</span> },
-	{ value: "modified", label: <span><ClockCircleOutlined /> Недавно изменённые</span> },
-	{ value: "name", label: <span><SortAscendingOutlined /> По названию</span> },
+	{ value: "opened", label: <span className="filters__option"><SquareArrowOutUpRight size={14} /> Недавно открытые</span> },
+	{ value: "modified", label: <span className="filters__option"><Clock size={14} /> Недавно изменённые</span> },
+	{ value: "name", label: <span className="filters__option"><ArrowDownAZ size={14} /> По названию</span> },
 ];
 
 export const Filters: FC<FiltersProps> = ({
@@ -25,9 +28,12 @@ export const Filters: FC<FiltersProps> = ({
 	extra,
 	scopeTag,
 }) => {
+	const layout = useUiStore((s) => s.layout);
+	const setLayout = useUiStore((s) => s.setLayout);
+
 	return (
-		<Flex gap={12} align="center" wrap="wrap" style={{ marginBottom: 20 }}>
-			<div style={{ flex: 1, minWidth: 280 }}>
+		<div className="filters">
+			<div className="filters__search">
 				<Search
 					value={value.search}
 					placeholder={placeholder}
@@ -36,14 +42,23 @@ export const Filters: FC<FiltersProps> = ({
 				/>
 			</div>
 			{extra}
+			<Segmented<ProjectsLayout>
+				size="large"
+				value={layout}
+				onChange={setLayout}
+				options={[
+					{ value: "grid", label: <Tooltip title="Карточки"><span className="filters__icon"><LayoutGrid size={16} /></span></Tooltip> },
+					{ value: "list", label: <Tooltip title="Список"><span className="filters__icon"><List size={16} /></span></Tooltip> },
+				]}
+			/>
 			<Select
 				size="large"
 				value={value.sort}
 				options={sortOptions}
 				onChange={(sort) => onChange({ ...value, sort })}
-				style={{ width: 230 }}
+				style={{ width: 220 }}
 				aria-label="Сортировка"
 			/>
-		</Flex>
+		</div>
 	);
 };

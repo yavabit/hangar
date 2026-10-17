@@ -1,14 +1,14 @@
 .project-drop-zone {
 	height: 100%;
-	border-radius: 10px;
+	border-radius: var(--radius-lg);
 	transition: box-shadow 0.15s ease, transform 0.15s ease;
 
 	&--active {
-		box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.25);
+		box-shadow: 0 0 0 2px var(--accent-soft);
 	}
 
 	&--over {
-		box-shadow: 0 0 0 3px #1677ff;
+		box-shadow: 0 0 0 3px var(--accent-ring);
 		transform: scale(1.02);
 	}
 }
@@ -18,10 +18,10 @@
 	align-items: center;
 	justify-content: center;
 	gap: 8px;
-	min-height: 72px;
+	min-height: 64px;
 	margin-bottom: 16px;
-	border: 2px dashed #91caff;
-	border-radius: 10px;
-	color: #1677ff;
-	background: rgba(22, 119, 255, 0.04);
+	border: 1.5px dashed var(--accent-ring);
+	border-radius: var(--radius-lg);
+	color: var(--accent);
+	background: var(--accent-soft);
 }

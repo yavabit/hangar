@@ -1,4 +1,5 @@
 import { useAppStore } from "@renderer/store/app.store";
+import { useUiStore } from "@renderer/store/ui.store";
 import { useAppNotification } from "./useAppNotification";
 import { projectsApi } from "../api/projects.api";
 import { getIpcErrorMessage } from "../utils/ipcError";
@@ -18,6 +19,7 @@ type UseProjectType = {
 	toggleFavorite: (id: Project["id"]) => Promise<void>;
 	openProjectFolder: (id: Project["id"]) => Promise<void>;
 	openProjectInIde: (id: Project["id"]) => Promise<void>;
+	openProjectTerminal: (id: Project["id"]) => Promise<void>;
 }
 
 export const useProjects = (): UseProjectType => {
@@ -183,6 +185,7 @@ export const useProjects = (): UseProjectType => {
 	};
 
 	const openProjectInIde = async (id: Project["id"]): Promise<void> => {
+		useUiStore.getState().markLaunching(id);
 		try {
 			const updated = await projectsApi.openInIde(id);
 			updateLocal(id, updated);
@@ -199,6 +202,17 @@ export const useProjects = (): UseProjectType => {
 		}
 	};
 
+	const openProjectTerminal = async (id: Project["id"]): Promise<void> => {
+		try {
+			await projectsApi.openTerminal(id);
+		} catch (e) {
+			showError("project_open_terminal", {
+				message: "Не удалось открыть терминал",
+				description: getIpcErrorMessage(e),
+			});
+		}
+	};
+
 	return {
 		projects,
 		addProject,
@@ -209,5 +223,6 @@ export const useProjects = (): UseProjectType => {
 		toggleFavorite,
 		openProjectFolder,
 		openProjectInIde,
+		openProjectTerminal,
 	};
 };

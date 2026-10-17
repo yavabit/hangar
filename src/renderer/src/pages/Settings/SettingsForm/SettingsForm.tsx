@@ -11,7 +11,7 @@ import {
 	Divider,
 	Modal,
 } from "antd";
-import { CodeOutlined, ExclamationCircleFilled } from "@ant-design/icons";
+import { Code, TriangleAlert } from "lucide-react";
 import { useBlocker } from "react-router-dom";
 import type { AppSettings } from "@schemas/store.schema";
 import { PathAliasesManager } from "./PathAliasesManager/PathAliasesManager";
@@ -55,7 +55,8 @@ export const SettingsForm: FC = () => {
 		}
 
 		setSaving(true);
-		const saved = await updateSettings(form.getFieldsValue(true) as AppSettings);
+		const values = form.getFieldsValue(true) as AppSettings;
+		const saved = await updateSettings({ ...settings, common: values.common, statusRefresh: values.statusRefresh });
 		setSaving(false);
 
 		if (saved) {
@@ -72,7 +73,7 @@ export const SettingsForm: FC = () => {
 
 		const instance = modal.confirm({
 			title: "Сохранить изменения в настройках?",
-			icon: <ExclamationCircleFilled />,
+			icon: <TriangleAlert size={22} color="#f5a524" style={{ marginRight: 10 }} />,
 			content: "Вы изменили настройки, но не сохранили их.",
 			closable: true,
 			onCancel: () => blocker.reset(),
@@ -118,10 +119,8 @@ export const SettingsForm: FC = () => {
 
 	return (
 		<Card
-			title={
-				<div style={{ fontSize: 20, fontWeight: 500 }}>Настройки системы</div>
-			}
-			style={{ maxWidth: 1000, margin: "0 auto" }}
+			variant="borderless"
+			className="settings-form"
 		>
 			{modalContextHolder}
 			<Form
@@ -154,7 +153,7 @@ export const SettingsForm: FC = () => {
 								value: "vscode",
 								label: (
 									<Space>
-										<CodeOutlined />
+										<Code size={14} />
 										VS Code
 									</Space>
 								),
@@ -163,7 +162,7 @@ export const SettingsForm: FC = () => {
 								value: "webstorm",
 								label: (
 									<Space>
-										<CodeOutlined />
+										<Code size={14} />
 										WebStorm
 									</Space>
 								),
@@ -172,7 +171,7 @@ export const SettingsForm: FC = () => {
 								value: "intellij",
 								label: (
 									<Space>
-										<CodeOutlined />
+										<Code size={14} />
 										IntelliJ IDEA
 									</Space>
 								),
@@ -268,14 +267,10 @@ export const SettingsForm: FC = () => {
 					<InputNumber min={1} max={240} suffix="мин" style={{ width: 160 }} />
 				</Form.Item>
 
-				<Form.Item style={{
-					marginTop: 24,
-					position: formEdited ? "sticky" : "static",
-					bottom: 0,
-					backgroundColor: "white",
-					padding: '20px 0px',
-					zIndex: 2,
-				}}>
+				<Form.Item
+					className={`settings-form__actions ${formEdited ? "settings-form__actions--sticky" : ""}`}
+					style={{ marginBottom: 0 }}
+				>
 					<Space>
 						<Button type="primary" htmlType="submit" disabled={!formEdited} loading={saving}>
 							Сохранить настройки

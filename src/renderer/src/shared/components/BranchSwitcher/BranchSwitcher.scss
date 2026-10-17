@@ -1,22 +1,23 @@
 .branch-switcher {
 	display: inline-flex;
 	align-items: center;
-	gap: 4px;
+	gap: 5px;
 	flex-shrink: 1;
 	min-width: 0;
-	max-width: 45%;
-	padding: 0 6px;
-	border-radius: 4px;
+	max-width: 150px;
+	height: 22px;
+	padding: 0 7px;
+	border-radius: 6px;
+	font-family: var(--font-mono);
 	font-size: 12px;
-	line-height: 20px;
-	color: rgba(0, 0, 0, 0.55);
-	background: rgba(0, 0, 0, 0.04);
+	color: var(--text-muted);
+	background: var(--chip-bg);
 	cursor: pointer;
-	transition: background-color 0.2s ease, color 0.2s ease;
+	transition: background-color 0.15s ease, color 0.15s ease;
 
 	&:hover {
-		color: #1677ff;
-		background: rgba(22, 119, 255, 0.08);
+		color: var(--accent);
+		background: var(--accent-soft);
 	}
 
 	&__name {
@@ -27,17 +28,27 @@
 	}
 
 	&__arrow {
-		font-size: 9px;
 		flex-shrink: 0;
+		opacity: 0.7;
+	}
+
+	&__spin {
+		animation: branch-spin 0.8s linear infinite;
 	}
 
 	&__no-icon {
 		display: inline-block;
-		width: 12px;
+		width: 14px;
 	}
 
 	&__menu {
 		max-height: 320px;
 		overflow-y: auto;
+	}
+}
+
+@keyframes branch-spin {
+	to {
+		transform: rotate(360deg);
 	}
 }

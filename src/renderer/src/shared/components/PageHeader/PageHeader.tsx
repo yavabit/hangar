@@ -1,5 +1,5 @@
 import { FC, ReactNode } from "react";
-import { Breadcrumb } from "antd";
+import { ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import "./PageHeader.scss";
@@ -12,19 +12,17 @@ export type PageBreadcrumb = {
 
 type PageHeaderProps = {
 	title: ReactNode;
-	icon?: ReactNode;
 	description?: ReactNode;
 	breadcrumbs?: PageBreadcrumb[];
 	extra?: ReactNode;
 };
 
-export const PageHeader: FC<PageHeaderProps> = ({ title, icon, description, breadcrumbs, extra }) => {
+export const PageHeader: FC<PageHeaderProps> = ({ title, description, breadcrumbs, extra }) => {
 	return (
 		<header className="page-header">
 			{breadcrumbs && breadcrumbs.length > 0 && (
-				<Breadcrumb
-					className="page-header__breadcrumbs"
-					items={breadcrumbs.map((crumb) => {
+				<nav className="page-header__breadcrumbs" aria-label="Навигация">
+					{breadcrumbs.map((crumb, index) => {
 						const content = (
 							<>
 								{crumb.icon}
@@ -32,14 +30,16 @@ export const PageHeader: FC<PageHeaderProps> = ({ title, icon, description, brea
 							</>
 						);
 
-						return {
-							title: crumb.to ? <Link to={crumb.to}>{content}</Link> : content,
-						};
+						return (
+							<span key={index} className="page-header__crumb">
+								{index > 0 && <ChevronRight size={13} className="page-header__separator" />}
+								{crumb.to ? <Link to={crumb.to}>{content}</Link> : <span className="page-header__current">{content}</span>}
+							</span>
+						);
 					})}
-				/>
+				</nav>
 			)}
 			<div className="page-header__row">
-				{icon && <span className="page-header__icon">{icon}</span>}
 				<div className="page-header__titles">
 					<h1 className="page-title">{title}</h1>
 					{description && <div className="page-header__description">{description}</div>}

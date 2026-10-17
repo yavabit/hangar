@@ -18,3 +18,8 @@ export const hideSplash = (): void => {
 	splash.classList.add("splash--hidden");
 	setTimeout(() => splash.remove(), FADE_DURATION_MS);
 };
+
+/** Убирает сплэш сразу, без анимации: окну быстрого поиска он не нужен */
+export const removeSplash = (): void => {
+	getSplash()?.remove();
+};

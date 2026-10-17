@@ -1,44 +1,117 @@
-.ant-list-item-meta {
-	display: flex;
-	.ant-list-item-meta-content {
-		flex: 1;
-		margin-left: 10px;
-	}
-	.ant-list-item-meta-title {
-		line-height: 20px;
-	}
+.folders-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+	gap: 14px;
 }
-.folder-icon {
-	background-color: #3689ee;
-	color: white;
-}
-.add-folder-card {
-	border: 1px dashed #d9d9d9;
-	background: rgba(255, 255, 255, 0.6);
 
-	.ant-card-body {
-		height: 100%;
+.folder-card {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	padding: 16px;
+
+	&__head {
 		display: flex;
 		align-items: center;
+		gap: 12px;
+		min-width: 0;
+	}
+
+	&__icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		width: 40px;
+		height: 40px;
+		border-radius: 11px;
+		color: var(--accent);
+		background: var(--accent-soft);
+	}
+
+	&__titles {
+		min-width: 0;
+	}
+
+	&__name {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		font-size: 15px;
+		font-weight: 600;
+		letter-spacing: -0.015em;
+	}
+
+	&__description {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		font-size: 12px;
+		color: var(--text-muted);
+	}
+
+	&__footer {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		font-size: 12px;
+		color: var(--text-muted);
+	}
+
+	&__stacks {
+		display: flex;
+
+		.stack-avatar + .stack-avatar {
+			margin-left: -8px;
+		}
+
+		.stack-avatar {
+			box-shadow: 0 0 0 2px var(--glass-bg-strong);
+		}
+	}
+
+	&__activity {
+		margin-left: auto;
+		color: var(--text-faint);
 	}
 }
-.add-folder {
+
+.folder-create {
 	display: flex;
 	align-items: center;
-	gap: 16px;
-	width: 100%;
-	color: gray;
-	transition: color 0.2s ease;
+	justify-content: center;
+	gap: 10px;
+	min-height: 118px;
+	border: 1.5px dashed var(--divider);
+	border-radius: var(--radius-lg);
+	background: transparent;
+	color: var(--text-muted);
+	font: inherit;
+	font-weight: 500;
+	cursor: pointer;
+	transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
 
-	.add-folder__icon {
-		font-size: 32px;
+	&:hover {
+		color: var(--accent);
+		border-color: var(--accent-ring);
+		background: var(--accent-soft);
 	}
+}
 
-	.add-folder__text {
-		font-size: 22px;
-	}
+.folder-delete {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	max-width: 300px;
 
-	.add-folder-card:hover & {
-		color: #1677ff;
+	&__option {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		padding: 8px 10px;
+		border-radius: 8px;
+		background: var(--chip-bg);
+		color: var(--text-muted);
+		cursor: pointer;
 	}
 }

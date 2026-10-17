@@ -1,7 +1,7 @@
 import { FC, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Typography } from "antd";
-import { AppstoreOutlined, PlusOutlined, StarFilled, StarOutlined } from "@ant-design/icons";
+import { LayoutGrid, Plus, Star } from "lucide-react";
 import { ProjectList } from "@renderer/shared/components/Project/ProjectList";
 import { Filters } from "@renderer/shared/components/Filters/Filters";
 import { ProjectModal } from "@renderer/shared/components/Modals/ProjectModal";
@@ -37,12 +37,12 @@ export const Favorites: FC = () => {
 				<div>
 					<div>В избранном пока пусто</div>
 					<Typography.Text type="secondary" style={{ fontSize: 14 }}>
-						Нажмите <StarOutlined /> рядом с названием проекта, чтобы закрепить его здесь
+						Нажмите <Star size={13} style={{ verticalAlign: -2 }} /> рядом с названием проекта, чтобы закрепить его здесь
 					</Typography.Text>
 				</div>
 			),
 			extra: (
-				<Button icon={<AppstoreOutlined />} onClick={() => navigate("/")}>
+				<Button icon={<LayoutGrid size={15} />} onClick={() => navigate("/")}>
 					Перейти к проектам
 				</Button>
 			),
@@ -54,13 +54,12 @@ export const Favorites: FC = () => {
 	return (
 		<div>
 			<PageHeader
-				icon={<StarFilled />}
 				title="Избранное"
 				description={`${favorites.length} ${pluralize(favorites.length, ["проект", "проекта", "проектов"])} под рукой`}
 				extra={
 					<>
 						<RefreshStatusButton />
-						<Button type="primary" icon={<PlusOutlined />} onClick={() => setAddModalOpen(true)}>
+						<Button type="primary" icon={<Plus size={16} strokeWidth={2.2} />} onClick={() => setAddModalOpen(true)}>
 							Новый проект
 						</Button>
 					</>

@@ -1,0 +1,95 @@
+.settings-page {
+	max-width: 1000px;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.settings-card {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 18px 20px;
+	border-radius: var(--radius-xl);
+
+	&__head {
+		display: flex;
+		align-items: center;
+		gap: 12px;
+
+		svg {
+			color: var(--accent);
+		}
+	}
+
+	&__title {
+		font-weight: 600;
+	}
+
+	&__text {
+		font-size: 12px;
+		color: var(--text-muted);
+	}
+}
+
+.settings-form.ant-card {
+	border-radius: var(--radius-xl);
+	background: var(--glass-bg);
+	-webkit-backdrop-filter: blur(var(--blur)) saturate(160%);
+	backdrop-filter: blur(var(--blur)) saturate(160%);
+	border: 1px solid var(--glass-border);
+	box-shadow: var(--glass-shadow);
+
+	.ant-card-head {
+		border-bottom-color: var(--divider);
+	}
+}
+
+.settings-form__actions {
+	z-index: 2;
+	margin: 24px -24px -24px;
+	padding: 16px 24px;
+	border-top: 1px solid var(--divider);
+	border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+	background: var(--glass-bg-strong);
+	-webkit-backdrop-filter: blur(20px);
+	backdrop-filter: blur(20px);
+
+	&--sticky {
+		position: sticky;
+		bottom: -1px;
+	}
+}
+
+.settings-note {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 12px 16px;
+	border-radius: var(--radius-md);
+	background: var(--accent-soft);
+	color: var(--text-muted);
+	font-size: 13px;
+
+	svg {
+		flex-shrink: 0;
+		color: var(--accent);
+	}
+}
+
+.settings-footer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	padding: 8px 0 20px;
+	font-size: 12px;
+	color: var(--text-faint);
+
+	a {
+		color: var(--text-muted);
+	}
+}

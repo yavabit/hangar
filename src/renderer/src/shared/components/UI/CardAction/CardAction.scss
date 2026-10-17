@@ -1,0 +1,55 @@
+.card-action {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	min-width: 30px;
+	height: 30px;
+	padding: 0 7px;
+	border: 0;
+	border-radius: 8px;
+	background: transparent;
+	color: var(--text-muted);
+	font: inherit;
+	font-size: 12px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.15s ease, color 0.15s ease;
+
+	&:hover {
+		color: var(--text);
+		background: var(--hover);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--accent-ring);
+		outline-offset: 1px;
+	}
+
+	&--labeled {
+		padding: 0 10px;
+	}
+
+	&--primary {
+		color: var(--accent-contrast);
+		background: var(--accent-strong);
+
+		&:hover {
+			color: var(--accent-contrast);
+			background: var(--accent);
+		}
+	}
+
+	&--danger:hover {
+		color: var(--danger);
+		background: var(--danger-soft);
+	}
+
+	&--disabled,
+	&--disabled:hover {
+		color: var(--text-faint);
+		background: transparent;
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+}

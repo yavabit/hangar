@@ -1,0 +1,28 @@
+.palette-window {
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	height: 100vh;
+	padding: 20px;
+
+	&__panel {
+		width: 100%;
+		overflow: hidden;
+		border-radius: 18px;
+		background: var(--glass-bg-strong);
+		border: 1px solid var(--glass-border);
+		box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06), 0 18px 40px -16px rgba(0, 0, 0, 0.55);
+	}
+
+	.palette {
+		max-height: calc(100vh - 44px);
+	}
+}
+
+:root[data-theme='dark'] .palette-window__panel {
+	background: rgba(22, 24, 30, 0.97);
+}
+
+:root[data-theme='light'] .palette-window__panel {
+	background: rgba(250, 251, 253, 0.98);
+}

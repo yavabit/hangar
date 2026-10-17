@@ -1,6 +1,6 @@
 import { FC, useCallback, useEffect, useRef, useState } from "react";
 import { Form, Input, Modal, Select, Space, Switch, Tooltip, Typography } from "antd";
-import { FolderOutlined, LinkOutlined } from "@ant-design/icons";
+import { Folder as FolderIcon, Link2 } from "lucide-react";
 import { ProjectPathInput } from "@renderer/shared/components/ProjectPathInput/ProjectPathInput";
 import { useProjects } from "@renderer/shared/hooks/useProjects";
 import { usePathAliases } from "@renderer/shared/hooks/usePathAliases";
@@ -164,7 +164,7 @@ export const ProjectModal: FC<ProjectModalProps> = ({ isOpen, onClose, project, 
 						options={folders.map((f) => ({
 							label: (
 								<span>
-									<FolderOutlined style={{ marginRight: 8 }} />
+									<FolderIcon size={14} style={{ marginRight: 8, verticalAlign: -2 }} />
 									{f.name}
 								</span>
 							),
@@ -188,7 +188,7 @@ export const ProjectModal: FC<ProjectModalProps> = ({ isOpen, onClose, project, 
 						<Space.Compact block>
 							<Space.Addon className="project-modal__tracker-base">
 								<Tooltip title={taskTrackerUrl}>
-									<LinkOutlined /> {taskTrackerUrl.replace(/^https?:\/\//, "").replace(/\/+$/, "")}/
+									<Link2 size={13} style={{ verticalAlign: -2 }} /> {taskTrackerUrl.replace(/^https?:\/\//, "").replace(/\/+$/, "")}/
 								</Tooltip>
 							</Space.Addon>
 							<Form.Item name="taskPath" noStyle>

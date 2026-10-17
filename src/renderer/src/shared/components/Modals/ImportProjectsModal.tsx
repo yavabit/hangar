@@ -1,6 +1,6 @@
 import { FC, useMemo, useState } from "react";
 import { Alert, Button, Checkbox, Empty, Flex, Form, InputNumber, Modal, Select, Spin, Tag, Typography } from "antd";
-import { BranchesOutlined, FolderOutlined, SearchOutlined } from "@ant-design/icons";
+import { Folder as FolderIcon, GitBranch, Search } from "lucide-react";
 import { SelectFolder } from "@renderer/shared/components/SelectFolder/SelectFolder";
 import { ProjectPath } from "@renderer/shared/components/ProjectPath/ProjectPath";
 import { useAppStore } from "@renderer/store/app.store";
@@ -169,14 +169,14 @@ export const ImportProjectsModal: FC<ImportProjectsModalProps> = ({ isOpen, onCl
 								value: f.id,
 								label: (
 									<span>
-										<FolderOutlined style={{ marginRight: 8 }} />
+										<FolderIcon size={14} style={{ marginRight: 8, verticalAlign: -2 }} />
 										{f.name}
 									</span>
 								),
 							}))}
 						/>
 					</Form.Item>
-					<Button type="primary" ghost icon={<SearchOutlined />} disabled={!rootPath} loading={scanning} onClick={handleScan}>
+					<Button type="primary" ghost icon={<Search size={15} />} disabled={!rootPath} loading={scanning} onClick={handleScan}>
 						Найти проекты
 					</Button>
 				</Flex>
@@ -226,7 +226,7 @@ export const ImportProjectsModal: FC<ImportProjectsModalProps> = ({ isOpen, onCl
 												<div className="import-list__name">
 													{candidate.name}
 													{candidate.hasGit && (
-														<Tag icon={<BranchesOutlined />} bordered={false}>
+														<Tag icon={<GitBranch size={11} style={{ marginRight: 4, verticalAlign: -1 }} />} bordered={false}>
 															git
 														</Tag>
 													)}

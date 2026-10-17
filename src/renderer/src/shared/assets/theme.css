@@ -1,0 +1,267 @@
+/*
+  Визуальная система Hangar: две темы на CSS-переменных и «стеклянные» панели.
+  Тема выбирается атрибутом data-theme на <html> (см. app/ThemeProvider.tsx).
+*/
+
+:root {
+  --font-sans: 'Geist Variable', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', 'Cascadia Code', Consolas, monospace;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --blur: 24px;
+  --titlebar-height: 44px;
+}
+
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --bg-base: #eceff4;
+  --backdrop-1: rgba(86, 112, 188, 0.58);
+  --backdrop-2: rgba(124, 124, 240, 0.3);
+  --backdrop-3: rgba(140, 168, 214, 0.5);
+
+  --glass-bg: rgba(255, 255, 255, 0.5);
+  --glass-bg-strong: rgba(250, 251, 253, 0.9);
+  --glass-bg-hover: rgba(255, 255, 255, 0.74);
+  --glass-border: rgba(255, 255, 255, 0.8);
+  --glass-shadow: 0 1px 1px rgba(15, 23, 42, 0.04), 0 16px 36px -20px rgba(30, 41, 82, 0.38);
+  --shadow-pop: 0 28px 64px -24px rgba(30, 41, 82, 0.5);
+
+  --text: #141821;
+  --text-muted: #5b6272;
+  --text-faint: #858b9b;
+
+  --accent: #5150d8;
+  --accent-strong: #4443c9;
+  --accent-contrast: #ffffff;
+  --accent-soft: rgba(81, 80, 216, 0.12);
+  --accent-ring: rgba(81, 80, 216, 0.38);
+
+  --hover: rgba(15, 23, 42, 0.05);
+  --divider: rgba(15, 23, 42, 0.08);
+  --chip-bg: rgba(15, 23, 42, 0.05);
+  --input-bg: rgba(255, 255, 255, 0.66);
+
+  --success: #15803d;
+  --success-soft: rgba(22, 163, 74, 0.12);
+  --warning: #b45309;
+  --warning-soft: rgba(217, 119, 6, 0.14);
+  --danger: #dc2626;
+  --danger-soft: rgba(220, 38, 38, 0.1);
+  --ahead: #6d28d9;
+  --ahead-soft: rgba(109, 40, 217, 0.1);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg-base: #0b0c10;
+  --backdrop-1: rgba(99, 102, 241, 0.3);
+  --backdrop-2: rgba(56, 96, 170, 0.32);
+  --backdrop-3: rgba(139, 139, 255, 0.14);
+
+  --glass-bg: rgba(28, 30, 38, 0.56);
+  --glass-bg-strong: rgba(24, 26, 33, 0.92);
+  --glass-bg-hover: rgba(36, 39, 49, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.07);
+  --glass-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 18px 40px -22px rgba(0, 0, 0, 0.8);
+  --shadow-pop: 0 30px 70px -20px rgba(0, 0, 0, 0.8);
+
+  --text: #ecedef;
+  --text-muted: #9a9eaa;
+  --text-faint: #6c707c;
+
+  --accent: #8b8bff;
+  --accent-strong: #6f6ff0;
+  --accent-contrast: #ffffff;
+  --accent-soft: rgba(139, 139, 255, 0.16);
+  --accent-ring: rgba(139, 139, 255, 0.45);
+
+  --hover: rgba(255, 255, 255, 0.05);
+  --divider: rgba(255, 255, 255, 0.07);
+  --chip-bg: rgba(255, 255, 255, 0.06);
+  --input-bg: rgba(255, 255, 255, 0.04);
+
+  --success: #4ade80;
+  --success-soft: rgba(61, 214, 140, 0.14);
+  --warning: #f7c26b;
+  --warning-soft: rgba(245, 165, 36, 0.14);
+  --danger: #ff8c8f;
+  --danger-soft: rgba(242, 85, 90, 0.14);
+  --ahead: #b9b9ff;
+  --ahead-soft: rgba(139, 139, 255, 0.16);
+}
+
+/* Mica: фон окна полупрозрачный, сквозь него виден рабочий стол */
+:root.has-mica[data-theme='light'] {
+  --bg-base: rgba(236, 239, 244, 0.6);
+}
+
+:root.has-mica[data-theme='dark'] {
+  --bg-base: rgba(11, 12, 16, 0.62);
+}
+
+html,
+body {
+  background: var(--bg-base);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  letter-spacing: -0.005em;
+  user-select: none;
+}
+
+:root.has-mica,
+:root.has-mica body,
+:root.is-palette-window,
+:root.is-palette-window body {
+  background: transparent !important;
+}
+
+#root {
+  width: 100%;
+}
+
+code {
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: var(--chip-bg);
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+/* Мягкая подсветка за стеклянными панелями */
+.app-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(70% 55% at 52% -12%, var(--backdrop-1), transparent 75%),
+    radial-gradient(42% 48% at 102% 22%, var(--backdrop-2), transparent 72%),
+    radial-gradient(52% 56% at -6% 104%, var(--backdrop-3), transparent 72%),
+    var(--bg-base);
+}
+
+.glass {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--blur)) saturate(160%);
+  backdrop-filter: blur(var(--blur)) saturate(160%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.page-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+/* Скелетон: пока данные загружаются */
+.skeleton {
+  display: inline-block;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--chip-bg) 0%, var(--hover) 40%, var(--chip-bg) 80%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 10px;
+  background: var(--divider) padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-faint) padding-box;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Всплывающие элементы antd — тоже стекло */
+.ant-modal .ant-modal-container,
+.ant-modal .ant-modal-content,
+.ant-dropdown .ant-dropdown-menu,
+.ant-select-dropdown,
+.ant-popover .ant-popover-container,
+.ant-popover .ant-popover-inner,
+.ant-popconfirm .ant-popover-container,
+.ant-notification .ant-notification-notice,
+.ant-picker-dropdown .ant-picker-panel-container {
+  background: var(--glass-bg-strong) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
+  backdrop-filter: blur(28px) saturate(170%);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-pop) !important;
+}
+
+.ant-modal .ant-modal-header {
+  background: transparent;
+}
+
+.ant-modal-mask {
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.versions {
+  margin: 0 auto;
+  padding: 12px 0;
+  font-family: var(--font-mono);
+  display: inline-flex;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: var(--text-muted);
+}
+
+.versions li {
+  display: block;
+  float: left;
+  border-right: 1px solid var(--divider);
+  padding: 0 18px;
+  font-size: 12px;
+  line-height: 14px;
+}
+
+.versions li:last-child {
+  border: none;
+}

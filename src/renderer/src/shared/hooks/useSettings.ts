@@ -4,10 +4,15 @@ import { settingsApi } from "../api/settings.api";
 import { getIpcErrorMessage } from "../utils/ipcError";
 import type { AppSettings } from "@schemas/store.schema";
 
+type UpdateOptions = {
+	/** Без уведомления об успехе — для быстрых переключателей вроде темы */
+	silent?: boolean;
+};
+
 type SettingsType = {
 	settings: AppSettings;
 	/** Возвращает true, если настройки сохранены */
-	updateSettings: (input: AppSettings) => Promise<boolean>;
+	updateSettings: (input: AppSettings, options?: UpdateOptions) => Promise<boolean>;
 };
 
 export const useSettings = (): SettingsType => {
@@ -16,14 +21,16 @@ export const useSettings = (): SettingsType => {
 
 	const { showSuccess, showError, showInfo } = useAppNotification();
 
-	const updateSettings = async (input: AppSettings): Promise<boolean> => {
+	const updateSettings = async (input: AppSettings, options: UpdateOptions = {}): Promise<boolean> => {
 		try {
 			const result = await settingsApi.set(input);
 			setSettings(result.settings);
 
-			showSuccess("settings_save", {
-				message: "Настройки сохранены",
-			});
+			if (!options.silent) {
+				showSuccess("settings_save", {
+					message: "Настройки сохранены",
+				});
+			}
 
 			if (result.warnings.length) {
 				showInfo("settings_warnings", {

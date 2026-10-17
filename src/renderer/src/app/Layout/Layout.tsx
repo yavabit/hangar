@@ -1,104 +1,57 @@
-import { FC, useState } from "react";
-import { AppstoreOutlined, SettingOutlined, CodeOutlined, SearchOutlined, StarOutlined } from "@ant-design/icons";
-import { Badge, Layout, Menu, Tooltip } from "antd";
-import { Link, Outlet, useLocation } from "react-router-dom";
-import { useAppStore } from "@renderer/store/app.store";
+import { FC, useEffect } from "react";
+import { Search } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useLocation, useNavigate, useOutlet } from "react-router-dom";
+import { useUiStore } from "@renderer/store/ui.store";
 import { CommandPalette } from "@renderer/shared/components/CommandPalette/CommandPalette";
 import logo from "@renderer/shared/assets/logo/logo.svg";
+import { Sidebar } from "./Sidebar";
 
 import "./Layout.scss";
 
-const { Content, Sider } = Layout;
-
-const getSelectedKey = (pathname: string): string => {
-	if (pathname.startsWith("/folder/")) {
-		return "/";
-	}
-
-	return pathname;
-};
-
+/** Каркас главного окна: своя шапка вместо системной, стеклянный сайдбар и контент */
 export const FullLayout: FC = () => {
-	const [collapsed, setCollapsed] = useState(false);
-	const { pathname } = useLocation();
+	const location = useLocation();
+	const navigate = useNavigate();
+	const outlet = useOutlet();
+	const setPaletteOpen = useUiStore((s) => s.setPaletteOpen);
 
-	const favoritesCount = useAppStore((s) => s.projects.filter((p) => p.isFavorite).length);
-
-	const menuItems = [
-		{ key: "/", label: <Link to="/">Проекты</Link>, icon: <AppstoreOutlined /> },
-		{
-			key: "/fav",
-			label: (
-				<Link to="/fav" className="menu-link-with-count">
-					Избранное
-					{favoritesCount > 0 && <Badge count={favoritesCount} color="#faad14" size="small" />}
-				</Link>
-			),
-			icon: <StarOutlined />,
-		},
-		{ key: "/scripts", label: <Link to="/scripts">Скрипты</Link>, icon: <CodeOutlined /> },
-		{
-			key: "/settings",
-			label: <Link to="/settings">Настройки</Link>,
-			icon: <SettingOutlined />,
-		},
-	];
+	useEffect(() => window.api.app.onNavigate((route) => navigate(route)), [navigate]);
 
 	return (
-		<Layout style={{ minHeight: "100vh" }}>
-			<Sider
-				collapsible
-				collapsed={collapsed}
-				onCollapse={(value) => setCollapsed(value)}
-				theme="light"
-				style={{
-					overflow: 'auto',
-					height: '100vh',
-					position: 'sticky',
-					insetInlineStart: 0,
-					top: 0,
-				}}
-			>
-				<Link to="/" className={`sidebar-logo ${collapsed ? "sidebar-logo--collapsed" : ""}`}>
-					<img className="sidebar-logo__image" src={logo} alt="" />
-					{!collapsed && (
-						<div className="sidebar-logo__title">
-							Project
-							<br />
-							Launcher
-						</div>
-					)}
-				</Link>
-				<Tooltip title={collapsed ? "Найти проект (Ctrl+K)" : undefined} placement="right">
-					<button
-						type="button"
-						className={`sidebar-search ${collapsed ? "sidebar-search--collapsed" : ""}`}
-						onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { code: "KeyK", ctrlKey: true }))}
-					>
-						<SearchOutlined />
-						{!collapsed && (
-							<>
-								<span className="sidebar-search__text">Найти проект</span>
-								<kbd>Ctrl K</kbd>
-							</>
-						)}
-					</button>
-				</Tooltip>
-				<Menu
-					theme="light"
-					selectedKeys={[getSelectedKey(pathname)]}
-					mode="inline"
-					items={menuItems}
-				/>
-			</Sider>
-			<Layout>
-				<Content style={{ width: "100%" }}>
-					<div className="main-layout">
-						<Outlet />
-					</div>
-					<CommandPalette />
-				</Content>
-			</Layout>
-		</Layout>
+		<div className="shell">
+			<header className="titlebar">
+				<div className="titlebar__brand">
+					<img src={logo} alt="" className="titlebar__logo" />
+					<span>Hangar</span>
+				</div>
+				<button type="button" className="titlebar__search" onClick={() => setPaletteOpen(true)}>
+					<Search size={14} strokeWidth={2} />
+					<span className="titlebar__search-text">Найти проект или папку</span>
+					<kbd>Ctrl K</kbd>
+				</button>
+				<div className="titlebar__end" />
+			</header>
+
+			<div className="shell__body">
+				<Sidebar />
+				<main className="shell__content">
+					<AnimatePresence mode="wait" initial={false}>
+						<motion.div
+							key={location.pathname}
+							className="shell__page"
+							initial={{ opacity: 0, y: 8 }}
+							animate={{ opacity: 1, y: 0 }}
+							exit={{ opacity: 0, y: -4 }}
+							transition={{ duration: 0.16, ease: [0.2, 0.8, 0.2, 1] }}
+						>
+							{outlet}
+						</motion.div>
+					</AnimatePresence>
+				</main>
+			</div>
+
+			<CommandPalette />
+		</div>
 	);
 };

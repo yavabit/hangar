@@ -1,0 +1,30 @@
+.git-badge {
+	display: inline-flex;
+	align-items: center;
+	height: 22px;
+	padding: 0 8px;
+	border-radius: 6px;
+	font-family: var(--font-mono);
+	font-size: 12px;
+	white-space: nowrap;
+
+	&--clean {
+		color: var(--success);
+		background: var(--success-soft);
+	}
+
+	&--changes {
+		color: var(--warning);
+		background: var(--warning-soft);
+	}
+
+	&--ahead {
+		color: var(--ahead);
+		background: var(--ahead-soft);
+	}
+
+	&--behind {
+		color: var(--danger);
+		background: var(--danger-soft);
+	}
+}

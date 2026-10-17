@@ -1,6 +1,6 @@
 import { FC, useState } from "react";
 import { Button, Flex, Typography, message } from "antd";
-import { FolderOpenOutlined, FolderAddOutlined } from "@ant-design/icons";
+import { FolderOpen, FolderPlus } from "lucide-react";
 import { api } from "@renderer/shared/api";
 
 const { Text } = Typography;
@@ -41,19 +41,19 @@ export const SelectFolder: FC<SelectFolderProps> = ({ value, onChange, onSelect,
 			align="center"
 			style={{
 				padding: "4px 11px",
-				border: "1px solid #d9d9d9",
+				border: "1px solid var(--divider)",
 				borderRadius: "6px",
-				background: "#f5f5f5",
+				background: "var(--input-bg)",
 				minHeight: 32,
 			}}
 		>
-			<FolderOpenOutlined style={{ color: "#bfbfbf" }} />
+			<FolderOpen size={15} style={{ color: "var(--text-faint)", flexShrink: 0 }} />
 			<Text
 				title={currentPath}
 				style={{
 					flex: 1,
 					fontSize: 14,
-					color: currentPath ? "#333" : "#bfbfbf",
+					color: currentPath ? "var(--text)" : "var(--text-faint)",
 					fontFamily: "monospace",
 					overflow: "hidden",
 					textOverflow: "ellipsis",
@@ -65,7 +65,7 @@ export const SelectFolder: FC<SelectFolderProps> = ({ value, onChange, onSelect,
 			<Button
 				type="text"
 				size="small"
-				icon={<FolderAddOutlined />}
+				icon={<FolderPlus size={14} />}
 				onClick={handleSelectFolder}
 				loading={loading}
 			>

@@ -1,11 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { Button, Card, Flex, Typography, Input, Tooltip, ColorPicker } from "antd";
-import {
-	PlusOutlined,
-	TagOutlined,
-	DeleteOutlined,
-	SwapOutlined,
-} from "@ant-design/icons";
+import { ArrowLeftRight, Plus, Tag, Trash2 } from "lucide-react";
 import { type PathAliasSchemaType } from "@schemas/store.schema";
 import { AggregationColor } from "antd/es/color-picker/color";
 import { SelectFolder } from "@renderer/shared/components/SelectFolder/SelectFolder";
@@ -86,7 +81,7 @@ export const PathAliasesManager: React.FC<PathAliasesManagerProps> = ({
 			{value.length === 0 && (
 				<Card
 					size="small"
-					style={{ textAlign: "center", background: "#fafafa" }}
+					style={{ textAlign: "center", background: "var(--chip-bg)" }}
 				>
 					<Text type="secondary">
 						Нет добавленных алиасов. Нажмите «Добавить алиас»
@@ -113,7 +108,7 @@ export const PathAliasesManager: React.FC<PathAliasesManagerProps> = ({
 										placeholder="@myapp"
 										value={item.alias}
 										onChange={(e) => updateItem(item.id, { alias: cleanAliasName(e.target.value) })}
-										prefix={<TagOutlined style={{ color: "#bfbfbf" }} />}
+										prefix={<Tag size={14} style={{ color: "var(--text-faint)" }} />}
 										size="middle"
 										autoFocus={item.id === addedId}
 									/>
@@ -137,7 +132,7 @@ export const PathAliasesManager: React.FC<PathAliasesManagerProps> = ({
 									<Button
 										type="text"
 										danger
-										icon={<DeleteOutlined />}
+										icon={<Trash2 size={15} />}
 										onClick={() => handleRemove(item.id)}
 									/>
 								</Tooltip>
@@ -163,7 +158,7 @@ export const PathAliasesManager: React.FC<PathAliasesManagerProps> = ({
 										{absoluteCount} {pluralize(absoluteCount, ["проект лежит", "проекта лежат", "проектов лежат"])} в этой папке, но указаны полным путём.
 									</Text>
 									{isSaved(item) ? (
-										<Button size="small" icon={<SwapOutlined />} onClick={() => void handleApply(item)}>
+										<Button size="small" icon={<ArrowLeftRight size={14} />} onClick={() => void handleApply(item)}>
 											Перевести на {item.alias}
 										</Button>
 									) : (
@@ -178,7 +173,7 @@ export const PathAliasesManager: React.FC<PathAliasesManagerProps> = ({
 				);
 			})}
 
-			<Button type="dashed" onClick={handleAdd} icon={<PlusOutlined />} block>
+			<Button type="dashed" onClick={handleAdd} icon={<Plus size={15} />} block>
 				Добавить алиас
 			</Button>
 		</Flex>

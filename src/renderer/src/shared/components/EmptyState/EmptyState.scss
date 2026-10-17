@@ -1,0 +1,36 @@
+.empty-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+	padding: 48px 24px;
+	text-align: center;
+
+	&--compact {
+		padding: 28px 16px;
+	}
+
+	&__art {
+		margin-bottom: 6px;
+		opacity: 0.9;
+	}
+
+	&__title {
+		font-size: 17px;
+		font-weight: 600;
+		letter-spacing: -0.015em;
+	}
+
+	&__description {
+		max-width: 420px;
+		color: var(--text-muted);
+	}
+
+	&__actions {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 8px;
+		margin-top: 8px;
+	}
+}
