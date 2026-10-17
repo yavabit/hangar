@@ -6,23 +6,26 @@ import { ProjectList } from "@renderer/shared/components/Project/ProjectList";
 import { Filters } from "@renderer/shared/components/Filters/Filters";
 import { ProjectModal } from "@renderer/shared/components/Modals/ProjectModal";
 import { PageHeader } from "@renderer/shared/components/PageHeader/PageHeader";
+import { RefreshStatusButton } from "@renderer/shared/components/RefreshStatusButton/RefreshStatusButton";
 import { useAppStore } from "@renderer/store/app.store";
-import {
-	applyProjectFilters,
-	DEFAULT_PROJECT_FILTERS,
-	type ProjectFiltersValue,
-} from "@renderer/shared/utils/projectFilters";
+import { usePageFilters } from "@renderer/store/ui.store";
+import { usePathAliases } from "@renderer/shared/hooks/usePathAliases";
+import { applyProjectFilters } from "@renderer/shared/utils/projectFilters";
 import { pluralize } from "@renderer/shared/utils/pluralize";
 
 export const Favorites: FC = () => {
 	const navigate = useNavigate();
 	const projects = useAppStore((s) => s.projects);
 
-	const [filters, setFilters] = useState<ProjectFiltersValue>(DEFAULT_PROJECT_FILTERS);
+	const { filters, setFilters } = usePageFilters("favorites");
+	const { resolvePath } = usePathAliases();
 	const [addModalOpen, setAddModalOpen] = useState(false);
 
 	const favorites = useMemo(() => projects.filter((p) => p.isFavorite), [projects]);
-	const visibleProjects = useMemo(() => applyProjectFilters(favorites, filters), [favorites, filters]);
+	const visibleProjects = useMemo(
+		() => applyProjectFilters(favorites, filters, resolvePath),
+		[favorites, filters, resolvePath],
+	);
 
 	const getEmptyState = (): { description: React.ReactNode; extra?: React.ReactNode } => {
 		if (favorites.length > 0) {
@@ -55,9 +58,12 @@ export const Favorites: FC = () => {
 				title="Избранное"
 				description={`${favorites.length} ${pluralize(favorites.length, ["проект", "проекта", "проектов"])} под рукой`}
 				extra={
-					<Button type="primary" icon={<PlusOutlined />} onClick={() => setAddModalOpen(true)}>
-						Новый проект
-					</Button>
+					<>
+						<RefreshStatusButton />
+						<Button type="primary" icon={<PlusOutlined />} onClick={() => setAddModalOpen(true)}>
+							Новый проект
+						</Button>
+					</>
 				}
 			/>
 			<Filters value={filters} onChange={setFilters} />

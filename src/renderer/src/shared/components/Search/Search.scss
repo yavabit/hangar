@@ -1,0 +1,15 @@
+.search__prefix {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	margin-right: 4px;
+}
+
+.search__scope-tag {
+	margin: 0;
+	max-width: 240px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-size: 13px;
+	line-height: 22px;
+}

@@ -1,6 +1,6 @@
-import { Search } from "@renderer/shared/components/Search/Search";
+import { Search, type SearchScopeTag } from "@renderer/shared/components/Search/Search";
 import { Flex, Select } from "antd";
-import { ClockCircleOutlined, SortAscendingOutlined } from "@ant-design/icons";
+import { ClockCircleOutlined, ExportOutlined, SortAscendingOutlined } from "@ant-design/icons";
 import { FC, ReactNode } from "react";
 import type { ProjectFiltersValue, ProjectSort } from "@renderer/shared/utils/projectFilters";
 
@@ -9,10 +9,12 @@ type FiltersProps = {
 	onChange: (value: ProjectFiltersValue) => void;
 	placeholder?: string;
 	extra?: ReactNode;
+	scopeTag?: SearchScopeTag;
 };
 
 const sortOptions: { value: ProjectSort; label: ReactNode }[] = [
-	{ value: "recent", label: <span><ClockCircleOutlined /> Недавние</span> },
+	{ value: "opened", label: <span><ExportOutlined /> Недавно открытые</span> },
+	{ value: "modified", label: <span><ClockCircleOutlined /> Недавно изменённые</span> },
 	{ value: "name", label: <span><SortAscendingOutlined /> По названию</span> },
 ];
 
@@ -21,6 +23,7 @@ export const Filters: FC<FiltersProps> = ({
 	onChange,
 	placeholder = "Поиск по названию, пути или репозиторию...",
 	extra,
+	scopeTag,
 }) => {
 	return (
 		<Flex gap={12} align="center" wrap="wrap" style={{ marginBottom: 20 }}>
@@ -28,6 +31,7 @@ export const Filters: FC<FiltersProps> = ({
 				<Search
 					value={value.search}
 					placeholder={placeholder}
+					scopeTag={scopeTag}
 					onChange={(search) => onChange({ ...value, search })}
 				/>
 			</div>
@@ -37,7 +41,7 @@ export const Filters: FC<FiltersProps> = ({
 				value={value.sort}
 				options={sortOptions}
 				onChange={(sort) => onChange({ ...value, sort })}
-				style={{ width: 180 }}
+				style={{ width: 230 }}
 				aria-label="Сортировка"
 			/>
 		</Flex>
