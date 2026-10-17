@@ -27,6 +27,8 @@ export const SettingsForm: FC = () => {
 	const [modal, modalContextHolder] = Modal.useModal();
 
 	const [formEdited, setFormEdited] = useState(false);
+	/** До первой попытки сохранения не ругаемся на незаполненные поля: пользователь их ещё заполняет */
+	const [submitAttempted, setSubmitAttempted] = useState(false);
 	const [saving, setSaving] = useState(false);
 
 	const blocker = useBlocker(
@@ -39,10 +41,13 @@ export const SettingsForm: FC = () => {
 
 	const resetForm = (): void => {
 		form.setFieldsValue(settings);
+		form.setFields([{ name: ["common", "pathAliases"], errors: [] }]);
 		setFormEdited(false);
+		setSubmitAttempted(false);
 	};
 
 	const save = async (): Promise<boolean> => {
+		setSubmitAttempted(true);
 		try {
 			await form.validateFields();
 		} catch {
@@ -55,6 +60,7 @@ export const SettingsForm: FC = () => {
 
 		if (saved) {
 			setFormEdited(false);
+			setSubmitAttempted(false);
 		}
 		return saved;
 	};
@@ -131,6 +137,7 @@ export const SettingsForm: FC = () => {
 					label="Алиасы путей"
 					tooltip="Сокращения для часто используемых папок. Проекты внутри них хранят путь через алиас: если папка переедет, достаточно поменять путь здесь"
 					rules={[{ validator: validatePathAliases }]}
+					validateTrigger={submitAttempted ? "onChange" : []}
 				>
 					<PathAliasesManager />
 				</Form.Item>
