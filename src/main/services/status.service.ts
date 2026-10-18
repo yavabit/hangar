@@ -4,7 +4,7 @@ import { ProjectsStorage } from "../storage/projects.storage";
 import { SettingsStorage } from "../storage/settings.storage";
 import { GitService } from "./git.service";
 import { ProjectService } from "./projects.service";
-import { detectStack } from "./stack.service";
+import { detectStacks } from "./stack.service";
 
 const CONCURRENCY = 4;
 const MINUTE_MS = 60 * 1000;
@@ -137,7 +137,7 @@ class StatusServiceImpl {
 		const exists = await ProjectService.isDirectory(path);
 
 		if (!exists) {
-			return { exists, git: null, stack: null };
+			return { exists, git: null, stacks: [] };
 		}
 
 		const prev = this.health[project.id];
@@ -145,7 +145,7 @@ class StatusServiceImpl {
 		return {
 			exists,
 			git: fresh ? await GitService.getInfo(path) : prev.git,
-			stack: fresh ? await detectStack(path) : prev.stack,
+			stacks: fresh ? await detectStacks(path) : prev.stacks,
 		};
 	}
 

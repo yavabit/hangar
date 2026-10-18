@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { STACKS } from "@common/utils/stacks";
+import { formatStacks } from "@common/utils/stacks";
 import type { ProjectHealth } from "@common/api/api.types";
 import { Folder, Project as ProjectType } from "@schemas/store.schema";
 import { CardShell } from "@renderer/shared/components/UI/CardShell/CardShell";
@@ -22,13 +22,13 @@ export type ProjectViewProps = {
 	onEdit: (projectId: ProjectType["id"]) => void;
 };
 
-/** Карточка проекта: действия появляются при наведении, двойной клик открывает в IDE */
+/** Карточка проекта: действия в нижней строке, двойной клик открывает в IDE */
 export const Project: FC<ProjectViewProps> = ({ item, folder, health, onEdit }) => {
 	const { toggleFavorite, removeProject, openProjectInIde } = useProjects();
 	const launching = useUiStore((s) => s.launchingProjectId === item.id);
 
 	const missing = health?.exists === false;
-	const stackLabel = health?.stack ? STACKS[health.stack].label : "Проект";
+	const stackLabel = health?.stacks.length ? formatStacks(health.stacks) : "Проект";
 
 	return (
 		<CardShell
@@ -38,7 +38,7 @@ export const Project: FC<ProjectViewProps> = ({ item, folder, health, onEdit }) 
 			onDoubleClick={missing ? undefined : () => void openProjectInIde(item.id)}
 		>
 			<header className="project-card__head">
-				<StackAvatar stack={health?.stack} name={item.name} />
+				<StackAvatar stacks={health?.stacks} name={item.name} />
 				<div className="project-card__title">
 					<div className="project-card__name">
 						<span className="project-card__name-text" title={item.name}>{item.name}</span>

@@ -49,7 +49,8 @@ export type ProjectHealth = {
 	/** null вЂ” РЅРµ git-СЂРµРїРѕР·РёС‚РѕСЂРёР№ РёР»Рё git РЅРµ СѓСЃС‚Р°РЅРѕРІР»РµРЅ */
 	git: GitInfo | null;
 	/** РЎС‚РµРє, РѕРїСЂРµРґРµР»С‘РЅРЅС‹Р№ РїРѕ С„Р°Р№Р»Р°Рј РїСЂРѕРµРєС‚Р° */
-	stack: StackId | null;
+	/** Стеки проекта, главный первым: у фронтенда с бэкендом в одной папке их несколько */
+	stacks: StackId[];
 };
 
 export type ProjectsHealth = Record<Project["id"], ProjectHealth>;

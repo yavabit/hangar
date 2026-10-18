@@ -23,7 +23,7 @@ export const ProjectRow: FC<ProjectViewProps> = ({ item, folder, health, onEdit 
 			className={`project-row ${missing ? "project-row--missing" : ""} ${launching ? "project-row--launching" : ""}`}
 			onDoubleClick={missing ? undefined : () => void openProjectInIde(item.id)}
 		>
-			<StackAvatar stack={health?.stack} name={item.name} size="sm" />
+			<StackAvatar stacks={health?.stacks} name={item.name} size="sm" />
 			<div className="project-row__main">
 				<div className="project-row__name">
 					<span title={item.name}>{item.name}</span>

@@ -1,6 +1,7 @@
 .stack-avatar {
 	--stack: #8b8f98;
 
+	position: relative;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -13,11 +14,56 @@
 	background: color-mix(in srgb, var(--stack) 15%, transparent);
 	border: 1px solid color-mix(in srgb, var(--stack) 30%, transparent);
 
+	&__icon {
+		width: 50%;
+		height: 50%;
+	}
+
+	&__badge {
+		position: absolute;
+		right: -5px;
+		bottom: -5px;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 20px;
+		height: 20px;
+		border-radius: 7px;
+		color: var(--stack);
+		background:
+			linear-gradient(color-mix(in srgb, var(--stack) 18%, transparent), color-mix(in srgb, var(--stack) 18%, transparent)),
+			var(--glass-bg-strong);
+		box-shadow: 0 0 0 2px var(--glass-bg-strong);
+	}
+
+	&__badge-icon {
+		width: 12px;
+		height: 12px;
+	}
+
 	&--sm {
 		width: 28px;
 		height: 28px;
 		border-radius: 8px;
 		font-size: 11px;
+
+		.stack-avatar__icon {
+			width: 15px;
+			height: 15px;
+		}
+
+		.stack-avatar__badge {
+			right: -4px;
+			bottom: -4px;
+			width: 14px;
+			height: 14px;
+			border-radius: 5px;
+		}
+
+		.stack-avatar__badge-icon {
+			width: 9px;
+			height: 9px;
+		}
 	}
 
 	&--md {
@@ -41,6 +87,7 @@
 }
 
 /* На светлом фоне светлые цвета стеков нечитаемы — затемняем */
-:root[data-theme='light'] .stack-avatar:not(.stack-avatar--unknown) {
+:root[data-theme='light'] .stack-avatar:not(.stack-avatar--unknown),
+:root[data-theme='light'] .stack-avatar__badge {
 	color: color-mix(in srgb, var(--stack) 62%, #000);
 }

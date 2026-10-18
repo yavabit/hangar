@@ -69,7 +69,7 @@ export const Folder: FC<FolderProps> = ({ folder, projects, health, onDelete, on
 					{count > 0 && (
 						<div className="folder-card__stacks">
 							{projects.slice(0, PREVIEW_COUNT).map((project) => (
-								<StackAvatar key={project.id} stack={health[project.id]?.stack} name={project.name} size="sm" />
+								<StackAvatar key={project.id} stacks={health[project.id]?.stacks} name={project.name} size="sm" />
 							))}
 						</div>
 					)}

@@ -235,7 +235,7 @@ export const PaletteView: FC<PaletteViewProps> = ({ onNavigate, onClose }) => {
 
 		return (
 			<>
-				<StackAvatar stack={projectHealth?.stack} name={project.name} size="sm" />
+				<StackAvatar stacks={projectHealth?.stacks} name={project.name} size="sm" />
 				<div className="palette__main">
 					<div className="palette__title">
 						{project.name}
