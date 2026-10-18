@@ -5,10 +5,13 @@ import { PageHeader } from "@renderer/shared/components/PageHeader/PageHeader";
 import { ThemeSwitcher } from "@renderer/shared/components/ThemeSwitcher/ThemeSwitcher";
 import { SettingsForm } from "./SettingsForm/SettingsForm";
 import { DeveloperSettings } from "./DeveloperSettings/DeveloperSettings";
+import { useAppStore } from "@renderer/store/app.store";
 
 import "./Settings.scss";
 
 export const Settings: FC = () => {
+	const version = useAppStore((s) => s.version);
+
 	return (
 		<div className="settings-page">
 			<PageHeader title="Настройки" description="Оформление, IDE, консоль, алиасы путей и быстрый доступ" />
@@ -36,7 +39,8 @@ export const Settings: FC = () => {
 			<footer className="settings-footer">
 				<Versions />
 				<div>
-					Платформа: {window.electron.process.platform} · Разработано <a href="https://github.com/yavabit">yavabit</a>
+					<span className="settings-footer__app">Hangar v{version}</span> · {window.electron.process.platform} · Разработано{" "}
+					<a href="https://github.com/yavabit">yavabit</a>
 				</div>
 			</footer>
 		</div>

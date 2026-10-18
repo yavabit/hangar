@@ -12,7 +12,6 @@ export function registerDevIpc(): void {
 	ipcMain.handle("dev:getInfo", (): DevInfo => ({
 		dataFile: store.path,
 		userData: app.getPath("userData"),
-		version: app.getVersion(),
 	}));
 
 	ipcMain.handle("dev:openDataFolder", async () => {

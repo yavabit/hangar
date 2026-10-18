@@ -104,7 +104,7 @@ export const DeveloperSettings: FC = () => {
 					<Tool
 						icon={<Power size={16} />}
 						title="Перезапустить приложение"
-						text={info ? `Версия ${info.version}` : "Полный перезапуск"}
+						text="Закрыть и снова открыть Hangar"
 						onClick={() => void window.api.dev.relaunch()}
 					/>
 					<Tool

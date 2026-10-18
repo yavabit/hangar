@@ -14,6 +14,7 @@ export type AppStore = {
 	/** Когда статусы проверялись полностью */
 	checkedAt: string | null;
 	window: WindowInfo;
+	version: string;
 
 	load: () => Promise<void>;
 
@@ -43,6 +44,7 @@ export const useAppStore = create<AppStore>((set) => ({
 	health: {},
 	checkedAt: null,
 	window: { platform: "win32", mica: false },
+	version: "",
 
 	// --- LOAD ---
 	load: async () => {
@@ -58,6 +60,7 @@ export const useAppStore = create<AppStore>((set) => ({
 				health: state.health,
 				checkedAt: state.checkedAt,
 				window: state.window,
+				version: state.version,
 				hydrated: true,
 			});
 		} catch (e) {

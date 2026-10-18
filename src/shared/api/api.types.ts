@@ -21,6 +21,8 @@ export type AppState = {
 	/** Когда статусы проверялись полностью */
 	checkedAt: string | null;
 	window: WindowInfo;
+	/** Версия приложения из package.json */
+	version: string;
 };
 
 /** Сведения о папке проекта, найденные на диске */
@@ -75,7 +77,6 @@ export type NewProject = Omit<Project, "id" | "lastModified"> & Partial<Pick<Pro
 export type DevInfo = {
 	dataFile: string;
 	userData: string;
-	version: string;
 };
 
 export interface ElectronApi {

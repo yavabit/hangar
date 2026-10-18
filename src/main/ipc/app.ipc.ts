@@ -1,4 +1,4 @@
-import { ipcMain } from "electron";
+import { app, ipcMain } from "electron";
 import { ProjectsStorage } from "../storage/projects.storage";
 import { FoldersStorage } from "../storage/folders.storage";
 import { SettingsStorage } from "../storage/settings.storage";
@@ -16,6 +16,7 @@ export function registerAppIpc(): void {
 			health: StatusService.getHealth(),
 			checkedAt: StatusService.getCheckedAt(),
 			window: getWindowInfo(),
+			version: app.getVersion(),
 		};
 	});
 
