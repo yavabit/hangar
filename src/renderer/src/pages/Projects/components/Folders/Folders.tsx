@@ -6,6 +6,7 @@ import { AddOrEditFolderModal } from "../Modals/AddFolderModal";
 import "./Folders.scss";
 import type { Folder as FolderType, Project } from "@schemas/store.schema";
 import { useAppStore } from "@renderer/store/app.store";
+import { useUiStore } from "@renderer/store/ui.store";
 import { useFolders } from "@renderer/shared/hooks/useFolders";
 import { useProjects } from "@renderer/shared/hooks/useProjects";
 
@@ -18,6 +19,7 @@ type FoldersProps = {
 export const Folders: FC<FoldersProps> = ({ items, projects, showCreate = true }) => {
 	const [modal, setModal] = useState<{ open: boolean; folder?: FolderType }>({ open: false });
 	const health = useAppStore((s) => s.health);
+	const layout = useUiStore((s) => s.layout);
 
 	const { addFolder, removeFolder, updateFolder } = useFolders()
 	const { moveProject } = useProjects()
@@ -42,24 +44,29 @@ export const Folders: FC<FoldersProps> = ({ items, projects, showCreate = true }
 
 	return (
 		<div>
-			<div className="folders-grid">
+			<div className={layout === "list" ? "folders-rows project-list-rows glass" : "folders-grid"}>
+				{showCreate && (
+					<button
+						type="button"
+						className={`folder-create ${layout === "list" ? "folder-create--row" : ""}`}
+						onClick={() => setModal({ open: true })}
+					>
+						<FolderPlus size={layout === "list" ? 16 : 20} strokeWidth={1.8} />
+						<span>Новая папка</span>
+					</button>
+				)}
 				{items.map((folder) => (
 					<Folder
 						key={folder.id}
 						folder={folder}
 						projects={projectsByFolder.get(folder.id) ?? []}
 						health={health}
+						layout={layout}
 						onDelete={removeFolder}
 						onEdit={(f) => setModal({ open: true, folder: f })}
 						onDropProject={(projectId, target) => void moveProject(projectId, target)}
 					/>
 				))}
-				{showCreate && (
-					<button type="button" className="folder-create" onClick={() => setModal({ open: true })}>
-						<FolderPlus size={20} strokeWidth={1.8} />
-						<span>Новая папка</span>
-					</button>
-				)}
 			</div>
 			<AddOrEditFolderModal
 				isOpen={modal.open}

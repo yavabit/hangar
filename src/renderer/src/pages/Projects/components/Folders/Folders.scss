@@ -27,6 +27,12 @@
 		border-radius: 11px;
 		color: var(--accent);
 		background: var(--accent-soft);
+
+		&--sm {
+			width: 28px;
+			height: 28px;
+			border-radius: 8px;
+		}
 	}
 
 	&__titles {
@@ -60,14 +66,7 @@
 
 	&__stacks {
 		display: flex;
-
-		.stack-avatar + .stack-avatar {
-			margin-left: -8px;
-		}
-
-		.stack-avatar {
-			box-shadow: 0 0 0 2px var(--glass-bg-strong);
-		}
+		gap: 4px;
 	}
 
 	&__activity {
@@ -95,6 +94,93 @@
 		color: var(--accent);
 		border-color: var(--accent-ring);
 		background: var(--accent-soft);
+	}
+
+	&--row {
+		justify-content: flex-start;
+		gap: 12px;
+		min-height: 44px;
+		padding: 0 16px;
+		border-radius: 10px;
+	}
+}
+
+.folder-row {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	min-height: 52px;
+	padding: 6px 10px;
+	border-radius: 10px;
+	cursor: pointer;
+	transition: background-color 0.15s ease;
+
+	&:hover {
+		background: var(--hover);
+	}
+
+	&__main {
+		flex: 1;
+		min-width: 0;
+	}
+
+	&__name {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		font-weight: 600;
+	}
+
+	.folder-card__stacks {
+		justify-content: flex-end;
+		width: 110px;
+	}
+
+	&__count {
+		width: 90px;
+		font-size: 12px;
+		color: var(--text-muted);
+		text-align: right;
+	}
+
+	&__activity {
+		width: 110px;
+		font-size: 12px;
+		color: var(--text-faint);
+		text-align: right;
+	}
+
+	&__actions {
+		display: flex;
+		gap: 2px;
+
+		.card-action {
+			color: var(--text-faint);
+		}
+	}
+
+	&:hover &__actions .card-action {
+		color: var(--text-muted);
+	}
+
+	&__actions .card-action:hover {
+		color: var(--text);
+	}
+
+	&__actions .card-action--danger:hover {
+		color: var(--danger);
+	}
+}
+
+.folders-rows {
+	gap: 2px;
+
+	> * + * .folder-row {
+		box-shadow: 0 -1px 0 var(--divider);
+	}
+
+	.folder-create--row {
+		margin-bottom: 4px;
 	}
 }
 
