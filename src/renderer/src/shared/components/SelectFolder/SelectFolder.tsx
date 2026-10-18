@@ -42,7 +42,7 @@ export const SelectFolder: FC<SelectFolderProps> = ({ value, onChange, onSelect,
 			style={{
 				padding: "4px 11px",
 				border: "1px solid var(--divider)",
-				borderRadius: "6px",
+				borderRadius: 10,
 				background: "var(--input-bg)",
 				minHeight: 32,
 			}}
@@ -52,9 +52,9 @@ export const SelectFolder: FC<SelectFolderProps> = ({ value, onChange, onSelect,
 				title={currentPath}
 				style={{
 					flex: 1,
-					fontSize: 14,
 					color: currentPath ? "var(--text)" : "var(--text-faint)",
-					fontFamily: "monospace",
+					fontFamily: "var(--font-mono)",
+					fontSize: 13,
 					overflow: "hidden",
 					textOverflow: "ellipsis",
 					whiteSpace: "nowrap",

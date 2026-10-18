@@ -139,7 +139,7 @@ export const PathAliasesManager: React.FC<PathAliasesManagerProps> = ({
 							</Flex>
 
 							{item.alias && item.alias !== "@" && item.path && (
-								<div style={{ fontSize: 12, color: "#999" }}>
+								<div style={{ fontSize: 12, color: "var(--text-faint)" }}>
 									<Text code type="secondary">
 										{item.alias}
 									</Text>

@@ -1,13 +1,13 @@
 .import-list {
 	margin-top: 20px;
-	border: 1px solid #f0f0f0;
-	border-radius: 8px;
+	border: 1px solid var(--divider);
+	border-radius: var(--radius-md);
+	overflow: hidden;
 
 	&__header {
 		padding: 10px 14px;
-		border-bottom: 1px solid #f0f0f0;
-		background: #fafafa;
-		border-radius: 8px 8px 0 0;
+		border-bottom: 1px solid var(--divider);
+		background: var(--chip-bg);
 	}
 
 	&__items {
@@ -21,13 +21,14 @@
 		gap: 12px;
 		padding: 8px 14px;
 		cursor: pointer;
+		transition: background-color 0.15s ease;
 
 		& + & {
-			border-top: 1px solid #f5f5f5;
+			border-top: 1px solid var(--divider);
 		}
 
 		&:hover {
-			background: #f8faff;
+			background: var(--hover);
 		}
 
 		&--disabled {
@@ -43,12 +44,19 @@
 	&__info {
 		min-width: 0;
 		flex: 1;
+		font-family: var(--font-mono);
+		font-size: 12px;
+		color: var(--text-muted);
 	}
 
 	&__name {
 		display: flex;
 		align-items: center;
 		gap: 8px;
+		margin-bottom: 2px;
+		font-family: var(--font-sans);
+		font-size: 14px;
 		font-weight: 500;
+		color: var(--text);
 	}
 }

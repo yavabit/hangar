@@ -15,6 +15,13 @@ const shared: ThemeConfig["token"] = {
 	wireframe: false,
 };
 
+/** Без цветной «подложки» под кнопками: на стекле она выглядит как грязная тень */
+const button: NonNullable<ThemeConfig["components"]>["Button"] = {
+	primaryShadow: "none",
+	defaultShadow: "none",
+	dangerShadow: "none",
+};
+
 const themes: Record<EffectiveTheme, ThemeConfig> = {
 	light: {
 		algorithm: antdTheme.defaultAlgorithm,
@@ -30,6 +37,7 @@ const themes: Record<EffectiveTheme, ThemeConfig> = {
 			colorFillTertiary: "rgba(15, 23, 42, 0.05)",
 		},
 		components: {
+			Button: button,
 			Segmented: { trackBg: "rgba(15, 23, 42, 0.05)", itemSelectedBg: "#ffffff" },
 			Tooltip: { colorBgSpotlight: "rgba(20, 24, 33, 0.92)" },
 		},
@@ -49,6 +57,7 @@ const themes: Record<EffectiveTheme, ThemeConfig> = {
 			colorFillTertiary: "rgba(255, 255, 255, 0.06)",
 		},
 		components: {
+			Button: button,
 			Segmented: { trackBg: "rgba(255, 255, 255, 0.05)", itemSelectedBg: "rgba(255, 255, 255, 0.12)" },
 			Tooltip: { colorBgSpotlight: "rgba(38, 41, 51, 0.96)" },
 		},
