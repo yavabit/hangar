@@ -24,7 +24,7 @@ export const FavoriteStar: FC<FavoriteStarProps> = ({ isFavorite, onFavorite, it
 
 		setTimeout(() => {
 			setIsAnimating(false);
-		}, 700);
+		}, 1000);
 	};
 
 	return (
@@ -36,9 +36,17 @@ export const FavoriteStar: FC<FavoriteStarProps> = ({ isFavorite, onFavorite, it
 				className={`favorite-star ${isFavorite ? "favorite-star--active" : ""} ${isAnimating ? "favorite-star--animating" : ""} ${className}`}
 				onClick={handleClick}
 				onDoubleClick={(e) => e.stopPropagation()}
+				whileHover={{ scale: 1.2 }}
 				whileTap={{ scale: 0.8 }}
-				animate={isAnimating ? { scale: [1, 1.35, 1], rotate: [0, 72, 0] } : { scale: 1, rotate: 0 }}
-				transition={{ duration: 0.45, ease: "easeInOut" }}
+				animate={isAnimating ? "pop" : "idle"}
+				variants={{
+					idle: { scale: 1, rotate: 0 },
+					pop: {
+						scale: [1, 1.4, 1],
+						rotate: [0, 180, 360],
+						transition: { duration: 0.6, ease: "easeInOut" },
+					},
+				}}
 			>
 				<Star size={15} strokeWidth={2} fill={isFavorite ? "currentColor" : "none"} />
 			</motion.button>
