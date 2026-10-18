@@ -26,33 +26,54 @@
 	}
 
 	&__actions {
-		position: absolute;
-		right: 10px;
-		bottom: 10px;
-		z-index: 2;
 		display: flex;
 		align-items: center;
-		gap: 2px;
-		padding: 3px;
-		border-radius: 11px;
-		background: var(--glass-bg-strong);
-		-webkit-backdrop-filter: blur(16px);
-		backdrop-filter: blur(16px);
-		border: 1px solid var(--glass-border);
-		box-shadow: var(--shadow-pop);
-		opacity: 0;
-		transform: translateY(4px) scale(0.98);
-		pointer-events: none;
-		transition:
-			opacity 0.16s ease,
-			transform 0.16s ease;
+		margin: auto -16px -16px;
+		padding: 5px 8px;
+		border-top: 1px solid var(--divider);
+
+		> .card-action,
+		> span {
+			flex: 1;
+		}
+
+		.card-action {
+			width: 100%;
+			height: 32px;
+			color: var(--text-faint);
+		}
+
+		.card-action--primary {
+			color: var(--text-faint);
+		}
 	}
 
-	&:hover &__actions,
-	&:focus-within &__actions {
-		opacity: 1;
-		transform: none;
-		pointer-events: auto;
+	&:hover &__actions .card-action,
+	&:focus-within &__actions .card-action {
+		color: var(--text-muted);
+	}
+
+	&:hover &__actions .card-action--primary,
+	&:focus-within &__actions .card-action--primary {
+		color: var(--accent);
+	}
+
+	&__actions .card-action:not(.card-action--disabled):hover {
+		color: var(--text);
+	}
+
+	&__actions .card-action--primary:not(.card-action--disabled):hover {
+		color: var(--accent);
+		background: var(--accent-soft);
+	}
+
+	&__actions .card-action--danger:hover {
+		color: var(--danger);
+	}
+
+	&__actions .card-action--disabled,
+	&:hover &__actions .card-action--disabled {
+		color: var(--text-faint);
 	}
 
 	&__delete {

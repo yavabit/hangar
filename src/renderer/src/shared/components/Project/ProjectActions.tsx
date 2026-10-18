@@ -24,7 +24,6 @@ export const ProjectActions: FC<ProjectActionsProps> = ({ project, health, onEdi
 			<CardAction
 				title={missing ? MISSING_HINT : "Открыть в IDE (или двойной клик)"}
 				icon={<Code size={15} strokeWidth={2} />}
-				label="Открыть"
 				variant="primary"
 				disabled={missing}
 				onClick={() => void openProjectInIde(project.id)}

@@ -6,7 +6,7 @@ import "./CardShell.scss";
 
 type CardShellProps = {
 	children: ReactNode;
-	/** Действия: появляются плавающей панелью при наведении */
+	/** Действия: строка внизу карточки, при наведении становятся яркими */
 	actions?: ReactNode;
 	deleteConfirm?: DeleteConfirm;
 	onClick?: () => void;
@@ -17,8 +17,8 @@ type CardShellProps = {
 const stop = (e: React.SyntheticEvent): void => e.stopPropagation();
 
 /**
- * Стеклянная карточка с панелью действий при наведении.
- * Клики в панели и во всплывающем подтверждении удаления не открывают саму карточку.
+ * Стеклянная карточка со строкой действий внизу.
+ * Клики в строке и во всплывающем подтверждении удаления не открывают саму карточку.
  */
 export const CardShell: FC<CardShellProps> = ({ children, actions, deleteConfirm, onClick, onDoubleClick, className = "" }) => (
 	<article
@@ -32,12 +32,12 @@ export const CardShell: FC<CardShellProps> = ({ children, actions, deleteConfirm
 		}}
 		tabIndex={onClick ? 0 : undefined}
 	>
+		{children}
 		{(actions || deleteConfirm) && (
-			<div className="card-shell__actions" onClick={stop} onDoubleClick={stop}>
+			<footer className="card-shell__actions" onClick={stop} onDoubleClick={stop}>
 				{actions}
 				{deleteConfirm && <DeleteAction {...deleteConfirm} />}
-			</div>
+			</footer>
 		)}
-		{children}
 	</article>
 );

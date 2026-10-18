@@ -13,7 +13,7 @@ type CardActionProps = {
 	onClick?: () => void;
 };
 
-/** Кнопка в плавающей панели действий карточки */
+/** Кнопка в строке действий карточки */
 export const CardAction: FC<CardActionProps> = ({ title, icon, label, variant = "default", disabled = false, onClick }) => {
 	const handleClick = (e: React.MouseEvent): void => {
 		e.stopPropagation();

@@ -242,7 +242,7 @@
 		display: flex;
 		align-items: center;
 		gap: 6px;
-		width: 240px;
+		width: 200px;
 		justify-content: flex-end;
 
 		.missing-notice {
@@ -252,31 +252,44 @@
 	}
 
 	&__date {
-		width: 140px;
+		width: 160px;
 		text-align: right;
 	}
 
 	&__actions {
-		position: absolute;
-		right: 8px;
-		top: 50%;
 		display: flex;
+		flex-shrink: 0;
 		gap: 2px;
-		padding: 3px;
-		border-radius: 11px;
-		background: var(--glass-bg-strong);
-		border: 1px solid var(--glass-border);
-		box-shadow: var(--shadow-pop);
-		opacity: 0;
-		transform: translateY(-50%);
-		pointer-events: none;
-		transition: opacity 0.15s ease;
+
+		.card-action {
+			color: var(--text-faint);
+		}
 	}
 
-	&:hover &__actions,
-	&:focus-within &__actions {
-		opacity: 1;
-		pointer-events: auto;
+	&:hover &__actions .card-action,
+	&:focus-within &__actions .card-action {
+		color: var(--text-muted);
+	}
+
+	&:hover &__actions .card-action--primary,
+	&:focus-within &__actions .card-action--primary {
+		color: var(--accent);
+	}
+
+	&__actions .card-action:not(.card-action--disabled):hover {
+		color: var(--text);
+	}
+
+	&__actions .card-action--primary:not(.card-action--disabled):hover {
+		color: var(--accent);
+	}
+
+	&__actions .card-action--danger:hover {
+		color: var(--danger);
+	}
+
+	&:hover &__actions .card-action--disabled {
+		color: var(--text-faint);
 	}
 
 	&--launching {
