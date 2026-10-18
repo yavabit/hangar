@@ -17,11 +17,12 @@ type ProjectListProps = {
 	emptyExtra?: ReactNode;
 }
 
+/** Появление без прозрачности, чтобы не мигало размытие стекла; при исчезновении карточка всё равно уходит */
 const itemMotion = {
 	layout: true,
-	initial: { opacity: 0, scale: 0.97 },
-	animate: { opacity: 1, scale: 1 },
-	exit: { opacity: 0, scale: 0.97 },
+	initial: { scale: 0.96 },
+	animate: { scale: 1 },
+	exit: { opacity: 0, scale: 0.96 },
 	transition: { duration: 0.18, ease: [0.2, 0.8, 0.2, 1] as const },
 };
 

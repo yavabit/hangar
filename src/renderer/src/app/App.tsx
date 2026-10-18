@@ -52,8 +52,8 @@ function App(): React.JSX.Element | null {
 			<div className="app-backdrop" />
 			<motion.div
 				className="app"
-				initial={{ opacity: 0, y: 12 }}
-				animate={splashDone ? { opacity: 1, y: 0 } : undefined}
+				initial={{ y: 12 }}
+				animate={splashDone ? { y: 0 } : undefined}
 				transition={{ duration: 0.45, ease: [0.25, 0.1, 0.25, 1] }}
 			>
 				<Router />

@@ -1,6 +1,6 @@
 import { FC, useEffect } from "react";
 import { Search } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { useLocation, useNavigate, useOutlet } from "react-router-dom";
 import { useUiStore } from "@renderer/store/ui.store";
 import { CommandPalette } from "@renderer/shared/components/CommandPalette/CommandPalette";
@@ -10,6 +10,16 @@ import { Sidebar } from "./Sidebar";
 import "./Layout.scss";
 
 /** Каркас главного окна: своя шапка вместо системной, стеклянный сайдбар и контент */
+/**
+ * Переход между страницами — только сдвиг, без прозрачности:
+ * при opacity < 1 у родителя Chromium отключает размытие стеклянных блоков, и они мигают
+ */
+const pageMotion = {
+	initial: { y: 8 },
+	animate: { y: 0 },
+	transition: { duration: 0.2, ease: [0.2, 0.8, 0.2, 1] as const },
+};
+
 export const FullLayout: FC = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
@@ -36,18 +46,13 @@ export const FullLayout: FC = () => {
 			<div className="shell__body">
 				<Sidebar />
 				<main className="shell__content">
-					<AnimatePresence mode="wait" initial={false}>
-						<motion.div
-							key={location.pathname}
-							className="shell__page"
-							initial={{ opacity: 0, y: 8 }}
-							animate={{ opacity: 1, y: 0 }}
-							exit={{ opacity: 0, y: -4 }}
-							transition={{ duration: 0.16, ease: [0.2, 0.8, 0.2, 1] }}
-						>
-							{outlet}
-						</motion.div>
-					</AnimatePresence>
+					<motion.div
+						key={location.pathname}
+						className="shell__page"
+						{...pageMotion}
+					>
+						{outlet}
+					</motion.div>
 				</main>
 			</div>
 
