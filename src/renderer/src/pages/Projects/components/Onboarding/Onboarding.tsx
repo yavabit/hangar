@@ -1,5 +1,6 @@
 import { FC } from "react";
-import { FolderSearch, Keyboard, Plus, Tag } from "lucide-react";
+import { Button } from "antd";
+import { FolderSearch, Keyboard, Plus, Tag, X } from "lucide-react";
 import logo from "@renderer/shared/assets/logo/logo.svg";
 import { useAppStore } from "@renderer/store/app.store";
 import { formatHotkey } from "@renderer/shared/utils/hotkey";
@@ -10,14 +11,21 @@ type OnboardingProps = {
 	onImport: () => void;
 	onAdd: () => void;
 	onAliases: () => void;
+	/** Предпросмотр из режима разработчика: данные есть, экран можно закрыть */
+	onClosePreview?: () => void;
 };
 
 /** Первый запуск: проектов и папок ещё нет */
-export const Onboarding: FC<OnboardingProps> = ({ onImport, onAdd, onAliases }) => {
+export const Onboarding: FC<OnboardingProps> = ({ onImport, onAdd, onAliases, onClosePreview }) => {
 	const hotkey = useAppStore((s) => s.settings.common.globalHotkey);
 
 	return (
 		<section className="onboarding glass">
+			{onClosePreview && (
+				<Button className="onboarding__close" type="text" icon={<X size={16} />} onClick={onClosePreview}>
+					Закрыть предпросмотр
+				</Button>
+			)}
 			<img src={logo} alt="" className="onboarding__logo" />
 			<h2 className="onboarding__title">Добро пожаловать в Hangar</h2>
 			<p className="onboarding__text">

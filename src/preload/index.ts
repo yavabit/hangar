@@ -54,6 +54,13 @@ const api: ElectronApi = {
 		openInMain: (route) => ipcRenderer.invoke("app:openInMain", route),
 		onNavigate: (callback) => subscribe("app:navigate", callback),
 	},
+	dev: {
+		getInfo: () => ipcRenderer.invoke("dev:getInfo"),
+		openDataFolder: () => ipcRenderer.invoke("dev:openDataFolder"),
+		openDevTools: () => ipcRenderer.invoke("dev:openDevTools"),
+		relaunch: () => ipcRenderer.invoke("dev:relaunch"),
+		resetData: () => ipcRenderer.invoke("dev:resetData"),
+	},
 };
 
 if (process.contextIsolated) {

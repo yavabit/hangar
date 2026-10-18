@@ -4,6 +4,7 @@ import { Versions } from "@renderer/shared/components/Versions";
 import { PageHeader } from "@renderer/shared/components/PageHeader/PageHeader";
 import { ThemeSwitcher } from "@renderer/shared/components/ThemeSwitcher/ThemeSwitcher";
 import { SettingsForm } from "./SettingsForm/SettingsForm";
+import { DeveloperSettings } from "./DeveloperSettings/DeveloperSettings";
 
 import "./Settings.scss";
 
@@ -11,6 +12,11 @@ export const Settings: FC = () => {
 	return (
 		<div className="settings-page">
 			<PageHeader title="Настройки" description="Оформление, IDE, консоль, алиасы путей и быстрый доступ" />
+
+			<section className="settings-note">
+				<ShieldCheck size={16} strokeWidth={1.8} />
+				<span>Hangar ничего не отправляет в интернет: проекты и настройки хранятся только на этом устройстве.</span>
+			</section>
 
 			<section className="settings-card glass">
 				<div className="settings-card__head">
@@ -25,10 +31,7 @@ export const Settings: FC = () => {
 
 			<SettingsForm />
 
-			<section className="settings-note">
-				<ShieldCheck size={16} strokeWidth={1.8} />
-				<span>Hangar ничего не отправляет в интернет: проекты и настройки хранятся только на этом устройстве.</span>
-			</section>
+			<DeveloperSettings />
 
 			<footer className="settings-footer">
 				<Versions />

@@ -6,6 +6,7 @@ import { registerFileSystemIpc } from './ipc/file-system.ipc'
 import { registerAppIpc } from './ipc/app.ipc'
 import { registerFoldersIpc } from './ipc/folders.ipc'
 import { registerGitIpc } from './ipc/git.ipc'
+import { registerDevIpc } from './ipc/dev.ipc'
 import { store, validateStore } from './storage/store'
 import { SettingsStorage } from './storage/settings.storage'
 import { StatusService } from './services/status.service'
@@ -34,6 +35,7 @@ if (!app.requestSingleInstanceLock()) {
     registerProjectsIpc()
     registerFileSystemIpc()
     registerGitIpc()
+    registerDevIpc()
 
     app.on('browser-window-created', (_, window) => {
       optimizer.watchWindowShortcuts(window)

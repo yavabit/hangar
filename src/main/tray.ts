@@ -25,6 +25,8 @@ const uiState = new StoreClass<{ trayHintShown: boolean }>({
 
 let tray: Tray | null = null;
 
+export const resetTrayState = (): void => uiState.clear();
+
 const openProject = async (project: Project): Promise<void> => {
 	try {
 		await ProjectService.openProjectInIde(project.id);

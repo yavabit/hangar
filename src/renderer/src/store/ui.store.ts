@@ -26,6 +26,8 @@ type UiStore = {
 	/** Поиск по Ctrl+K внутри главного окна */
 	paletteOpen: boolean;
 	sidebarCollapsed: boolean;
+	/** Режим разработчика: показать экран первого запуска при существующих данных */
+	onboardingPreview: boolean;
 
 	setSort: (sort: ProjectSort) => void;
 	setView: (view: ProjectsView) => void;
@@ -35,6 +37,7 @@ type UiStore = {
 	markLaunching: (id: Project["id"]) => void;
 	setPaletteOpen: (open: boolean) => void;
 	toggleSidebar: () => void;
+	setOnboardingPreview: (value: boolean) => void;
 };
 
 const LAUNCH_HIGHLIGHT_MS = 900;
@@ -63,6 +66,7 @@ export const useUiStore = create<UiStore>()(
 			launchingProjectId: null,
 			paletteOpen: false,
 			sidebarCollapsed: false,
+			onboardingPreview: false,
 
 			setSort: (sort) => set({ sort }),
 			setView: (view) => set({ view }),
@@ -71,6 +75,7 @@ export const useUiStore = create<UiStore>()(
 			setDraggingProjectId: (draggingProjectId) => set({ draggingProjectId }),
 			setPaletteOpen: (paletteOpen) => set({ paletteOpen }),
 			toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
+			setOnboardingPreview: (onboardingPreview) => set({ onboardingPreview }),
 			markLaunching: (id) => {
 				set({ launchingProjectId: id });
 				setTimeout(() => set((state) => (state.launchingProjectId === id ? { launchingProjectId: null } : {})), LAUNCH_HIGHLIGHT_MS);

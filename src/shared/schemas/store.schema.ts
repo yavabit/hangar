@@ -65,10 +65,15 @@ export const AppearanceSettingsSchema = z.object({
 	theme: ThemeModeSchema,
 });
 
+export const DeveloperSettingsSchema = z.object({
+	enabled: z.boolean(),
+});
+
 export const AppSettingsSchema = z.object({
 	common: CommonSettingsSchema,
 	statusRefresh: StatusRefreshSettingsSchema,
 	appearance: AppearanceSettingsSchema,
+	developer: DeveloperSettingsSchema,
 });
 
 export const StoreSchema = z.object({
@@ -109,6 +114,9 @@ export const DEFAULT_SETTINGS: AppSettings = {
 	appearance: {
 		theme: "system",
 	},
+	developer: {
+		enabled: false,
+	},
 };
 
 /** Сохранённые настройки поверх значений по умолчанию: новые поля появляются без миграций */
@@ -116,4 +124,5 @@ export const withDefaultSettings = (settings: Partial<AppSettings> | undefined):
 	common: { ...DEFAULT_SETTINGS.common, ...settings?.common },
 	statusRefresh: { ...DEFAULT_SETTINGS.statusRefresh, ...settings?.statusRefresh },
 	appearance: { ...DEFAULT_SETTINGS.appearance, ...settings?.appearance },
+	developer: { ...DEFAULT_SETTINGS.developer, ...settings?.developer },
 });

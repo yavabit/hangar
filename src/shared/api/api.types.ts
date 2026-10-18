@@ -49,7 +49,7 @@ export type ProjectHealth = {
 	/** null — не git-репозиторий или git не установлен */
 	git: GitInfo | null;
 	/** Стек, определённый по файлам проекта */
-	/** ����� �������, ������� ������: � ��������� � �������� � ����� ����� �� ��������� */
+	/** Стеки проекта, главный первым: у фронтенда с бэкендом в одной папке их несколько */
 	stacks: StackId[];
 };
 
@@ -71,6 +71,12 @@ export type GitBranches = {
 };
 
 export type NewProject = Omit<Project, "id" | "lastModified"> & Partial<Pick<Project, "lastModified">>;
+
+export type DevInfo = {
+	dataFile: string;
+	userData: string;
+	version: string;
+};
 
 export interface ElectronApi {
 	settings: {
@@ -130,5 +136,14 @@ export interface ElectronApi {
 		/** Показывает главное окно и открывает в нём страницу */
 		openInMain: (route: string) => Promise<void>;
 		onNavigate: (callback: (route: string) => void) => () => void;
+	};
+	/** Инструменты режима разработчика */
+	dev: {
+		getInfo: () => Promise<DevInfo>;
+		openDataFolder: () => Promise<void>;
+		openDevTools: () => Promise<void>;
+		relaunch: () => Promise<void>;
+		/** Стирает проекты, папки и настройки и перезапускает приложение */
+		resetData: () => Promise<void>;
 	};
 }

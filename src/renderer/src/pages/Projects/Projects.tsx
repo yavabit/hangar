@@ -27,6 +27,8 @@ export const Projects: FC = () => {
 	const view = useUiStore((s) => s.view);
 	const setView = useUiStore((s) => s.setView);
 	const draggingProjectId = useUiStore((s) => s.draggingProjectId);
+	const onboardingPreview = useUiStore((s) => s.onboardingPreview);
+	const setOnboardingPreview = useUiStore((s) => s.setOnboardingPreview);
 	const { filters, setFilters } = usePageFilters("projects");
 	const { resolvePath } = usePathAliases();
 	const { moveProject } = useProjects();
@@ -73,12 +75,13 @@ export const Projects: FC = () => {
 	);
 
 	const renderContent = (): React.ReactNode => {
-		if (projects.length === 0 && folders.length === 0) {
+		if (onboardingPreview || (projects.length === 0 && folders.length === 0)) {
 			return (
 				<Onboarding
 					onImport={() => setImportModalOpen(true)}
 					onAdd={() => setAddModalOpen(true)}
 					onAliases={() => navigate("/settings")}
+					onClosePreview={onboardingPreview ? () => setOnboardingPreview(false) : undefined}
 				/>
 			);
 		}
