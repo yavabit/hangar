@@ -1,11 +1,12 @@
 import { FC, useMemo, useState } from "react";
-import { Alert, Button, Checkbox, Empty, Flex, Form, InputNumber, Modal, Select, Spin, Tag, Typography } from "antd";
-import { Folder as FolderIcon, GitBranch, Search } from "lucide-react";
+import { Alert, Button, Checkbox, Empty, Flex, Form, InputNumber, Modal, Spin, Tag, TreeSelect, Typography } from "antd";
+import { FolderTree, GitBranch, Search } from "lucide-react";
 import { SelectFolder } from "@renderer/shared/components/SelectFolder/SelectFolder";
 import { ProjectPath } from "@renderer/shared/components/ProjectPath/ProjectPath";
 import { useAppStore } from "@renderer/store/app.store";
 import { useProjects } from "@renderer/shared/hooks/useProjects";
 import { usePathAliases } from "@renderer/shared/hooks/usePathAliases";
+import { useFolderTree } from "@renderer/shared/hooks/useFolderTree";
 import { projectsApi } from "@renderer/shared/api/projects.api";
 import { getIpcErrorMessage } from "@renderer/shared/utils/ipcError";
 import { pluralize } from "@renderer/shared/utils/pluralize";
@@ -24,9 +25,9 @@ type ImportProjectsModalProps = {
 const normalizePath = (path: string): string => path.replace(/\\/g, "/").replace(/\/+$/, "").toLowerCase();
 
 export const ImportProjectsModal: FC<ImportProjectsModalProps> = ({ isOpen, onClose, defaultFolderId }) => {
-	const folders = useAppStore((s) => s.folders);
 	const projects = useAppStore((s) => s.projects);
-	const { addProjects } = useProjects();
+	const tree = useFolderTree();
+	const { importProjects } = useProjects();
 	const { resolvePath } = usePathAliases();
 
 	const [rootPath, setRootPath] = useState<string>();
@@ -37,6 +38,7 @@ export const ImportProjectsModal: FC<ImportProjectsModalProps> = ({ isOpen, onCl
 	const [scanning, setScanning] = useState(false);
 	const [importing, setImporting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [keepStructure, setKeepStructure] = useState(true);
 
 	const existingPaths = useMemo(
 		() => new Set(projects.map((p) => normalizePath(resolvePath(p.path)))),
@@ -53,6 +55,7 @@ export const ImportProjectsModal: FC<ImportProjectsModalProps> = ({ isOpen, onCl
 		setSelected(new Set());
 		setError(null);
 		setFolderId(defaultFolderId);
+		setKeepStructure(true);
 	};
 
 	const handleClose = (): void => {
@@ -98,14 +101,12 @@ export const ImportProjectsModal: FC<ImportProjectsModalProps> = ({ isOpen, onCl
 
 		setImporting(true);
 		try {
-			await addProjects(
+			await importProjects(
 				items.map((c) => ({
-					name: c.name,
-					path: c.path,
-					gitUrl: c.gitUrl,
-					folderId,
-					isFavorite: false,
+					project: { name: c.name, path: c.path, gitUrl: c.gitUrl, isFavorite: false },
+					dirs: c.dirs,
 				})),
+				{ folderId, keepStructure: hasStructure && keepStructure },
 			);
 			handleClose();
 		} catch (e) {
@@ -118,6 +119,8 @@ export const ImportProjectsModal: FC<ImportProjectsModalProps> = ({ isOpen, onCl
 	const allChecked = available.length > 0 && available.every((c) => selected.has(c.path));
 	const someChecked = available.some((c) => selected.has(c.path));
 	const selectedCount = available.filter((c) => selected.has(c.path)).length;
+	const hasStructure = available.some((c) => c.dirs.length > 0);
+	const structureFits = tree.canCreateIn(folderId);
 
 	return (
 		<Modal
@@ -160,20 +163,14 @@ export const ImportProjectsModal: FC<ImportProjectsModalProps> = ({ isOpen, onCl
 						<InputNumber min={1} max={5} value={depth} onChange={(v) => setDepth(v ?? 2)} />
 					</Form.Item>
 					<Form.Item label="Добавить в папку" style={{ marginBottom: 0, flex: 1, minWidth: 200 }}>
-						<Select
+						<TreeSelect
 							value={folderId}
 							onChange={setFolderId}
 							placeholder="Без папки"
 							allowClear
-							options={folders.map((f) => ({
-								value: f.id,
-								label: (
-									<span>
-										<FolderIcon size={14} style={{ marginRight: 8, verticalAlign: -2 }} />
-										{f.name}
-									</span>
-								),
-							}))}
+							treeDefaultExpandAll
+							treeData={tree.toTreeData()}
+							notFoundContent="Папок пока нет"
 						/>
 					</Form.Item>
 					<Button type="primary" ghost icon={<Search size={15} />} disabled={!rootPath} loading={scanning} onClick={handleScan}>
@@ -196,6 +193,24 @@ export const ImportProjectsModal: FC<ImportProjectsModalProps> = ({ isOpen, onCl
 						<Empty description="Проекты не найдены. Попробуйте увеличить глубину поиска" />
 					) : (
 						<>
+							{hasStructure && (
+								<label className="import-list__structure">
+									<Checkbox
+										checked={keepStructure && structureFits}
+										disabled={!structureFits}
+										onChange={(e) => setKeepStructure(e.target.checked)}
+									/>
+									<FolderTree size={15} />
+									<span>
+										Создать папки по структуре на диске
+										<span className="import-list__hint">
+											{structureFits
+												? "Например, «Заказчик 1» для …\\Заказчик 1\\shop-api. Существующие папки с тем же названием переиспользуются"
+												: "Выбранная папка уже третьего уровня — вложить в неё папки нельзя"}
+										</span>
+									</span>
+								</label>
+							)}
 							<div className="import-list__header">
 								<Checkbox
 									checked={allChecked}
@@ -224,6 +239,9 @@ export const ImportProjectsModal: FC<ImportProjectsModalProps> = ({ isOpen, onCl
 											/>
 											<div className="import-list__info">
 												<div className="import-list__name">
+													{keepStructure && structureFits && candidate.dirs.length > 0 && (
+														<span className="import-list__dirs">{candidate.dirs.join(" / ")} /</span>
+													)}
 													{candidate.name}
 													{candidate.hasGit && (
 														<Tag icon={<GitBranch size={11} style={{ marginRight: 4, verticalAlign: -1 }} />} bordered={false}>

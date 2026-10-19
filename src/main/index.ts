@@ -64,6 +64,7 @@ if (!app.requestSingleInstanceLock()) {
         PROJECTS_EVENT_DEBOUNCE_MS,
       )
     })
+    store.onDidChange('folders', () => sendToRenderer('folders:changed', store.get('folders')))
     StatusService.onUpdate((health) => sendToRenderer('projects:health', health))
     StatusService.onChecked((checkedAt) => sendToRenderer('projects:checkedAt', checkedAt))
 

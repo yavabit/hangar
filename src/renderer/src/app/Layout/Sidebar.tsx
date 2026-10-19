@@ -1,15 +1,14 @@
-import { FC, useEffect, useMemo, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { Tooltip } from "antd";
 import { FolderPlus, LayoutGrid, PanelLeftClose, PanelLeftOpen, Settings, SquareTerminal, Star } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAppStore } from "@renderer/store/app.store";
 import { useUiStore } from "@renderer/store/ui.store";
 import { useFolders } from "@renderer/shared/hooks/useFolders";
-import { useProjects } from "@renderer/shared/hooks/useProjects";
-import { ProjectDropZone } from "@renderer/shared/components/ProjectDropZone/ProjectDropZone";
 import { ThemeSwitcher } from "@renderer/shared/components/ThemeSwitcher/ThemeSwitcher";
 import { AddOrEditFolderModal } from "@renderer/pages/Projects/components/Modals/AddFolderModal";
 import { formatRelativeTime } from "@renderer/shared/utils/relativeTime";
+import { SidebarFolders } from "./SidebarFolders";
 
 const NOW_TICK_MS = 30_000;
 
@@ -61,29 +60,12 @@ const StatusLine: FC = () => {
 export const Sidebar: FC = () => {
 	const { pathname } = useLocation();
 	const projects = useAppStore((s) => s.projects);
-	const folders = useAppStore((s) => s.folders);
 	const collapsed = useUiStore((s) => s.sidebarCollapsed);
 	const toggleSidebar = useUiStore((s) => s.toggleSidebar);
 	const { addFolder } = useFolders();
-	const { moveProject } = useProjects();
 	const [folderModalOpen, setFolderModalOpen] = useState(false);
 
 	const favoritesCount = projects.filter((p) => p.isFavorite).length;
-
-	const countsByFolder = useMemo(() => {
-		const counts = new Map<string, number>();
-		for (const project of projects) {
-			if (project.folderId) {
-				counts.set(project.folderId, (counts.get(project.folderId) ?? 0) + 1);
-			}
-		}
-		return counts;
-	}, [projects]);
-
-	const sortedFolders = useMemo(
-		() => [...folders].sort((a, b) => a.name.localeCompare(b.name, "ru", { sensitivity: "base" })),
-		[folders],
-	);
 
 	return (
 		<aside className={`sidebar glass ${collapsed ? "sidebar--collapsed" : ""}`}>
@@ -95,45 +77,16 @@ export const Sidebar: FC = () => {
 			</nav>
 
 			<div className="sidebar__section">
-				{!collapsed && (
-					<div className="sidebar__heading">
-						<span>Папки</span>
+				<SidebarFolders
+					collapsed={collapsed}
+					createButton={
 						<Tooltip title="Новая папка">
 							<button type="button" className="sidebar__icon-button" aria-label="Новая папка" onClick={() => setFolderModalOpen(true)}>
 								<FolderPlus size={14} strokeWidth={1.9} />
 							</button>
 						</Tooltip>
-					</div>
-				)}
-				<div className="sidebar__folders">
-					{sortedFolders.map((folder) => (
-						<ProjectDropZone
-							key={folder.id}
-							className="sidebar__drop"
-							onDropProject={(projectId) => {
-								const target = folders.find((f) => f.id === folder.id) ?? null;
-								void moveProject(projectId, target);
-							}}
-							accepts={(projectId) => projects.find((p) => p.id === projectId)?.folderId !== folder.id}
-						>
-							<Tooltip title={collapsed ? folder.name : undefined} placement="right">
-								<NavLink
-									to={`/folder/${folder.id}`}
-									className={({ isActive }) => `sidebar__item sidebar__item--folder ${isActive ? "sidebar__item--active" : ""}`}
-								>
-									<span className="sidebar__folder-mark">{collapsed ? folder.name.slice(0, 1).toUpperCase() : null}</span>
-									{!collapsed && (
-										<>
-											<span className="sidebar__item-label">{folder.name}</span>
-											<span className="sidebar__count">{countsByFolder.get(folder.id) ?? 0}</span>
-										</>
-									)}
-								</NavLink>
-							</Tooltip>
-						</ProjectDropZone>
-					))}
-					{!sortedFolders.length && !collapsed && <div className="sidebar__hint">Папок пока нет</div>}
-				</div>
+					}
+				/>
 			</div>
 
 			<div className="sidebar__footer">

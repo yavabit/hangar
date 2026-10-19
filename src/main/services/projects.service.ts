@@ -1,9 +1,11 @@
-import { shell } from "electron";
+import { app, shell } from "electron";
 import { execFile, spawn } from "child_process";
 import { promises as fs } from "fs";
-import { basename, join } from "path";
+import { basename, join, relative, sep } from "path";
 import { Project } from "../../shared/schemas/store.schema";
-import type { PathInfo, ScanCandidate } from "../../shared/api/api.types";
+import type { OpenFolderResult, PathInfo, ScanCandidate } from "../../shared/api/api.types";
+import { formatFolderPath, getProjectsInTree } from "../../shared/utils/folderTree";
+import { FoldersStorage } from "../storage/folders.storage";
 import { resolveAliasPath, toAliasPath } from "../../shared/utils/pathAliases";
 import { ProjectsStorage } from "../storage/projects.storage";
 import { SettingsStorage } from "../storage/settings.storage";
@@ -89,6 +91,63 @@ export class ProjectService {
 		const { path } = await this.getExistingProjectPath(id);
 		await this.openInIde(path, SettingsStorage.get().common.defaultIDE);
 		return ProjectsStorage.update(id, { lastOpenedAt: new Date().toISOString() });
+	}
+
+	/**
+	 * Открывает все проекты папки и вложенных папок. VS Code получает один workspace
+	 * со всеми репозиториями, JetBrains-IDE — каждый проект отдельным окном.
+	 */
+	static async openFolderInIde(folderId: string): Promise<OpenFolderResult> {
+		const folders = FoldersStorage.getAll();
+		if (!folders.some((folder) => folder.id === folderId)) {
+			throw new Error("Папка не найдена");
+		}
+
+		const candidates = getProjectsInTree(folders, ProjectsStorage.getAll(), folderId)
+			.map((project) => ({ project, path: this.resolvePath(project.path) }));
+		const existing: typeof candidates = [];
+		for (const candidate of candidates) {
+			if (await this.isDirectory(candidate.path)) {
+				existing.push(candidate);
+			}
+		}
+
+		if (!existing.length) {
+			throw new Error(candidates.length ? "Папки проектов не найдены на диске" : "В папке нет проектов");
+		}
+
+		const ide = SettingsStorage.get().common.defaultIDE;
+		if (ide === "vscode") {
+			const workspace = await this.writeWorkspace(formatFolderPath(folders, folderId, " · "), existing);
+			await this.openInVsCode(workspace);
+		} else {
+			for (const { path } of existing) {
+				await this.openInIde(path, ide);
+			}
+		}
+
+		ProjectsStorage.touchOpened(new Set(existing.map(({ project }) => project.id)));
+		return { opened: existing.length, skipped: candidates.length - existing.length };
+	}
+
+	/** Файл .code-workspace в папке данных Hangar. Свои настройки, добавленные в него в VS Code, сохраняются */
+	private static async writeWorkspace(title: string, items: { project: Project; path: string }[]): Promise<string> {
+		const dir = join(app.getPath("userData"), "workspaces");
+		const file = join(dir, `${title.replace(/[<>:"/\\|?*]+/g, "-").trim() || "workspace"}.code-workspace`);
+
+		let previous: Record<string, unknown>;
+		try {
+			previous = JSON.parse(await fs.readFile(file, "utf8"));
+		} catch {
+			previous = { settings: {} };
+		}
+
+		await fs.mkdir(dir, { recursive: true });
+		await fs.writeFile(
+			file,
+			JSON.stringify({ ...previous, folders: items.map(({ project, path }) => ({ name: project.name, path })) }, null, "\t"),
+		);
+		return file;
 	}
 
 	/** Открывает консоль по умолчанию из настроек в папке проекта */
@@ -324,6 +383,7 @@ export class ProjectService {
 						name: basename(dir),
 						gitUrl: hasGit ? await this.getGitRemoteUrl(dir) : undefined,
 						hasGit,
+						dirs: relative(rootPath, dir).split(sep).slice(0, -1).filter(Boolean),
 					});
 					continue;
 				}

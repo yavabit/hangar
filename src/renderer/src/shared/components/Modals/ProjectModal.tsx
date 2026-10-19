@@ -1,10 +1,12 @@
 import { FC, useCallback, useEffect, useRef, useState } from "react";
-import { Form, Input, Modal, Select, Space, Switch, Tooltip, Typography } from "antd";
-import { Folder as FolderIcon, Link2 } from "lucide-react";
+import { Form, Input, Modal, Space, Switch, Tooltip, TreeSelect, Typography } from "antd";
+import { Link2 } from "lucide-react";
 import { ProjectPathInput } from "@renderer/shared/components/ProjectPathInput/ProjectPathInput";
 import { useProjects } from "@renderer/shared/hooks/useProjects";
 import { usePathAliases } from "@renderer/shared/hooks/usePathAliases";
 import { useAppStore } from "@renderer/store/app.store";
+import { useFolderTree } from "@renderer/shared/hooks/useFolderTree";
+import { resolveTaskTrackerUrl } from "@common/utils/folderTree";
 import type { PathInfo } from "@common/api/api.types";
 import type { Folder, Project } from "@schemas/store.schema";
 
@@ -32,9 +34,12 @@ export const ProjectModal: FC<ProjectModalProps> = ({ isOpen, onClose, project, 
 	const { addProject, updateProject } = useProjects();
 	const { resolvePath } = usePathAliases();
 	const folders = useAppStore((s) => s.folders);
-	const taskTrackerUrl = useAppStore((s) => s.settings.common.taskTrackerUrl.trim());
+	const defaultTrackerUrl = useAppStore((s) => s.settings.common.taskTrackerUrl);
+	const tree = useFolderTree();
 
 	const [form] = Form.useForm<ProjectFormValues>();
+	const selectedFolderId = Form.useWatch("folderId", form);
+	const taskTrackerUrl = resolveTaskTrackerUrl(folders, selectedFolderId, defaultTrackerUrl);
 	const [saving, setSaving] = useState(false);
 	const [pathInfo, setPathInfo] = useState<PathInfo | null>(null);
 
@@ -159,18 +164,12 @@ export const ProjectModal: FC<ProjectModalProps> = ({ isOpen, onClose, project, 
 					<Input placeholder="Подставится из имени папки" />
 				</Form.Item>
 				<Form.Item label="Папка" name="folderId">
-					<Select
+					<TreeSelect
 						placeholder="Без папки"
-						options={folders.map((f) => ({
-							label: (
-								<span>
-									<FolderIcon size={14} style={{ marginRight: 8, verticalAlign: -2 }} />
-									{f.name}
-								</span>
-							),
-							value: f.id,
-						}))}
+						treeData={tree.toTreeData()}
+						treeDefaultExpandAll
 						allowClear
+						notFoundContent="Папок пока нет"
 					/>
 				</Form.Item>
 				<Form.Item
@@ -182,7 +181,7 @@ export const ProjectModal: FC<ProjectModalProps> = ({ isOpen, onClose, project, 
 				</Form.Item>
 				<Form.Item
 					label="Таск-трекер"
-					tooltip="Необязательно. Допишите номер задачи или путь к доске — ссылка появится на карточке проекта"
+					tooltip="Необязательно. Допишите номер задачи или путь к доске — ссылка появится на карточке проекта. Адрес трекера берётся у папки проекта или из настроек"
 				>
 					{taskTrackerUrl ? (
 						<Space.Compact block>
@@ -197,7 +196,7 @@ export const ProjectModal: FC<ProjectModalProps> = ({ isOpen, onClose, project, 
 						</Space.Compact>
 					) : (
 						<Typography.Text type="secondary">
-							Укажите адрес таск-трекера в настройках, чтобы привязывать задачи к проектам
+							Укажите адрес таск-трекера в настройках или у папки, чтобы привязывать задачи к проектам
 						</Typography.Text>
 					)}
 				</Form.Item>

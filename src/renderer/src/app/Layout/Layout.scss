@@ -225,6 +225,47 @@
 		border-radius: 9px;
 	}
 
+	&__item--folder {
+		gap: 6px;
+	}
+
+	&__chevron {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		width: 16px;
+		height: 16px;
+		margin-left: -4px;
+		padding: 0;
+		border: 0;
+		border-radius: 4px;
+		background: transparent;
+		color: var(--text-faint);
+		cursor: pointer;
+		transition: transform 0.15s ease, color 0.15s ease;
+
+		&:hover {
+			color: var(--text);
+		}
+
+		&--open {
+			transform: rotate(90deg);
+		}
+
+		&--empty {
+			visibility: hidden;
+		}
+	}
+
+	&__folder-mark {
+		margin-right: 4px;
+	}
+
+	&--collapsed &__folder-mark {
+		margin-right: 0;
+	}
+
 	&__hint {
 		padding: 4px 10px;
 		font-size: 12px;

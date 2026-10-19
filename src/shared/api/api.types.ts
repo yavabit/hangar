@@ -63,6 +63,31 @@ export type ScanCandidate = {
 	name: string;
 	gitUrl?: string;
 	hasGit: boolean;
+	/** Папки на диске между выбранной папкой и проектом: ["Заказчик 1"] для D:\Work\Заказчик 1\shop */
+	dirs: string[];
+};
+
+export type ImportItem = {
+	project: NewProject;
+	dirs: string[];
+};
+
+export type ImportOptions = {
+	/** Папка Hangar, в которую добавить проекты */
+	folderId?: string;
+	/** Повторить структуру папок на диске вложенными папками Hangar */
+	keepStructure: boolean;
+};
+
+export type FolderRemoveResult = {
+	folders: Folder[];
+	projects: Project[];
+};
+
+export type OpenFolderResult = {
+	opened: number;
+	/** Проекты, папки которых не нашлись на диске */
+	skipped: number;
 };
 
 export type GitBranches = {
@@ -89,6 +114,8 @@ export interface ElectronApi {
 		getAll: () => Promise<Project[]>;
 		add: (project: NewProject) => Promise<Project>;
 		addMany: (projects: NewProject[]) => Promise<Project[]>;
+		/** Добавляет найденные при импорте проекты, при необходимости создавая папки по структуре на диске */
+		import: (items: ImportItem[], options: ImportOptions) => Promise<Project[]>;
 		remove: (id: string) => Promise<void>;
 		update: (id: string, data: Partial<Project>) => Promise<Project>;
 		/** Открывает папку проекта в проводнике */
@@ -117,9 +144,12 @@ export interface ElectronApi {
 	folders: {
 		getAll: () => Promise<Folder[]>;
 		add: (folder: Omit<Folder, "id">) => Promise<Folder>;
-		/** Возвращает актуальный список проектов после удаления папки */
-		remove: (id: string, deleteProjects: boolean) => Promise<Project[]>;
+		/** deleteContents — удалить вложенные папки и проекты, иначе они переедут на уровень выше */
+		remove: (id: string, deleteContents: boolean) => Promise<FolderRemoveResult>;
 		update: (id: string, data: Partial<Folder>) => Promise<void>;
+		/** Открывает все проекты папки и вложенных папок: в VS Code — одним окном через workspace */
+		openInIde: (id: string) => Promise<OpenFolderResult>;
+		onChanged: (callback: (folders: Folder[]) => void) => () => void;
 	};
 
 	fileSystem: {

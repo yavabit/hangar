@@ -5,14 +5,15 @@ import { projectsApi } from "../api/projects.api";
 import { getIpcErrorMessage } from "../utils/ipcError";
 import { pluralize } from "../utils/pluralize";
 import { Folder, Project } from "@schemas/store.schema";
-import type { NewProject } from "@common/api/api.types";
+import type { ImportItem, ImportOptions, NewProject } from "@common/api/api.types";
 
 export type ProjectInput = NewProject;
 
 type UseProjectType = {
 	projects: Project[];
 	addProject: (project: ProjectInput) => Promise<void>;
-	addProjects: (projects: ProjectInput[]) => Promise<void>;
+	/** Добавляет найденные при импорте проекты; папки по структуре на диске создаёт main */
+	importProjects: (items: ImportItem[], options: ImportOptions) => Promise<void>;
 	updateProject: (id: Project["id"], patch: Partial<Project>) => Promise<void>;
 	moveProject: (id: Project["id"], folder: Folder | null) => Promise<void>;
 	removeProject: (id: Project["id"]) => Promise<void>;
@@ -50,9 +51,9 @@ export const useProjects = (): UseProjectType => {
 		}
 	};
 
-	const addProjects = async (items: ProjectInput[]): Promise<void> => {
+	const importProjects = async (items: ImportItem[], options: ImportOptions): Promise<void> => {
 		try {
-			const created = await projectsApi.addMany(items);
+			const created = await projectsApi.import(items, options);
 			useAppStore.setState((state) => ({ projects: [...state.projects, ...created] }));
 
 			showSuccess("project_import", {
@@ -216,7 +217,7 @@ export const useProjects = (): UseProjectType => {
 	return {
 		projects,
 		addProject,
-		addProjects,
+		importProjects,
 		updateProject,
 		moveProject,
 		removeProject,

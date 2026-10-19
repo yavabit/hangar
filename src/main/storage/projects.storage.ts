@@ -47,16 +47,26 @@ export class ProjectsStorage {
 		store.set("projects", projects);
 	}
 
-	static removeByFolder(folderId: string): void {
-		const projects = store.get("projects").filter((p) => p.folderId !== folderId);
+	/** Отмечает проекты открытыми сейчас */
+	static touchOpened(ids: Set<string>): void {
+		const openedAt = new Date().toISOString();
+		store.set(
+			"projects",
+			store.get("projects").map((p) => (ids.has(p.id) ? { ...p, lastOpenedAt: openedAt } : p)),
+		);
+	}
+
+	static removeByFolders(folderIds: Set<string>): void {
+		const projects = store.get("projects").filter((p) => !p.folderId || !folderIds.has(p.folderId));
 
 		store.set("projects", projects);
 	}
 
-	static detachFromFolder(folderId: string): void {
+	/** Переносит проекты папки в другую папку или, без targetId, в общий список */
+	static moveFromFolder(folderId: string, targetId: string | undefined): void {
 		const projects = store
 			.get("projects")
-			.map((p) => (p.folderId === folderId ? { ...p, folderId: undefined } : p));
+			.map((p) => (p.folderId === folderId ? { ...p, folderId: targetId } : p));
 
 		store.set("projects", projects);
 	}

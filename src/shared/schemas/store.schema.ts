@@ -19,7 +19,7 @@ export const ProjectSchema = z.object({
 	folderId: z.uuid().optional(),
 	icon: z.string().optional(),
 	gitUrl: z.string().optional(),
-	/** Часть ссылки после адреса таск-трекера из настроек: "issues/42" */
+	/** Часть ссылки после адреса таск-трекера (из папки или из настроек): "issues/42" */
 	taskPath: z.string().optional(),
 });
 
@@ -27,6 +27,10 @@ export const FolderSchema = z.object({
 	id: z.uuid(),
 	name: z.string(),
 	description: z.string().optional(),
+	/** Родительская папка. Без неё папка лежит на верхнем уровне */
+	parentId: z.uuid().optional(),
+	/** Свой адрес таск-трекера: переопределяет адрес из настроек для проектов папки и вложенных папок */
+	taskTrackerUrl: z.string().optional(),
 	path: z.string().optional(),
 	lastDate: z.string().optional(),
 	icon: z.string().optional(),

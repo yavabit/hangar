@@ -9,6 +9,8 @@ export const projectsApi: ProjectsApi = {
 
 	addMany: (projects) => window.api.projects.addMany(projects),
 
+	import: (items, options) => window.api.projects.import(items, options),
+
 	remove: (id) => window.api.projects.remove(id),
 
 	update: (id, data) => window.api.projects.update(id, data),

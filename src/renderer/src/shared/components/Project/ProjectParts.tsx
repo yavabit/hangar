@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import type { ProjectHealth } from "@common/api/api.types";
 import type { Folder, Project } from "@schemas/store.schema";
 import { buildTaskUrl } from "@common/utils/taskTracker";
+import { formatFolderPath, resolveTaskTrackerUrl } from "@common/utils/folderTree";
 import { useAppStore } from "@renderer/store/app.store";
 import { BranchSwitcher } from "@renderer/shared/components/BranchSwitcher/BranchSwitcher";
 import { GitBadge } from "@renderer/shared/components/UI/GitBadge/GitBadge";
@@ -15,20 +16,24 @@ const stop = (e: React.SyntheticEvent): void => e.stopPropagation();
 /** Ссылка на папку проекта, когда проект показан вне её */
 export const FolderChip: FC<{ folder: Pick<Folder, "id" | "name"> }> = ({ folder }) => {
 	const navigate = useNavigate();
+	const folders = useAppStore((s) => s.folders);
+	const path = formatFolderPath(folders, folder.id);
 
 	return (
-		<button
-			type="button"
-			className="folder-chip"
-			onClick={(e) => {
-				e.stopPropagation();
-				navigate(`/folder/${folder.id}`);
-			}}
-			onDoubleClick={stop}
-		>
-			<FolderIcon size={12} strokeWidth={2} />
-			<span>{folder.name}</span>
-		</button>
+		<Tooltip title={path !== folder.name ? path : undefined}>
+			<button
+				type="button"
+				className="folder-chip"
+				onClick={(e) => {
+					e.stopPropagation();
+					navigate(`/folder/${folder.id}`);
+				}}
+				onDoubleClick={stop}
+			>
+				<FolderIcon size={12} strokeWidth={2} />
+				<span>{folder.name}</span>
+			</button>
+		</Tooltip>
 	);
 };
 
@@ -54,7 +59,9 @@ export const ProjectDate: FC<{ project: Project }> = ({ project }) => {
 };
 
 export const TaskLink: FC<{ project: Project }> = ({ project }) => {
-	const trackerUrl = useAppStore((s) => s.settings.common.taskTrackerUrl);
+	const defaultTrackerUrl = useAppStore((s) => s.settings.common.taskTrackerUrl);
+	const folders = useAppStore((s) => s.folders);
+	const trackerUrl = resolveTaskTrackerUrl(folders, project.folderId, defaultTrackerUrl);
 	const url = buildTaskUrl(trackerUrl, project.taskPath);
 
 	if (!project.taskPath) {

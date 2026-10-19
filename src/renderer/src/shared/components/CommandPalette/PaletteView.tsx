@@ -9,6 +9,7 @@ import { ProjectPath } from "@renderer/shared/components/ProjectPath/ProjectPath
 import { StackAvatar } from "@renderer/shared/components/StackAvatar/StackAvatar";
 import { GitBadge } from "@renderer/shared/components/UI/GitBadge/GitBadge";
 import { formatRelativeTime } from "@renderer/shared/utils/relativeTime";
+import { formatFolderPath } from "@common/utils/folderTree";
 import { sortProjects } from "@renderer/shared/utils/projectFilters";
 import { getIpcErrorMessage } from "@renderer/shared/utils/ipcError";
 import type { GitBranches } from "@common/api/api.types";
@@ -76,7 +77,8 @@ export const PaletteView: FC<PaletteViewProps> = ({ onNavigate, onClose }) => {
 		inputRef.current?.focus();
 	}, [branchMode]);
 
-	const folderNames = useMemo(() => new Map(folders.map((f) => [f.id, f.name])), [folders]);
+	/** Полный путь папки: «Работа / Заказчик 1» — по нему и ищем, и показываем */
+	const folderNames = useMemo(() => new Map(folders.map((f) => [f.id, formatFolderPath(folders, f.id)])), [folders]);
 
 	const items = useMemo((): PaletteItem[] => {
 		const q = query.trim().toLowerCase();
@@ -107,7 +109,7 @@ export const PaletteView: FC<PaletteViewProps> = ({ onNavigate, onClose }) => {
 			.filter((item) => item.score > 5);
 
 		const folderItems: PaletteItem[] = folders
-			.map((folder) => ({ type: "folder" as const, key: folder.id, folder, score: matchScore(folder.name, q, true) * 0.9 }))
+			.map((folder) => ({ type: "folder" as const, key: folder.id, folder, score: Math.max(matchScore(folder.name, q, true) * 0.9, matchScore(folderNames.get(folder.id), q) * 0.6) }))
 			.filter((item) => item.score > 0);
 
 		return [...projectItems, ...folderItems].sort((a, b) => b.score - a.score).slice(0, MAX_RESULTS);
@@ -344,7 +346,11 @@ export const PaletteView: FC<PaletteViewProps> = ({ onNavigate, onClose }) => {
 									</span>
 									<div className="palette__main">
 										<div className="palette__title">{item.folder.name}</div>
-										<div className="palette__subtitle">Папка · перейти</div>
+										<div className="palette__subtitle">
+											{item.folder.parentId && folderNames.has(item.folder.parentId)
+												? `Папка в ${folderNames.get(item.folder.parentId)} · перейти`
+												: "Папка · перейти"}
+										</div>
 									</div>
 								</>
 							)}

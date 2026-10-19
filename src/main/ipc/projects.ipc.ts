@@ -2,7 +2,8 @@ import { ipcMain } from "electron";
 
 import { ProjectsStorage } from "../storage/projects.storage";
 import { Project } from "../../shared/schemas/store.schema";
-import type { NewProject } from "../../shared/api/api.types";
+import type { ImportItem, ImportOptions, NewProject } from "../../shared/api/api.types";
+import { FoldersStorage } from "../storage/folders.storage";
 import { ProjectService } from "../services/projects.service";
 import { StatusService } from "../services/status.service";
 
@@ -35,6 +36,18 @@ export function registerProjectsIpc(): void {
 
 	ipcMain.handle("projects:addMany", (_, projects: NewProject[]) => {
 		const created = ProjectsStorage.addMany(projects.map(withDefaults));
+		inspectInBackground(created);
+		return created;
+	});
+
+	ipcMain.handle("projects:import", (_, items: ImportItem[], options: ImportOptions) => {
+		const projects = items.map(({ project, dirs }) =>
+			withDefaults({
+				...project,
+				folderId: options.keepStructure ? FoldersStorage.ensurePath(dirs, options.folderId) : options.folderId,
+			}),
+		);
+		const created = ProjectsStorage.addMany(projects);
 		inspectInBackground(created);
 		return created;
 	});

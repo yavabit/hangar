@@ -15,6 +15,7 @@ import { useAppStore } from "@renderer/store/app.store";
 import { usePageFilters, useUiStore, type ProjectsView } from "@renderer/store/ui.store";
 import { useProjects } from "@renderer/shared/hooks/useProjects";
 import { usePathAliases } from "@renderer/shared/hooks/usePathAliases";
+import { useFolderTree } from "@renderer/shared/hooks/useFolderTree";
 import { applyProjectFilters, matchesFolder } from "@renderer/shared/utils/projectFilters";
 import { pluralize } from "@renderer/shared/utils/pluralize";
 import { Folders } from "./components/Folders/Folders";
@@ -32,6 +33,7 @@ export const Projects: FC = () => {
 	const { filters, setFilters } = usePageFilters("projects");
 	const { resolvePath } = usePathAliases();
 	const { moveProject } = useProjects();
+	const tree = useFolderTree();
 
 	const [addModalOpen, setAddModalOpen] = useState(false);
 	const [importModalOpen, setImportModalOpen] = useState(false);
@@ -47,7 +49,9 @@ export const Projects: FC = () => {
 		[projects, folderIds],
 	);
 
-	const visibleFolders = useMemo(
+	const rootFolders = tree.childrenOf(undefined);
+
+	const matchedFolders = useMemo(
 		() => folders
 			.filter((f) => matchesFolder(f, filters.search))
 			.sort((a, b) => a.name.localeCompare(b.name, "ru", { sensitivity: "base" })),
@@ -100,15 +104,15 @@ export const Projects: FC = () => {
 		}
 
 		if (isSearching) {
-			const nothingFound = visibleFolders.length === 0 && visibleProjects.length === 0;
+			const nothingFound = matchedFolders.length === 0 && visibleProjects.length === 0;
 
 			return nothingFound ? (
 				<ProjectList items={[]} emptyDescription={`Ничего не найдено по запросу «${filters.search.trim()}»`} />
 			) : (
 				<>
-					{visibleFolders.length > 0 && (
-						<Section title="Папки" count={visibleFolders.length}>
-							<Folders items={visibleFolders} projects={projects} showCreate={false} />
+					{matchedFolders.length > 0 && (
+						<Section title="Папки" count={matchedFolders.length}>
+							<Folders items={matchedFolders} showCreate={false} showPath />
 						</Section>
 					)}
 					{visibleProjects.length > 0 && (
@@ -123,8 +127,8 @@ export const Projects: FC = () => {
 
 		return (
 			<>
-				<Section title="Папки" count={folders.length}>
-					<Folders items={visibleFolders} projects={projects} />
+				<Section title="Папки" count={rootFolders.length}>
+					<Folders items={rootFolders} />
 				</Section>
 				{visibleProjects.length > 0 && (
 					<Section title="Без папки" count={visibleProjects.length}>

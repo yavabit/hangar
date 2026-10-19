@@ -10,4 +10,8 @@ export const foldersApi: FoldersApi = {
 	remove: (id, deleteProjects) => window.api.folders.remove(id, deleteProjects),
 
 	update: (id, data) => window.api.folders.update(id, data),
+
+	openInIde: (id) => window.api.folders.openInIde(id),
+
+	onChanged: (callback) => window.api.folders.onChanged(callback),
 };

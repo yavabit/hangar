@@ -211,7 +211,7 @@ export const SettingsForm: FC = () => {
 				<Form.Item
 					name={["common", "taskTrackerUrl"]}
 					label="Таск-трекер"
-					tooltip="Базовый адрес трекера. В проекте останется дописать номер задачи или путь к доске"
+					tooltip="Адрес трекера по умолчанию. В проекте останется дописать номер задачи или путь к доске. У папки можно задать свой адрес — он заменит этот для её проектов"
 					extra="Например: https://redmine.company.com/issues"
 					rules={[{ type: "url", message: "Введите адрес, например https://redmine.company.com/issues" }]}
 				>

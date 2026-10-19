@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import type { Project } from "@schemas/store.schema";
+import type { Folder, Project } from "@schemas/store.schema";
 import type { ProjectFiltersValue, ProjectSort } from "@renderer/shared/utils/projectFilters";
 
 export type ProjectsView = "folders" | "all";
@@ -21,6 +21,10 @@ type UiStore = {
 	search: Partial<Record<SearchScope, string>>;
 	/** Проект, который сейчас перетаскивают */
 	draggingProjectId: Project["id"] | null;
+	/** Папка, которую сейчас перетаскивают */
+	draggingFolderId: Folder["id"] | null;
+	/** Свёрнутые папки в дереве сайдбара */
+	collapsedFolderIds: Folder["id"][];
 	/** Проект, который только что запустили: карточка коротко подсвечивается */
 	launchingProjectId: Project["id"] | null;
 	/** Поиск по Ctrl+K внутри главного окна */
@@ -34,6 +38,8 @@ type UiStore = {
 	setLayout: (layout: ProjectsLayout) => void;
 	setSearch: (scope: SearchScope, value: string) => void;
 	setDraggingProjectId: (id: Project["id"] | null) => void;
+	setDraggingFolderId: (id: Folder["id"] | null) => void;
+	toggleFolderCollapsed: (id: Folder["id"]) => void;
 	markLaunching: (id: Project["id"]) => void;
 	setPaletteOpen: (open: boolean) => void;
 	toggleSidebar: () => void;
@@ -63,6 +69,8 @@ export const useUiStore = create<UiStore>()(
 			layout: "grid",
 			search: {},
 			draggingProjectId: null,
+			draggingFolderId: null,
+			collapsedFolderIds: [],
 			launchingProjectId: null,
 			paletteOpen: false,
 			sidebarCollapsed: false,
@@ -73,6 +81,13 @@ export const useUiStore = create<UiStore>()(
 			setLayout: (layout) => set({ layout }),
 			setSearch: (scope, value) => set((state) => ({ search: { ...state.search, [scope]: value } })),
 			setDraggingProjectId: (draggingProjectId) => set({ draggingProjectId }),
+			setDraggingFolderId: (draggingFolderId) => set({ draggingFolderId }),
+			toggleFolderCollapsed: (id) =>
+				set((state) => ({
+					collapsedFolderIds: state.collapsedFolderIds.includes(id)
+						? state.collapsedFolderIds.filter((folderId) => folderId !== id)
+						: [...state.collapsedFolderIds, id],
+				})),
 			setPaletteOpen: (paletteOpen) => set({ paletteOpen }),
 			toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
 			setOnboardingPreview: (onboardingPreview) => set({ onboardingPreview }),
@@ -89,6 +104,7 @@ export const useUiStore = create<UiStore>()(
 				view: state.view,
 				layout: state.layout,
 				sidebarCollapsed: state.sidebarCollapsed,
+				collapsedFolderIds: state.collapsedFolderIds,
 			}),
 		},
 	),

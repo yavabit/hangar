@@ -20,6 +20,7 @@ const api: ElectronApi = {
 		getAll: () => ipcRenderer.invoke("projects:getAll"),
 		add: (project) => ipcRenderer.invoke("projects:add", project),
 		addMany: (projects) => ipcRenderer.invoke("projects:addMany", projects),
+		import: (items, options) => ipcRenderer.invoke("projects:import", items, options),
 		remove: (id) => ipcRenderer.invoke("projects:remove", id),
 		update: (id, data) => ipcRenderer.invoke("projects:update", id, data),
 		openFolder: (id) => ipcRenderer.invoke("projects:openFolder", id),
@@ -40,8 +41,10 @@ const api: ElectronApi = {
 	folders: {
 		getAll: () => ipcRenderer.invoke("folders:getAll"),
 		add: (folder) => ipcRenderer.invoke("folders:add", folder),
-		remove: (id, deleteProjects) => ipcRenderer.invoke("folders:remove", id, deleteProjects),
+		remove: (id, deleteContents) => ipcRenderer.invoke("folders:remove", id, deleteContents),
 		update: (id, data) => ipcRenderer.invoke("folders:update", id, data),
+		openInIde: (id) => ipcRenderer.invoke("folders:openInIde", id),
+		onChanged: (callback) => subscribe("folders:changed", callback),
 	},
 	fileSystem: {
 		selectFolder: (defaultPath) => ipcRenderer.invoke("dialog:selectFolder", defaultPath),

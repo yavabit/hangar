@@ -10,6 +10,7 @@ export const useAppSync = (): void => {
 	const hydrated = useAppStore((s) => s.hydrated);
 	const windowInfo = useAppStore((s) => s.window);
 	const setProjects = useAppStore((s) => s.setProjects);
+	const setFolders = useAppStore((s) => s.setFolders);
 	const setHealth = useAppStore((s) => s.setHealth);
 	const setCheckedAt = useAppStore((s) => s.setCheckedAt);
 
@@ -20,12 +21,13 @@ export const useAppSync = (): void => {
 	useEffect(() => {
 		const unsubscribers = [
 			window.api.projects.onChanged(setProjects),
+			window.api.folders.onChanged(setFolders),
 			window.api.projects.onHealth(setHealth),
 			window.api.projects.onCheckedAt(setCheckedAt),
 		];
 
 		return () => unsubscribers.forEach((unsubscribe) => unsubscribe());
-	}, [setProjects, setHealth, setCheckedAt]);
+	}, [setProjects, setFolders, setHealth, setCheckedAt]);
 
 	useEffect(() => {
 		if (!hydrated) {

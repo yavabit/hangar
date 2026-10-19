@@ -60,3 +60,37 @@
 		color: var(--text);
 	}
 }
+
+.import-list__structure {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	padding: 10px 14px;
+	border-bottom: 1px solid var(--divider);
+	background: var(--accent-soft);
+	cursor: pointer;
+
+	> svg {
+		flex-shrink: 0;
+		margin-top: 3px;
+		color: var(--accent);
+	}
+
+	> span {
+		display: flex;
+		flex-direction: column;
+		gap: 2px;
+		font-weight: 500;
+	}
+}
+
+.import-list__hint {
+	font-size: 12px;
+	font-weight: 400;
+	color: var(--text-muted);
+}
+
+.import-list__dirs {
+	font-weight: 400;
+	color: var(--text-faint);
+}
