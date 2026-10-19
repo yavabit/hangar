@@ -34,6 +34,14 @@ const IGNORED_DIRS = new Set([
 	"__pycache__",
 	".venv",
 	"venv",
+	".dart_tool",
+	".expo",
+	".angular",
+	".svelte-kit",
+	".parcel-cache",
+	".terraform",
+	"Pods",
+	"DerivedData",
 ]);
 
 /** Файлы, по которым папка без git считается проектом при импорте */
@@ -51,6 +59,15 @@ const PROJECT_MARKERS = [
 ];
 
 const MAX_SCAN_RESULTS = 500;
+
+/**
+ * Аргумент для cmd.exe в двойных кавычках: внутри них & | < > ^ — обычные символы, а не команды.
+ * Без этого папка с «&» в названии ломает запуск IDE через code.cmd или выполняет лишнюю команду
+ */
+const quoteForCmd = (value: string): string => `"${value.replace(/"/g, '""')}"`;
+
+/** Сколько файлов проекта смотреть при поиске даты последнего изменения: защита от огромных папок */
+const MAX_FILES_FOR_MODIFIED_DATE = 20_000;
 
 export class ProjectService {
 	/** Полный путь проекта с учётом алиасов из настроек */
@@ -306,7 +323,10 @@ export class ProjectService {
 			};
 
 			const child = process.platform === "win32" && /\.(cmd|bat)$/i.test(command)
-				? spawn("cmd.exe", ["/c", command, ...args], options)
+				? spawn("cmd.exe", ["/d", "/s", "/c", `"${[command, ...args].map(quoteForCmd).join(" ")}"`], {
+					...options,
+					windowsVerbatimArguments: true,
+				})
 				: spawn(command, args, options);
 
 			child.on("error", reject);
@@ -438,17 +458,17 @@ export class ProjectService {
 	}
 
 	static async refreshLastModifiedTimestamps(): Promise<void> {
+		const patches = new Map<string, Partial<Project>>();
+
 		for (const project of ProjectsStorage.getAll()) {
 			const latestDate = await this.getLatestFileModifiedDate(this.resolvePath(project.path));
-			if (!latestDate) {
-				continue;
-			}
-
-			const latestIso = latestDate.toISOString();
-			if (project.lastModified !== latestIso) {
-				ProjectsStorage.update(project.id, { lastModified: latestIso });
+			const latestIso = latestDate?.toISOString();
+			if (latestIso && project.lastModified !== latestIso) {
+				patches.set(project.id, { lastModified: latestIso });
 			}
 		}
+
+		ProjectsStorage.updateMany(patches);
 	}
 
 	private static async getLatestFileModifiedDate(projectPath: string): Promise<Date | null> {
@@ -462,9 +482,10 @@ export class ProjectService {
 		}
 
 		let latest: Date | null = null;
+		let checked = 0;
 		const queue = [projectPath];
 
-		while (queue.length) {
+		while (queue.length && checked < MAX_FILES_FOR_MODIFIED_DATE) {
 			const currentPath = queue.pop();
 			if (!currentPath) {
 				continue;
@@ -491,6 +512,7 @@ export class ProjectService {
 					continue;
 				}
 
+				checked++;
 				try {
 					const entryStats = await fs.stat(entryPath);
 					const mtime = entryStats.mtime;
