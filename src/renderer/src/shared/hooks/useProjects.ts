@@ -54,7 +54,7 @@ export const useProjects = (): UseProjectType => {
 	const importProjects = async (items: ImportItem[], options: ImportOptions): Promise<void> => {
 		try {
 			const created = await projectsApi.import(items, options);
-			useAppStore.setState((state) => ({ projects: [...state.projects, ...created] }));
+			useAppStore.getState().addProjects(created);
 
 			showSuccess("project_import", {
 				message: `Добавлено ${created.length} ${pluralize(created.length, ["проект", "проекта", "проектов"])}`,

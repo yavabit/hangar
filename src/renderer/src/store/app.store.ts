@@ -21,6 +21,7 @@ export type AppStore = {
 	setSettings: (s: AppSettings) => void;
 
 	setProjects: (p: Project[]) => void;
+	addProjects: (p: Project[]) => void;
 	addProject: (p: Project) => void;
 	updateProject: (id: string, p: Partial<Project>) => void;
 	removeProject: (id: string) => void;
@@ -32,6 +33,15 @@ export type AppStore = {
 	addFolder: (f: Folder) => void;
 	updateFolder: (id: string, f: Partial<Folder>) => void;
 	removeFolder: (id: string) => void;
+};
+
+/**
+ * Добавляет записи или заменяет уже существующие с тем же id. Main рассылает новый список
+ * сразу при записи — он может прийти раньше ответа на запрос, и запись не должна задвоиться
+ */
+const upsertById = <T extends { id: string }>(list: T[], items: T[]): T[] => {
+	const ids = new Set(items.map((item) => item.id));
+	return [...list.filter((item) => !ids.has(item.id)), ...items];
 };
 
 export const useAppStore = create<AppStore>((set) => ({
@@ -81,7 +91,12 @@ export const useAppStore = create<AppStore>((set) => ({
 
 	addProject: (project) =>
 		set((state) => ({
-			projects: [...state.projects, project],
+			projects: upsertById(state.projects, [project]),
+		})),
+
+	addProjects: (projects) =>
+		set((state) => ({
+			projects: upsertById(state.projects, projects),
 		})),
 
 	updateProject: (id, patch) =>
@@ -111,7 +126,7 @@ export const useAppStore = create<AppStore>((set) => ({
 
 	addFolder: (folder) =>
 		set((state) => ({
-			folders: [...state.folders, folder],
+			folders: upsertById(state.folders, [folder]),
 		})),
 
 	updateFolder: (id, patch) =>
