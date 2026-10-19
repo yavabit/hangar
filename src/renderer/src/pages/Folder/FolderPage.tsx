@@ -121,13 +121,11 @@ export const FolderPage: FC = () => {
 						<Folders items={subfolders} parentId={folder.id} />
 					</Section>
 				)}
-				<Section title={subfolders.length ? "Проекты в этой папке" : "Проекты"} count={ownProjects.length}>
-					<ProjectList
-						items={visibleProjects}
-						emptyDescription={subfolders.length ? "Проекты лежат во вложенных папках" : "В этой папке пока нет проектов"}
-						emptyExtra={addButton}
-					/>
-				</Section>
+				{(ownProjects.length > 0 || subfolders.length === 0) && (
+					<Section title={subfolders.length ? "Проекты в этой папке" : "Проекты"} count={ownProjects.length}>
+						<ProjectList items={visibleProjects} emptyDescription="В этой папке пока нет проектов" emptyExtra={addButton} />
+					</Section>
+				)}
 			</>
 		);
 	};

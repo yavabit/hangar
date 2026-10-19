@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { Tooltip } from "antd";
 import { ChevronRight } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useMatch } from "react-router-dom";
 import type { Folder } from "@schemas/store.schema";
 import { useAppStore } from "@renderer/store/app.store";
 import { useUiStore } from "@renderer/store/ui.store";
@@ -13,14 +13,19 @@ import { FOLDER_DRAG_TYPE } from "@renderer/shared/utils/dragAndDrop";
 
 const INDENT_PX = 14;
 
+/** Сама открытая папка — последняя в пути: её можно свернуть, а родителей нет */
+const isActiveLeaf = (id: string, activePath: Set<string>): boolean => [...activePath].pop() === id;
+
 type FolderNodeProps = {
 	folder: Folder;
 	depth: number;
 	tree: FolderTree;
 	collapsed: boolean;
+	/** Папки на пути к открытой странице: они раскрыты, даже если их свернули */
+	activePath: Set<string>;
 };
 
-const FolderNode: FC<FolderNodeProps> = ({ folder, depth, tree, collapsed }) => {
+const FolderNode: FC<FolderNodeProps> = ({ folder, depth, tree, collapsed, activePath }) => {
 	const projects = useAppStore((s) => s.projects);
 	const collapsedIds = useUiStore((s) => s.collapsedFolderIds);
 	const toggleFolderCollapsed = useUiStore((s) => s.toggleFolderCollapsed);
@@ -29,7 +34,7 @@ const FolderNode: FC<FolderNodeProps> = ({ folder, depth, tree, collapsed }) => 
 	const { moveFolder } = useFolders();
 
 	const children = collapsed ? [] : tree.childrenOf(folder.id);
-	const expanded = !collapsedIds.includes(folder.id);
+	const expanded = !collapsedIds.includes(folder.id) || (activePath.has(folder.id) && !isActiveLeaf(folder.id, activePath));
 	const count = tree.projectsIn(folder.id).length;
 
 	return (
@@ -83,7 +88,7 @@ const FolderNode: FC<FolderNodeProps> = ({ folder, depth, tree, collapsed }) => 
 			</ProjectDropZone>
 			{expanded &&
 				children.map((child) => (
-					<FolderNode key={child.id} folder={child} depth={depth + 1} tree={tree} collapsed={collapsed} />
+					<FolderNode key={child.id} folder={child} depth={depth + 1} tree={tree} collapsed={collapsed} activePath={activePath} />
 				))}
 		</>
 	);
@@ -100,6 +105,8 @@ export const SidebarFolders: FC<SidebarFoldersProps> = ({ collapsed, createButto
 	const tree = useFolderTree();
 	const { moveFolder } = useFolders();
 	const roots = tree.childrenOf(undefined);
+	const activeId = useMatch("/folder/:id")?.params.id;
+	const activePath = new Set(tree.pathOf(activeId).map((f) => f.id));
 
 	return (
 		<>
@@ -117,7 +124,7 @@ export const SidebarFolders: FC<SidebarFoldersProps> = ({ collapsed, createButto
 			)}
 			<div className="sidebar__folders">
 				{roots.map((folder) => (
-					<FolderNode key={folder.id} folder={folder} depth={0} tree={tree} collapsed={collapsed} />
+					<FolderNode key={folder.id} folder={folder} depth={0} tree={tree} collapsed={collapsed} activePath={activePath} />
 				))}
 				{!roots.length && !collapsed && <div className="sidebar__hint">Папок пока нет</div>}
 			</div>

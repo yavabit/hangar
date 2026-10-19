@@ -41,6 +41,10 @@ export const FolderChip: FC<{ folder: Pick<Folder, "id" | "name"> }> = ({ folder
 export const ProjectDate: FC<{ project: Project }> = ({ project }) => {
 	const opened = project.lastOpenedAt;
 
+	if (!opened && !project.lastModified) {
+		return null;
+	}
+
 	return (
 		<Tooltip
 			title={
