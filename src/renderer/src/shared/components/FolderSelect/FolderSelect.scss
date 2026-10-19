@@ -1,0 +1,117 @@
+.folder-select__prefix {
+	margin-right: 4px;
+	color: var(--text-faint);
+}
+
+.folder-select-popup {
+	padding: 6px !important;
+
+	.ant-select-tree {
+		background: transparent;
+	}
+
+	.ant-select-tree-treenode {
+		align-items: center;
+		width: 100%;
+		margin-bottom: 1px;
+		padding: 0;
+	}
+
+	.ant-select-tree-switcher {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		align-self: center;
+		width: 22px;
+		height: 30px;
+		color: var(--text-faint);
+
+		&:hover {
+			color: var(--text);
+		}
+
+		&::before {
+			display: none;
+		}
+
+		svg {
+			transition: transform 0.15s ease;
+		}
+	}
+
+	.ant-select-tree-switcher_close svg {
+		transform: rotate(-90deg);
+	}
+
+	.ant-select-tree-switcher-noop {
+		visibility: hidden;
+	}
+
+	.ant-select-tree-indent-unit {
+		width: 18px;
+	}
+
+	.ant-select-tree-node-content-wrapper {
+		flex: 1;
+		min-width: 0;
+		min-height: 30px;
+		padding: 0 8px;
+		border-radius: 8px;
+		line-height: 30px;
+		color: var(--text);
+		transition: background-color 0.12s ease;
+
+		&:hover {
+			background: var(--hover);
+		}
+
+		&.ant-select-tree-node-selected {
+			background: var(--accent-soft);
+			color: var(--accent);
+			font-weight: 500;
+		}
+	}
+
+	.ant-select-tree-treenode-disabled .ant-select-tree-node-content-wrapper {
+		color: var(--text-faint);
+		cursor: not-allowed;
+
+		&:hover {
+			background: transparent;
+		}
+	}
+
+	.ant-select-tree-treenode-active .ant-select-tree-node-content-wrapper:not(.ant-select-tree-node-selected) {
+		background: var(--hover);
+	}
+}
+
+.folder-select__node {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-width: 0;
+
+	svg {
+		flex-shrink: 0;
+		color: var(--accent);
+	}
+}
+
+.ant-select-tree-treenode-disabled .folder-select__node svg {
+	color: var(--text-faint);
+}
+
+.folder-select__name {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.folder-select__reason {
+	margin-left: auto;
+	padding-left: 12px;
+	font-size: 12px;
+	white-space: nowrap;
+	color: var(--text-faint);
+}

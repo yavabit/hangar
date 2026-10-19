@@ -1,7 +1,8 @@
 import { FC, useMemo, useState } from "react";
-import { Alert, Button, Checkbox, Empty, Flex, Form, InputNumber, Modal, Spin, Tag, TreeSelect, Typography } from "antd";
+import { Alert, Button, Checkbox, Empty, Flex, Form, InputNumber, Modal, Spin, Tag, Typography } from "antd";
 import { FolderTree, GitBranch, Search } from "lucide-react";
 import { SelectFolder } from "@renderer/shared/components/SelectFolder/SelectFolder";
+import { FolderSelect } from "@renderer/shared/components/FolderSelect/FolderSelect";
 import { ProjectPath } from "@renderer/shared/components/ProjectPath/ProjectPath";
 import { useAppStore } from "@renderer/store/app.store";
 import { useProjects } from "@renderer/shared/hooks/useProjects";
@@ -163,15 +164,7 @@ export const ImportProjectsModal: FC<ImportProjectsModalProps> = ({ isOpen, onCl
 						<InputNumber min={1} max={5} value={depth} onChange={(v) => setDepth(v ?? 2)} />
 					</Form.Item>
 					<Form.Item label="Добавить в папку" style={{ marginBottom: 0, flex: 1, minWidth: 200 }}>
-						<TreeSelect
-							value={folderId}
-							onChange={setFolderId}
-							placeholder="Без папки"
-							allowClear
-							treeDefaultExpandAll
-							treeData={tree.toTreeData()}
-							notFoundContent="Папок пока нет"
-						/>
+						<FolderSelect value={folderId} onChange={setFolderId} />
 					</Form.Item>
 					<Button type="primary" ghost icon={<Search size={15} />} disabled={!rootPath} loading={scanning} onClick={handleScan}>
 						Найти проекты

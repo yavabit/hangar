@@ -12,13 +12,6 @@ import {
 } from "@common/utils/folderTree";
 import { useAppStore } from "@renderer/store/app.store";
 
-export type FolderTreeNode = {
-	value: string;
-	title: string;
-	disabled?: boolean;
-	children?: FolderTreeNode[];
-};
-
 const byName = (a: Folder, b: Folder): number => a.name.localeCompare(b.name, "ru", { sensitivity: "base" });
 
 export type FolderTree = {
@@ -33,8 +26,6 @@ export type FolderTree = {
 	projectsIn: (id: string) => Project[];
 	canCreateIn: (parentId: string | undefined) => boolean;
 	canMove: (id: string, parentId: string | undefined) => boolean;
-	/** Дерево для TreeSelect; isDisabled помечает папки, которые выбрать нельзя */
-	toTreeData: (isDisabled?: (folder: Folder) => boolean) => FolderTreeNode[];
 };
 
 export { MAX_FOLDER_DEPTH };
@@ -46,22 +37,6 @@ export const useFolderTree = (): FolderTree => {
 	return useMemo(() => {
 		const childrenOf = (parentId: string | undefined): Folder[] => getChildFolders(folders, parentId).sort(byName);
 
-		const toTreeData = (isDisabled?: (folder: Folder) => boolean): FolderTreeNode[] => {
-			const build = (parentId: string | undefined, seen: Set<string>): FolderTreeNode[] =>
-				childrenOf(parentId)
-					.filter((folder) => !seen.has(folder.id))
-					.map((folder) => {
-						const children = build(folder.id, new Set([...seen, folder.id]));
-						return {
-							value: folder.id,
-							title: folder.name,
-							disabled: isDisabled?.(folder),
-							children: children.length ? children : undefined,
-						};
-					});
-			return build(undefined, new Set());
-		};
-
 		return {
 			folders,
 			childrenOf,
@@ -71,7 +46,6 @@ export const useFolderTree = (): FolderTree => {
 			projectsIn: (id) => getProjectsInTree(folders, projects, id),
 			canCreateIn: (parentId) => canCreateIn(folders, parentId),
 			canMove: (id, parentId) => canMoveFolder(folders, id, parentId),
-			toTreeData,
 		};
 	}, [folders, projects]);
 };

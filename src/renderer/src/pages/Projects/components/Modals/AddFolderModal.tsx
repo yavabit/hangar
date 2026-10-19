@@ -1,6 +1,8 @@
 import { Folder } from "@schemas/store.schema";
-import { Form, Input, Modal, TreeSelect } from "antd";
-import { FC } from "react";
+import { Form, Input, Modal } from "antd";
+import { FC, useCallback } from "react";
+import { getDescendantIds } from "@common/utils/folderTree";
+import { FolderSelect } from "@renderer/shared/components/FolderSelect/FolderSelect";
 import { useAppStore } from "@renderer/store/app.store";
 import { MAX_FOLDER_DEPTH, useFolderTree } from "@renderer/shared/hooks/useFolderTree";
 
@@ -32,8 +34,20 @@ export const AddOrEditFolderModal: FC<AddOrEditFolderModalProps> = ({ isOpen, ed
 			? `Как в настройках: ${defaultTrackerUrl.trim()}`
 			: "Не задан — ни в настройках, ни у родительских папок";
 
-	const treeData = tree.toTreeData((folder) =>
-		isEdit ? !tree.canMove(editModalData.id, folder.id) : !tree.canCreateIn(folder.id),
+	const disabledReason = useCallback(
+		(folder: Folder): string | null => {
+			if (!editModalData) {
+				return tree.canCreateIn(folder.id) ? null : "уже 3-й уровень";
+			}
+			if (folder.id === editModalData.id) {
+				return "эта папка";
+			}
+			if (getDescendantIds(tree.folders, editModalData.id).has(folder.id)) {
+				return "вложена в неё";
+			}
+			return tree.canMove(editModalData.id, folder.id) ? null : "будет глубже 3 уровней";
+		},
+		[editModalData, tree],
 	);
 
 	const handleOk = async (): Promise<void> => {
@@ -93,13 +107,7 @@ export const AddOrEditFolderModal: FC<AddOrEditFolderModalProps> = ({ isOpen, ed
 					name="parentId"
 					tooltip={`Папки вкладываются не глубже ${MAX_FOLDER_DEPTH} уровней. Недоступные варианты отмечены серым`}
 				>
-					<TreeSelect
-						allowClear
-						treeDefaultExpandAll
-						placeholder="На верхнем уровне"
-						treeData={treeData}
-						notFoundContent="Папок пока нет"
-					/>
+					<FolderSelect placeholder="На верхнем уровне" disabledReason={disabledReason} />
 				</Form.Item>
 				<Form.Item
 					label="Таск-трекер"

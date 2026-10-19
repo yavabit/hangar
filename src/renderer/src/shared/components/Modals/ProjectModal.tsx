@@ -1,11 +1,11 @@
 import { FC, useCallback, useEffect, useRef, useState } from "react";
-import { Form, Input, Modal, Space, Switch, Tooltip, TreeSelect, Typography } from "antd";
+import { Form, Input, Modal, Space, Switch, Tooltip, Typography } from "antd";
 import { Link2 } from "lucide-react";
 import { ProjectPathInput } from "@renderer/shared/components/ProjectPathInput/ProjectPathInput";
 import { useProjects } from "@renderer/shared/hooks/useProjects";
 import { usePathAliases } from "@renderer/shared/hooks/usePathAliases";
 import { useAppStore } from "@renderer/store/app.store";
-import { useFolderTree } from "@renderer/shared/hooks/useFolderTree";
+import { FolderSelect } from "@renderer/shared/components/FolderSelect/FolderSelect";
 import { resolveTaskTrackerUrl } from "@common/utils/folderTree";
 import type { PathInfo } from "@common/api/api.types";
 import type { Folder, Project } from "@schemas/store.schema";
@@ -35,7 +35,6 @@ export const ProjectModal: FC<ProjectModalProps> = ({ isOpen, onClose, project, 
 	const { resolvePath } = usePathAliases();
 	const folders = useAppStore((s) => s.folders);
 	const defaultTrackerUrl = useAppStore((s) => s.settings.common.taskTrackerUrl);
-	const tree = useFolderTree();
 
 	const [form] = Form.useForm<ProjectFormValues>();
 	const selectedFolderId = Form.useWatch("folderId", form);
@@ -164,13 +163,7 @@ export const ProjectModal: FC<ProjectModalProps> = ({ isOpen, onClose, project, 
 					<Input placeholder="Подставится из имени папки" />
 				</Form.Item>
 				<Form.Item label="Папка" name="folderId">
-					<TreeSelect
-						placeholder="Без папки"
-						treeData={tree.toTreeData()}
-						treeDefaultExpandAll
-						allowClear
-						notFoundContent="Папок пока нет"
-					/>
+					<FolderSelect />
 				</Form.Item>
 				<Form.Item
 					label="Git репозиторий"
