@@ -62,6 +62,9 @@ export type StoreValidationResult = { ok: true } | { ok: false; message: string;
 export function validateStore(): StoreValidationResult {
 	const parsed = StoreSchema.safeParse({ ...store.store, settings: withDefaultSettings(store.store.settings) });
 	if (parsed.success) {
+		if (store.get("version") !== STORE_VERSION) {
+			store.set("version", STORE_VERSION);
+		}
 		return { ok: true };
 	}
 
