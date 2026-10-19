@@ -12,6 +12,7 @@ import { StackAvatar } from "@renderer/shared/components/StackAvatar/StackAvatar
 import { useFolderTree } from "@renderer/shared/hooks/useFolderTree";
 import { useUiStore, type ProjectsLayout } from "@renderer/store/ui.store";
 import { FOLDER_DRAG_TYPE } from "@renderer/shared/utils/dragAndDrop";
+import { startDragPreview } from "@renderer/shared/utils/dragPreview";
 import { formatRelativeTime } from "@renderer/shared/utils/relativeTime";
 import { getLatestActivity } from "@renderer/shared/utils/projectFilters";
 import { pluralize } from "@renderer/shared/utils/pluralize";
@@ -111,6 +112,7 @@ export const Folder: FC<FolderProps> = ({ folder, health, onDelete, onEdit, onOp
 		onDragStart: (e: React.DragEvent) => {
 			e.dataTransfer.setData(FOLDER_DRAG_TYPE, folder.id);
 			e.dataTransfer.effectAllowed = "move";
+			startDragPreview(e, e.currentTarget.firstElementChild);
 			setDraggingFolderId(folder.id);
 		},
 		onDragEnd: () => setDraggingFolderId(null),

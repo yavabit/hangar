@@ -6,6 +6,7 @@ import { Project as ProjectType } from "@schemas/store.schema";
 import { useAppStore } from "@renderer/store/app.store";
 import { useUiStore } from "@renderer/store/ui.store";
 import { PROJECT_DRAG_TYPE } from "@renderer/shared/utils/dragAndDrop";
+import { startDragPreview } from "@renderer/shared/utils/dragPreview";
 import { EmptyState } from "../EmptyState/EmptyState";
 import { ProjectModal } from "../Modals/ProjectModal";
 
@@ -65,6 +66,7 @@ export const ProjectList: FC<ProjectListProps> = ({
 								onDragStart={(e) => {
 									e.dataTransfer.setData(PROJECT_DRAG_TYPE, project.id);
 									e.dataTransfer.effectAllowed = "move";
+									startDragPreview(e, e.currentTarget.firstElementChild);
 									setDraggingProjectId(project.id);
 								}}
 								onDragEnd={() => setDraggingProjectId(null)}

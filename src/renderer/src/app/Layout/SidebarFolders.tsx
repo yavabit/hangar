@@ -10,6 +10,7 @@ import { useFolderTree, type FolderTree } from "@renderer/shared/hooks/useFolder
 import { useProjects } from "@renderer/shared/hooks/useProjects";
 import { ProjectDropZone } from "@renderer/shared/components/ProjectDropZone/ProjectDropZone";
 import { FOLDER_DRAG_TYPE } from "@renderer/shared/utils/dragAndDrop";
+import { startDragPreview } from "@renderer/shared/utils/dragPreview";
 
 const INDENT_PX = 14;
 
@@ -55,6 +56,7 @@ const FolderNode: FC<FolderNodeProps> = ({ folder, depth, tree, collapsed, activ
 						onDragStart={(e) => {
 							e.dataTransfer.setData(FOLDER_DRAG_TYPE, folder.id);
 							e.dataTransfer.effectAllowed = "move";
+							startDragPreview(e, e.currentTarget);
 							setDraggingFolderId(folder.id);
 						}}
 						onDragEnd={() => setDraggingFolderId(null)}

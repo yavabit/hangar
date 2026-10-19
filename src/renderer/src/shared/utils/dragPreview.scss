@@ -1,0 +1,33 @@
+.drag-preview {
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 3000;
+	pointer-events: none;
+	will-change: transform;
+
+	> * {
+		height: 100%;
+		animation: drag-preview-lift 0.16s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+	}
+
+	.card-shell,
+	.project-row,
+	.folder-row,
+	.sidebar__item {
+		background: var(--glass-bg-strong);
+		border-color: var(--accent-ring);
+		box-shadow: var(--shadow-pop), 0 0 0 1px var(--accent-ring);
+	}
+
+	.project-row,
+	.folder-row {
+		border-radius: var(--radius-md);
+	}
+}
+
+@keyframes drag-preview-lift {
+	to {
+		transform: rotate(1.5deg) scale(1.02);
+	}
+}
