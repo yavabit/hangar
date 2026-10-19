@@ -44,7 +44,7 @@ export const DeveloperSettings: FC = () => {
 		modal.confirm({
 			title: "Стереть все данные?",
 			icon: <Trash2 size={22} color="var(--danger)" style={{ marginRight: 10 }} />,
-			content: "Будут удалены все проекты, папки, алиасы и настройки. Сами папки проектов на диске не трогаются. Приложение перезапустится с экраном первого запуска.",
+			content: "Будут удалены все проекты, папки, алиасы и настройки. Приложение перезапустится.",
 			okText: "Стереть и перезапустить",
 			okButtonProps: { danger: true },
 			cancelText: "Отмена",
@@ -63,7 +63,7 @@ export const DeveloperSettings: FC = () => {
 					<SquareTerminal size={18} strokeWidth={1.8} />
 					<div>
 						<div className="settings-card__title">Режим разработчика</div>
-						<div className="settings-card__text">Служебные инструменты для отладки, включается сразу</div>
+						<div className="settings-card__text">Служебные инструменты для отладки</div>
 					</div>
 				</div>
 				<Switch
@@ -77,7 +77,7 @@ export const DeveloperSettings: FC = () => {
 					<Tool
 						icon={<Sparkles size={16} />}
 						title="Показать приветствие"
-						text="Экран первого запуска, данные останутся на месте"
+						text="Экран первого запуска"
 						onClick={() => {
 							setOnboardingPreview(true);
 							navigate("/");
@@ -110,7 +110,7 @@ export const DeveloperSettings: FC = () => {
 					<Tool
 						icon={<Trash2 size={16} />}
 						title="Стереть все данные"
-						text="Проекты, папки и настройки — как после установки"
+						text="Проекты, папки и настройки будут удалены"
 						danger
 						onClick={confirmReset}
 					/>

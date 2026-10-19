@@ -18,7 +18,7 @@ export const Settings: FC = () => {
 
 			<section className="settings-note">
 				<ShieldCheck size={16} strokeWidth={1.8} />
-				<span>Hangar ничего не отправляет в интернет: проекты и настройки хранятся только на этом устройстве.</span>
+				<span>Hangar ничего не отправляет в интернет: проекты и настройки хранятся локально только на этом устройстве.</span>
 			</section>
 
 			<section className="settings-card glass">
@@ -26,7 +26,7 @@ export const Settings: FC = () => {
 					<Palette size={18} strokeWidth={1.8} />
 					<div>
 						<div className="settings-card__title">Оформление</div>
-						<div className="settings-card__text">Тема применяется сразу, без сохранения</div>
+						<div className="settings-card__text">Светлая и темная темы на выбор</div>
 					</div>
 				</div>
 				<ThemeSwitcher withLabels />

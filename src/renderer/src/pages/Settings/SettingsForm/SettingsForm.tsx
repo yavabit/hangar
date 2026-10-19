@@ -183,7 +183,7 @@ export const SettingsForm: FC = () => {
 				<Form.Item
 					name={["common", "defaultConsole"]}
 					label="Консоль по умолчанию"
-					tooltip="В какой консоли запускать скрипты проектов"
+					tooltip="В какой консоли запускать скрипты и открывать проекты"
 					rules={[{ required: true, message: "Выберите консоль" }]}
 				>
 					<Select
