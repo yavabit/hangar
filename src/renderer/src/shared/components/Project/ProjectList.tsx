@@ -1,4 +1,4 @@
-import { FC, ReactNode, useMemo, useState } from "react";
+import { FC, ReactNode, useCallback, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Project } from "./Project";
 import { ProjectRow } from "./ProjectRow";
@@ -17,6 +17,12 @@ type ProjectListProps = {
 	emptyDescription?: ReactNode;
 	emptyExtra?: ReactNode;
 }
+
+/**
+ * Плавная перестройка сетки при поиске и сортировке. На большом списке она дорогая:
+ * framer-motion замеряет положение каждой карточки, поэтому включаем её только на небольших списках
+ */
+const LAYOUT_ANIMATION_LIMIT = 24;
 
 /** Появление без прозрачности, чтобы не мигало размытие стекла; при исчезновении карточка всё равно уходит */
 const itemMotion = {
@@ -48,39 +54,49 @@ export const ProjectList: FC<ProjectListProps> = ({
 		[folders],
 	);
 
+	const handleEdit = useCallback((id: ProjectType["id"]) => setEditing({ id, open: true }), []);
+
 	if (items.length === 0) {
 		return showEmpty ? <EmptyState title={emptyDescription} actions={emptyExtra} /> : null;
 	}
 
 	const View = layout === "list" ? ProjectRow : Project;
 
+	const renderItem = (project: ProjectType): ReactNode => (
+		<div
+			className={`project-drag-wrapper ${draggingProjectId === project.id ? "project-drag-wrapper--dragging" : ""}`}
+			draggable
+			onDragStart={(e) => {
+				e.dataTransfer.setData(PROJECT_DRAG_TYPE, project.id);
+				e.dataTransfer.effectAllowed = "move";
+				startDragPreview(e, e.currentTarget.firstElementChild);
+				setDraggingProjectId(project.id);
+			}}
+			onDragEnd={() => setDraggingProjectId(null)}
+		>
+			<View
+				item={project}
+				health={health[project.id]}
+				folder={showFolder && project.folderId ? foldersById.get(project.folderId) : undefined}
+				onEdit={handleEdit}
+			/>
+		</div>
+	);
+
 	return (
 		<div>
 			<div className={layout === "list" ? "project-list-rows glass" : "project-list-grid"}>
-				<AnimatePresence initial={false} mode="popLayout">
-					{items.map((project) => (
-						<motion.div key={project.id} {...itemMotion}>
-							<div
-								className={`project-drag-wrapper ${draggingProjectId === project.id ? "project-drag-wrapper--dragging" : ""}`}
-								draggable
-								onDragStart={(e) => {
-									e.dataTransfer.setData(PROJECT_DRAG_TYPE, project.id);
-									e.dataTransfer.effectAllowed = "move";
-									startDragPreview(e, e.currentTarget.firstElementChild);
-									setDraggingProjectId(project.id);
-								}}
-								onDragEnd={() => setDraggingProjectId(null)}
-							>
-								<View
-									item={project}
-									health={health[project.id]}
-									folder={showFolder && project.folderId ? foldersById.get(project.folderId) : undefined}
-									onEdit={(id) => setEditing({ id, open: true })}
-								/>
-							</div>
-						</motion.div>
-					))}
-				</AnimatePresence>
+				{items.length <= LAYOUT_ANIMATION_LIMIT ? (
+					<AnimatePresence initial={false} mode="popLayout">
+						{items.map((project) => (
+							<motion.div key={project.id} {...itemMotion}>
+								{renderItem(project)}
+							</motion.div>
+						))}
+					</AnimatePresence>
+				) : (
+					items.map((project) => <div key={project.id}>{renderItem(project)}</div>)
+				)}
 			</div>
 			<ProjectModal
 				isOpen={editing.open && !!editingProject}

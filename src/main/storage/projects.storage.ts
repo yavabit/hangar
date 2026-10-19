@@ -41,6 +41,17 @@ export class ProjectsStorage {
 		return projects[index]
 	}
 
+	/** Несколько изменений одной записью в файл, а не по записи на проект */
+	static updateMany(patches: Map<string, Partial<Project>>): void {
+		if (!patches.size) {
+			return;
+		}
+		store.set(
+			"projects",
+			store.get("projects").map((p) => (patches.has(p.id) ? { ...p, ...patches.get(p.id) } : p)),
+		);
+	}
+
 	static remove(id: string): void {
 		const projects = store.get("projects").filter((p) => p.id !== id);
 

@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, memo } from "react";
 import { DeleteAction } from "@renderer/shared/components/UI/DeleteAction/DeleteAction";
 import { FavoriteStar } from "@renderer/shared/components/UI/FavoriteStar/FavoriteStar";
 import { ProjectPath } from "@renderer/shared/components/ProjectPath/ProjectPath";
@@ -13,7 +13,7 @@ import { FolderChip, GitLine, MissingNotice, ProjectDate } from "./ProjectParts"
 const stop = (e: React.SyntheticEvent): void => e.stopPropagation();
 
 /** Строка проекта для плотного вида списком */
-export const ProjectRow: FC<ProjectViewProps> = ({ item, folder, health, onEdit }) => {
+const ProjectRowView: FC<ProjectViewProps> = ({ item, folder, health, onEdit }) => {
 	const { toggleFavorite, removeProject, openProjectInIde } = useProjects();
 	const launching = useUiStore((s) => s.launchingProjectId === item.id);
 	const missing = health?.exists === false;
@@ -47,3 +47,5 @@ export const ProjectRow: FC<ProjectViewProps> = ({ item, folder, health, onEdit 
 		</div>
 	);
 };
+
+export const ProjectRow = memo(ProjectRowView);

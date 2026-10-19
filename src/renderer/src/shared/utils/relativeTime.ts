@@ -1,3 +1,6 @@
+/** Один форматтер на всё приложение: создавать его на каждый вызов дорого, а дат на экране сотни */
+const DATE_TIME_FORMAT = new Intl.DateTimeFormat("ru-RU", { dateStyle: "medium", timeStyle: "short" });
+
 /** Короткое относительное время одной единицей: «5 мин назад», «3 дн назад» */
 export const formatRelativeTime = (timestamp?: string): string => {
 	if (!timestamp) {
@@ -50,5 +53,5 @@ export const formatDateTime = (timestamp?: string): string => {
 	}
 
 	const date = new Date(timestamp);
-	return Number.isNaN(date.getTime()) ? "" : date.toLocaleString("ru-RU", { dateStyle: "medium", timeStyle: "short" });
+	return Number.isNaN(date.getTime()) ? "" : DATE_TIME_FORMAT.format(date);
 };

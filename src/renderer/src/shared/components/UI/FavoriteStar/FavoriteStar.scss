@@ -12,11 +12,16 @@
 	color: var(--text-faint);
 	cursor: pointer;
 	opacity: 0;
-	transition: opacity 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+	transition: opacity 0.15s ease, color 0.15s ease, background-color 0.15s ease, scale 0.15s ease;
 
 	&:hover {
+		scale: 1.2;
 		color: #f5a524;
 		background: rgba(245, 165, 36, 0.12);
+	}
+
+	&:active {
+		scale: 0.8;
 	}
 
 	&:focus-visible {

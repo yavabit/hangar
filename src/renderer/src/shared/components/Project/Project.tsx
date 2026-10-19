@@ -1,4 +1,4 @@
-import { FC } from "react";
+import { FC, memo } from "react";
 import { formatStacks } from "@common/utils/stacks";
 import type { ProjectHealth } from "@common/api/api.types";
 import { Folder, Project as ProjectType } from "@schemas/store.schema";
@@ -23,7 +23,7 @@ export type ProjectViewProps = {
 };
 
 /** Карточка проекта: действия в нижней строке, двойной клик открывает в IDE */
-export const Project: FC<ProjectViewProps> = ({ item, folder, health, onEdit }) => {
+const ProjectCard: FC<ProjectViewProps> = ({ item, folder, health, onEdit }) => {
 	const { toggleFavorite, removeProject, openProjectInIde } = useProjects();
 	const launching = useUiStore((s) => s.launchingProjectId === item.id);
 
@@ -74,3 +74,5 @@ export const Project: FC<ProjectViewProps> = ({ item, folder, health, onEdit }) 
 		</CardShell>
 	);
 };
+
+export const Project = memo(ProjectCard);

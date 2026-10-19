@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Button, Result } from "antd";
 import { motion } from "framer-motion";
 import { Router } from "./router";
+import { StyleWarmup } from "./StyleWarmup";
 import { getSplashRemainingTime, hideSplash } from "./splash";
 import { useAppSync } from "./useAppSync";
 
@@ -50,6 +51,7 @@ function App(): React.JSX.Element | null {
 	return (
 		<>
 			<div className="app-backdrop" />
+			<StyleWarmup />
 			<motion.div
 				className="app"
 				initial={{ y: 12 }}
