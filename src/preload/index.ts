@@ -1,6 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron";
-import { electronAPI } from "@electron-toolkit/preload";
-import { ElectronApi } from "../shared/api/api.types";
+import type { ElectronApi, RuntimeInfo } from "../shared/api/api.types";
 
 /** Подписка на событие из main. Возвращает функцию отписки */
 const subscribe = <T>(channel: string, callback: (payload: T) => void): (() => void) => {
@@ -66,16 +65,17 @@ const api: ElectronApi = {
 	},
 };
 
-if (process.contextIsolated) {
-	try {
-		contextBridge.exposeInMainWorld("electron", electronAPI);
-		contextBridge.exposeInMainWorld("api", api);
-	} catch (error) {
-		console.error(error);
-	}
-} else {
-	// @ts-ignore (define in dts)
-	window.electron = electronAPI;
-	// @ts-ignore (define in dts)
-	window.api = api;
-}
+/** Только платформа и версии: универсальный доступ к IPC странице не нужен */
+const runtime: RuntimeInfo = {
+	process: {
+		platform: process.platform,
+		versions: {
+			electron: process.versions.electron,
+			chrome: process.versions.chrome,
+			node: process.versions.node,
+		},
+	},
+};
+
+contextBridge.exposeInMainWorld("electron", runtime);
+contextBridge.exposeInMainWorld("api", api);

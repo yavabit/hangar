@@ -1,5 +1,5 @@
 import { BrowserWindow, screen } from "electron";
-import { getPreloadPath, loadRenderer } from "./window";
+import { getPreloadPath, hardenWebContents, loadRenderer } from "./window";
 
 /** С запасом по краям: тень окна поиска рисуется внутри страницы */
 const PALETTE_WIDTH = 760;
@@ -31,11 +31,14 @@ export function createPaletteWindow(): BrowserWindow {
 		alwaysOnTop: true,
 		webPreferences: {
 			preload: getPreloadPath(),
-			sandbox: false,
+			sandbox: true,
+			contextIsolation: true,
+			nodeIntegration: false,
 		},
 	});
 
 	window.on("blur", () => window.hide());
+	hardenWebContents(window);
 	loadRenderer(window, { window: "palette" });
 
 	palette = window;

@@ -27,7 +27,11 @@ export function registerGitIpc(): void {
 
 	ipcMain.handle("git:switchBranch", async (_, id: Project["id"], branch: string) => {
 		const path = await getRepositoryPath(id);
-		const { remote } = await GitService.getBranches(path);
+		const { local, remote } = await GitService.getBranches(path);
+
+		if (branch.startsWith("-") || (!local.includes(branch) && !remote.includes(branch))) {
+			throw new Error(`Ветка «${branch}» не найдена`);
+		}
 
 		try {
 			await GitService.switchBranch(path, branch, remote.includes(branch));

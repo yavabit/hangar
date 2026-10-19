@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, globalShortcut, nativeTheme } from 'electron'
+import { app, BrowserWindow, dialog, globalShortcut, nativeTheme, session } from 'electron'
 import { electronApp, optimizer } from '@electron-toolkit/utils'
 import { registerSettingsIpc } from './ipc/settings.ipc'
 import { registerProjectsIpc } from './ipc/projects.ipc'
@@ -25,6 +25,7 @@ if (!app.requestSingleInstanceLock()) {
   app.whenReady().then(() => {
     // Set app user model id for windows
     electronApp.setAppUserModelId('com.yavabit.hangar')
+    session.defaultSession.setPermissionRequestHandler((_webContents, _permission, callback) => callback(false))
 
     const validation = validateStore()
     nativeTheme.themeSource = SettingsStorage.get().appearance.theme

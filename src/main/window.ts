@@ -73,6 +73,25 @@ export const loadRenderer = (window: BrowserWindow, query?: Record<string, strin
 	}
 };
 
+/**
+ * Окно показывает только интерфейс Hangar: ссылки http(s) открываются во внешнем браузере,
+ * новые окна и переходы на другие адреса запрещены
+ */
+export const hardenWebContents = (window: BrowserWindow): void => {
+	window.webContents.setWindowOpenHandler(({ url }) => {
+		if (/^https?:\/\//i.test(url)) {
+			void shell.openExternal(url);
+		}
+		return { action: "deny" };
+	});
+
+	window.webContents.on("will-navigate", (event, url) => {
+		if (url !== window.webContents.getURL()) {
+			event.preventDefault();
+		}
+	});
+};
+
 export const getPreloadPath = (): string => join(__dirname, "../preload/index.js");
 
 export function createMainWindow({ onHiddenToTray }: { onHiddenToTray: () => void }): BrowserWindow {
@@ -102,7 +121,9 @@ export function createMainWindow({ onHiddenToTray }: { onHiddenToTray: () => voi
 		...(process.platform === "linux" ? { icon } : {}),
 		webPreferences: {
 			preload: getPreloadPath(),
-			sandbox: false,
+			sandbox: true,
+			contextIsolation: true,
+			nodeIntegration: false,
 		},
 	});
 
@@ -130,13 +151,7 @@ export function createMainWindow({ onHiddenToTray }: { onHiddenToTray: () => voi
 		}
 	});
 
-	window.webContents.setWindowOpenHandler((details) => {
-		if (/^https?:\/\//i.test(details.url)) {
-			shell.openExternal(details.url);
-		}
-		return { action: "deny" };
-	});
-
+	hardenWebContents(window);
 	loadRenderer(window);
 
 	mainWindow = window;

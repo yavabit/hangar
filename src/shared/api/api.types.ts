@@ -104,6 +104,14 @@ export type DevInfo = {
 	userData: string;
 };
 
+/** Сведения о среде для интерфейса. Только чтение: доступа к IPC через них нет */
+export type RuntimeInfo = {
+	process: {
+		platform: string;
+		versions: { electron: string; chrome: string; node: string };
+	};
+};
+
 export interface ElectronApi {
 	settings: {
 		get: () => Promise<AppSettings>;
