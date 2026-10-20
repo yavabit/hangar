@@ -73,7 +73,6 @@ export const Sidebar: FC = () => {
 				<NavItem to="/" icon={<LayoutGrid size={16} strokeWidth={1.9} />} label="Проекты" count={projects.length} active={pathname === "/"} collapsed={collapsed} />
 				<NavItem to="/fav" icon={<Star size={16} strokeWidth={1.9} />} label="Избранное" count={favoritesCount} collapsed={collapsed} />
 				<NavItem to="/scripts" icon={<SquareTerminal size={16} strokeWidth={1.9} />} label="Скрипты" collapsed={collapsed} />
-				<NavItem to="/settings" icon={<Settings size={16} strokeWidth={1.9} />} label="Настройки" collapsed={collapsed} />
 			</nav>
 
 			<div className="sidebar__section">
@@ -90,6 +89,9 @@ export const Sidebar: FC = () => {
 			</div>
 
 			<div className="sidebar__footer">
+				<nav className="sidebar__nav sidebar__nav--bottom" aria-label="Настройки">
+					<NavItem to="/settings" icon={<Settings size={16} strokeWidth={1.9} />} label="Настройки" collapsed={collapsed} />
+				</nav>
 				<ThemeSwitcher compact={collapsed} />
 				{!collapsed && <StatusLine />}
 				<Tooltip title={collapsed ? "Развернуть" : "Свернуть"} placement="right">
