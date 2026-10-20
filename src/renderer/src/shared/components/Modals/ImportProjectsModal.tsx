@@ -3,6 +3,7 @@ import { Alert, Button, Checkbox, Empty, Flex, Form, InputNumber, Modal, Spin, T
 import { FolderTree, GitBranch, Search } from "lucide-react";
 import { SelectFolder } from "@renderer/shared/components/SelectFolder/SelectFolder";
 import { FolderSelect } from "@renderer/shared/components/FolderSelect/FolderSelect";
+import { submitOnEnter } from "@renderer/shared/utils/submitOnEnter";
 import { ProjectPath } from "@renderer/shared/components/ProjectPath/ProjectPath";
 import { useAppStore } from "@renderer/store/app.store";
 import { useProjects } from "@renderer/shared/hooks/useProjects";
@@ -155,7 +156,7 @@ export const ImportProjectsModal: FC<ImportProjectsModalProps> = ({ isOpen, onCl
 				сохранятся через алиас.
 			</Typography.Paragraph>
 
-			<Form layout="vertical">
+			<Form layout="vertical" onKeyDown={submitOnEnter(() => void handleScan())}>
 				<Form.Item label="Где искать">
 					<SelectFolder onSelect={setRootPath} />
 				</Form.Item>

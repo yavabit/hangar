@@ -7,6 +7,7 @@ import { useProjects } from "@renderer/shared/hooks/useProjects";
 import { usePathAliases } from "@renderer/shared/hooks/usePathAliases";
 import { useAppStore } from "@renderer/store/app.store";
 import { FolderSelect } from "@renderer/shared/components/FolderSelect/FolderSelect";
+import { submitOnEnter } from "@renderer/shared/utils/submitOnEnter";
 import { resolveTaskTrackerUrl } from "@common/utils/folderTree";
 import type { PathInfo } from "@common/api/api.types";
 import type { Folder, Project } from "@schemas/store.schema";
@@ -147,6 +148,7 @@ export const ProjectModal: FC<ProjectModalProps> = ({ isOpen, onClose, project, 
 				initialValues={initialValues}
 				preserve={false}
 				onValuesChange={handleValuesChange}
+				onKeyDown={submitOnEnter(() => void handleOk())}
 			>
 				<Form.Item
 					label="Путь"
