@@ -155,6 +155,20 @@ const subDirs = (dir: string, entries: Dirent[], limit: number): string[] =>
 		.map((e) => join(dir, e.name));
 
 /** Части проекта: подпапки вроде frontend/ и backend/, а в монорепозитории — apps/* и packages/* */
+const detectNested = async (dir: string, entries: Dirent[]): Promise<StackId[]> => {
+	const nested = await Promise.all(
+		subDirs(dir, entries, MAX_CHILD_DIRS).map(async (child) => {
+			const nestedEntries = await readEntries(child);
+			return nestedEntries ? detectDir(child, nestedEntries) : [];
+		}),
+	);
+	return nested.flat();
+};
+
+/**
+ * Части проекта: подпапки вроде frontend/ и backend/. Если в подпапке своих файлов проекта нет,
+ * смотрим на уровень глубже: apps/web, packages/api или portal/frontend и portal/backend
+ */
 const detectParts = async (projectPath: string, entries: Dirent[]): Promise<StackId[]> => {
 	const dirs = subDirs(projectPath, entries, MAX_CHILD_DIRS);
 
@@ -165,15 +179,10 @@ const detectParts = async (projectPath: string, entries: Dirent[]): Promise<Stac
 				return [];
 			}
 			if (WORKSPACE_DIRS.has(basename(dir).toLowerCase())) {
-				const nested = await Promise.all(
-					subDirs(dir, childEntries, MAX_CHILD_DIRS).map(async (child) => {
-						const nestedEntries = await readEntries(child);
-						return nestedEntries ? detectDir(child, nestedEntries) : [];
-					}),
-				);
-				return nested.flat();
+				return detectNested(dir, childEntries);
 			}
-			return detectDir(dir, childEntries);
+			const own = await detectDir(dir, childEntries);
+			return own.length ? own : detectNested(dir, childEntries);
 		}),
 	);
 
@@ -181,7 +190,7 @@ const detectParts = async (projectPath: string, entries: Dirent[]): Promise<Stac
 };
 
 /**
- * Стеки проекта, главный первым. Смотрим корень и подпапки первого уровня:
+ * Стеки проекта, главный первым. Смотрим корень и подпапки до двух уровней:
  * у проекта из фронтенда и бэкенда в одной папке будет, например, React + Go.
  */
 export const detectStacks = async (projectPath: string): Promise<StackId[]> => {
@@ -205,5 +214,6 @@ export const detectStacks = async (projectPath: string): Promise<StackId[]> => {
 		stacks = stacks.filter((stack) => stack !== "rust");
 	}
 
-	return stacks.slice(0, MAX_STACKS);
+	const specificFirst = (a: StackId, b: StackId): number => Number(GENERIC_STACKS.has(a)) - Number(GENERIC_STACKS.has(b));
+	return stacks.sort(specificFirst).slice(0, MAX_STACKS);
 };
