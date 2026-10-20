@@ -315,15 +315,34 @@ export class ProjectService {
 		await shell.openExternal(url);
 	}
 
+	/**
+	 * Полный путь к программе из PATH или null, если её нет. Скрипты .cmd запускаем по полному пути:
+	 * если передать cmd.exe только имя в кавычках, code.cmd не находит свой Code.exe
+	 */
+	private static findInPath(program: string): Promise<string | null> {
+		return new Promise((resolve) => {
+			execFile("where", [program], { windowsHide: true }, (error, stdout) =>
+				resolve(error ? null : stdout.split(/\r?\n/).find((line) => line.trim())?.trim() ?? null),
+			);
+		});
+	}
+
 	private static async runCommand(command: string, args: string[]): Promise<void> {
+		const isScript = process.platform === "win32" && /\.(cmd|bat)$/i.test(command);
+
+		const scriptPath = isScript ? await this.findInPath(command) : null;
+		if (isScript && !scriptPath) {
+			throw Object.assign(new Error(`${command} не найден`), { code: "ENOENT" });
+		}
+
 		await new Promise<void>((resolve, reject) => {
 			const options = {
 				windowsHide: true,
 				shell: false,
 			};
 
-			const child = process.platform === "win32" && /\.(cmd|bat)$/i.test(command)
-				? spawn("cmd.exe", ["/d", "/s", "/c", `"${[command, ...args].map(quoteForCmd).join(" ")}"`], {
+			const child = scriptPath
+				? spawn("cmd.exe", ["/d", "/s", "/c", `"${[scriptPath, ...args].map(quoteForCmd).join(" ")}"`], {
 					...options,
 					windowsVerbatimArguments: true,
 				})
