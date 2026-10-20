@@ -1,5 +1,5 @@
 import { FC, ReactNode } from "react";
-import { LazyTooltip } from "@renderer/shared/components/UI/LazyTooltip/LazyTooltip";
+import { Tooltip } from "@renderer/shared/components/UI/Tooltip/Tooltip";
 
 import "./CardAction.scss";
 
@@ -23,7 +23,7 @@ export const CardAction: FC<CardActionProps> = ({ title, icon, label, variant = 
 	};
 
 	return (
-		<LazyTooltip title={title}>
+		<Tooltip title={title}>
 			<button
 				type="button"
 				aria-label={typeof title === "string" ? title : label}
@@ -35,6 +35,6 @@ export const CardAction: FC<CardActionProps> = ({ title, icon, label, variant = 
 				{icon}
 				{label && <span>{label}</span>}
 			</button>
-		</LazyTooltip>
+		</Tooltip>
 	);
 };

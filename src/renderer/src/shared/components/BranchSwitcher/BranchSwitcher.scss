@@ -52,3 +52,13 @@
 		transform: rotate(360deg);
 	}
 }
+
+/* Под тултипом отдельный элемент: сам переключатель принадлежит выпадающему списку */
+.branch-switcher__body {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	flex: 1;
+	min-width: 0;
+	height: 100%;
+}

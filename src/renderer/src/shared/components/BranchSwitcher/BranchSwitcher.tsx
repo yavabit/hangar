@@ -1,5 +1,6 @@
 import { FC, useState } from "react";
-import { Dropdown, Modal, Spin, Tooltip } from "antd";
+import { Dropdown, Modal, Spin } from "antd";
+import { Tooltip } from "@renderer/shared/components/UI/Tooltip/Tooltip";
 import type { MenuProps } from "antd";
 import { Check, ChevronDown, Cloud, GitBranch, LoaderCircle } from "lucide-react";
 import { gitApi } from "@renderer/shared/api/git.api";
@@ -108,13 +109,15 @@ export const BranchSwitcher: FC<BranchSwitcherProps> = ({ projectId, branch, cha
 				menu={{ items, onClick: handleSelect, className: "branch-switcher__menu" }}
 				disabled={switching}
 			>
-				<Tooltip title="Текущая ветка. Нажмите, чтобы переключить">
-					<span className="branch-switcher" onClick={stop} onDoubleClick={stop}>
-						{switching ? <LoaderCircle size={12} className="branch-switcher__spin" /> : <GitBranch size={12} strokeWidth={2} />}
-						<span className="branch-switcher__name">{branch ?? "detached HEAD"}</span>
-						<ChevronDown size={11} className="branch-switcher__arrow" />
-					</span>
-				</Tooltip>
+				<span className="branch-switcher" onClick={stop} onDoubleClick={stop}>
+					<Tooltip title="Текущая ветка. Нажмите, чтобы переключить">
+						<span className="branch-switcher__body">
+							{switching ? <LoaderCircle size={12} className="branch-switcher__spin" /> : <GitBranch size={12} strokeWidth={2} />}
+							<span className="branch-switcher__name">{branch ?? "detached HEAD"}</span>
+							<ChevronDown size={11} className="branch-switcher__arrow" />
+						</span>
+					</Tooltip>
+				</span>
 			</Dropdown>
 		</>
 	);

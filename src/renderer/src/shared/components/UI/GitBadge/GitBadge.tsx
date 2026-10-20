@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { LazyTooltip } from "@renderer/shared/components/UI/LazyTooltip/LazyTooltip";
+import { Tooltip } from "@renderer/shared/components/UI/Tooltip/Tooltip";
 import type { GitInfo } from "@common/api/api.types";
 import { summarizeGit } from "@renderer/shared/utils/gitSummary";
 
@@ -23,7 +23,7 @@ export const GitBadge: FC<GitBadgeProps> = ({ git }) => {
 	const summary = summarizeGit(git);
 
 	return (
-		<LazyTooltip
+		<Tooltip
 			title={
 				<div>
 					{summary.lines.map((line) => (
@@ -33,6 +33,6 @@ export const GitBadge: FC<GitBadgeProps> = ({ git }) => {
 			}
 		>
 			<span className={`git-badge git-badge--${summary.tone}`}>{summary.label}</span>
-		</LazyTooltip>
+		</Tooltip>
 	);
 };

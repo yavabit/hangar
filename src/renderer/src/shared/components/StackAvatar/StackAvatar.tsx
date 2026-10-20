@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { LazyTooltip } from "@renderer/shared/components/UI/LazyTooltip/LazyTooltip";
+import { Tooltip } from "@renderer/shared/components/UI/Tooltip/Tooltip";
 import { STACKS, formatStacks, type StackId } from "@common/utils/stacks";
 import { STACK_ICON_PATHS } from "@renderer/shared/assets/icons/stacks";
 
@@ -35,7 +35,7 @@ export const StackAvatar: FC<StackAvatarProps> = ({ stacks, name, size = "md" })
 	const [primary, secondary] = stacks ?? [];
 
 	return (
-		<LazyTooltip title={stacks?.length ? formatStacks(stacks) : undefined} mouseEnterDelay={0.4}>
+		<Tooltip title={stacks?.length ? formatStacks(stacks) : undefined} mouseEnterDelay={0.4}>
 			<span
 				className={`stack-avatar stack-avatar--${size} ${primary ? "" : "stack-avatar--unknown"}`}
 				style={primary ? stackColor(primary) : undefined}
@@ -48,6 +48,6 @@ export const StackAvatar: FC<StackAvatarProps> = ({ stacks, name, size = "md" })
 					</span>
 				)}
 			</span>
-		</LazyTooltip>
+		</Tooltip>
 	);
 };

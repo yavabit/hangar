@@ -276,3 +276,12 @@ code {
 .versions li:last-child {
   border: none;
 }
+
+/* Обёртка для тултипа у кнопки, которая бывает заблокирована: такая кнопка не получает событий мыши */
+.tooltip-anchor {
+  display: inline-flex;
+}
+
+.tooltip-anchor > .ant-btn:disabled {
+  pointer-events: none;
+}

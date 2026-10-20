@@ -1,5 +1,6 @@
 import { Search, type SearchScopeTag } from "@renderer/shared/components/Search/Search";
-import { Segmented, Select, Tooltip } from "antd";
+import { Segmented, Select } from "antd";
+import { Tooltip } from "@renderer/shared/components/UI/Tooltip/Tooltip";
 import { ArrowDownAZ, Clock, LayoutGrid, List, SquareArrowOutUpRight } from "lucide-react";
 import { FC, ReactNode } from "react";
 import type { ProjectFiltersValue, ProjectSort } from "@renderer/shared/utils/projectFilters";

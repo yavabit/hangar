@@ -1,5 +1,6 @@
 import { FC, useCallback, useEffect, useRef, useState } from "react";
-import { Form, Input, Modal, Space, Switch, Tooltip, Typography } from "antd";
+import { Form, Input, Modal, Space, Switch, Typography } from "antd";
+import { Tooltip } from "@renderer/shared/components/UI/Tooltip/Tooltip";
 import { Link2 } from "lucide-react";
 import { ProjectPathInput } from "@renderer/shared/components/ProjectPathInput/ProjectPathInput";
 import { useProjects } from "@renderer/shared/hooks/useProjects";
@@ -180,7 +181,7 @@ export const ProjectModal: FC<ProjectModalProps> = ({ isOpen, onClose, project, 
 						<Space.Compact block>
 							<Space.Addon className="project-modal__tracker-base">
 								<Tooltip title={taskTrackerUrl}>
-									<Link2 size={13} style={{ verticalAlign: -2 }} /> {taskTrackerUrl.replace(/^https?:\/\//, "").replace(/\/+$/, "")}/
+									<span><Link2 size={13} style={{ verticalAlign: -2 }} /> {taskTrackerUrl.replace(/^https?:\/\//, "").replace(/\/+$/, "")}/</span>
 								</Tooltip>
 							</Space.Addon>
 							<Form.Item name="taskPath" noStyle>

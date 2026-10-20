@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Typography } from "antd";
-import { LazyTooltip } from "@renderer/shared/components/UI/LazyTooltip/LazyTooltip";
+import { Tooltip } from "@renderer/shared/components/UI/Tooltip/Tooltip";
 import { findAlias, parseAliasPath } from "@common/utils/pathAliases";
 import { usePathAliases } from "@renderer/shared/hooks/usePathAliases";
 
@@ -30,7 +30,7 @@ export const ProjectPath: FC<ProjectPathProps> = ({ path, missing = false }) => 
 	);
 
 	return (
-		<LazyTooltip title={tooltip} placement="topLeft">
+		<Tooltip title={tooltip} placement="topLeft">
 			<span className={`project-path ${missing ? "project-path--missing" : ""}`}>
 				{parsed ? (
 					<>
@@ -52,6 +52,6 @@ export const ProjectPath: FC<ProjectPathProps> = ({ path, missing = false }) => 
 					</Typography.Text>
 				)}
 			</span>
-		</LazyTooltip>
+		</Tooltip>
 	);
 };

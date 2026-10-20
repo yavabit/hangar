@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { LazyTooltip } from "@renderer/shared/components/UI/LazyTooltip/LazyTooltip";
+import { Tooltip } from "@renderer/shared/components/UI/Tooltip/Tooltip";
 import { Clock, Folder as FolderIcon, Link2, TriangleAlert } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import type { ProjectHealth } from "@common/api/api.types";
@@ -20,7 +20,7 @@ export const FolderChip: FC<{ folder: Pick<Folder, "id" | "name"> }> = ({ folder
 	const path = formatFolderPath(folders, folder.id);
 
 	return (
-		<LazyTooltip title={path !== folder.name ? path : undefined}>
+		<Tooltip title={path !== folder.name ? path : undefined}>
 			<button
 				type="button"
 				className="folder-chip"
@@ -33,7 +33,7 @@ export const FolderChip: FC<{ folder: Pick<Folder, "id" | "name"> }> = ({ folder
 				<FolderIcon size={12} strokeWidth={2} />
 				<span>{folder.name}</span>
 			</button>
-		</LazyTooltip>
+		</Tooltip>
 	);
 };
 
@@ -46,7 +46,7 @@ export const ProjectDate: FC<{ project: Project }> = ({ project }) => {
 	}
 
 	return (
-		<LazyTooltip
+		<Tooltip
 			title={
 				<div>
 					{opened && <div>Открыт из Hangar: {formatDateTime(opened)}</div>}
@@ -58,7 +58,7 @@ export const ProjectDate: FC<{ project: Project }> = ({ project }) => {
 				<Clock size={12} strokeWidth={2} />
 				{opened ? `открыт ${formatRelativeTime(opened)}` : `изменён ${formatRelativeTime(project.lastModified)}`}
 			</span>
-		</LazyTooltip>
+		</Tooltip>
 	);
 };
 
@@ -78,12 +78,12 @@ export const TaskLink: FC<{ project: Project }> = ({ project }) => {
 			{project.taskPath}
 		</a>
 	) : (
-		<LazyTooltip title="Укажите адрес таск-трекера в настройках">
+		<Tooltip title="Укажите адрес таск-трекера в настройках">
 			<span className="task-link task-link--disabled">
 				<Link2 size={12} strokeWidth={2} />
 				{project.taskPath}
 			</span>
-		</LazyTooltip>
+		</Tooltip>
 	);
 };
 

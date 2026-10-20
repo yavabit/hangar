@@ -1,5 +1,6 @@
 import { FC, useState } from "react";
-import { Button, Tooltip } from "antd";
+import { Button } from "antd";
+import { Tooltip } from "@renderer/shared/components/UI/Tooltip/Tooltip";
 import { RefreshCw } from "lucide-react";
 import { projectsApi } from "@renderer/shared/api/projects.api";
 

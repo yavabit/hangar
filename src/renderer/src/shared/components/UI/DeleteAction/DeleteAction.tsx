@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Popconfirm } from "antd";
-import { LazyTooltip } from "@renderer/shared/components/UI/LazyTooltip/LazyTooltip";
+import { Tooltip } from "@renderer/shared/components/UI/Tooltip/Tooltip";
 import { Trash2 } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -23,11 +23,11 @@ export const DeleteAction: FC<DeleteConfirm> = ({ title, description, onConfirm,
 		cancelText="Отмена"
 	>
 		<span style={{ display: "inline-flex" }}>
-			<LazyTooltip title="Удалить">
+			<Tooltip title="Удалить">
 				<button type="button" aria-label="Удалить" className="card-action card-action--danger">
 					<Trash2 size={15} strokeWidth={1.9} />
 				</button>
-			</LazyTooltip>
+			</Tooltip>
 		</span>
 	</Popconfirm>
 );

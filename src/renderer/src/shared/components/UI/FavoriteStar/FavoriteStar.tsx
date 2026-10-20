@@ -1,5 +1,5 @@
 import { FC, useState } from "react";
-import { LazyTooltip } from "@renderer/shared/components/UI/LazyTooltip/LazyTooltip";
+import { Tooltip } from "@renderer/shared/components/UI/Tooltip/Tooltip";
 import { Star } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -28,7 +28,7 @@ export const FavoriteStar: FC<FavoriteStarProps> = ({ isFavorite, onFavorite, it
 	};
 
 	return (
-		<LazyTooltip title={isFavorite ? "Убрать из избранного" : "В избранное"}>
+		<Tooltip title={isFavorite ? "Убрать из избранного" : "В избранное"}>
 			<motion.button
 				type="button"
 				aria-label={isFavorite ? "Убрать из избранного" : "Добавить в избранное"}
@@ -48,6 +48,6 @@ export const FavoriteStar: FC<FavoriteStarProps> = ({ isFavorite, onFavorite, it
 			>
 				<Star size={15} strokeWidth={2} fill={isFavorite ? "currentColor" : "none"} />
 			</motion.button>
-		</LazyTooltip>
+		</Tooltip>
 	);
 };

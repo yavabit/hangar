@@ -1,5 +1,6 @@
 import { FC } from "react";
-import { Segmented, Tooltip } from "antd";
+import { Segmented } from "antd";
+import { Tooltip } from "@renderer/shared/components/UI/Tooltip/Tooltip";
 import { Monitor, Moon, Sun } from "lucide-react";
 import type { ThemeMode } from "@schemas/store.schema";
 import { useSettings } from "@renderer/shared/hooks/useSettings";

@@ -1,6 +1,7 @@
 import { FC, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Empty, Tooltip } from "antd";
+import { Button, Empty } from "antd";
+import { Tooltip } from "@renderer/shared/components/UI/Tooltip/Tooltip";
 import { FolderOpen, Layers, LayoutGrid, Pencil } from "lucide-react";
 import { Filters } from "@renderer/shared/components/Filters/Filters";
 import { ProjectList } from "@renderer/shared/components/Project/ProjectList";
@@ -140,13 +141,15 @@ export const FolderPage: FC = () => {
 					<>
 						<RefreshStatusButton />
 						<Tooltip title={treeProjects.length ? "Открыть все проекты папки и вложенных папок" : "В папке нет проектов"}>
-							<Button
-								icon={<Layers size={14} />}
-								disabled={!treeProjects.length}
-								onClick={() => void openFolderInIde(folder.id)}
-							>
-								Открыть всё в IDE
-							</Button>
+							<span className="tooltip-anchor">
+								<Button
+									icon={<Layers size={14} />}
+									disabled={!treeProjects.length}
+									onClick={() => void openFolderInIde(folder.id)}
+								>
+									Открыть всё в IDE
+								</Button>
+							</span>
 						</Tooltip>
 						<Button icon={<Pencil size={14} />} onClick={() => setEditModalOpen(true)}>
 							Редактировать

@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { Tooltip } from "antd";
+import { Tooltip } from "@renderer/shared/components/UI/Tooltip/Tooltip";
 import { ChevronRight } from "lucide-react";
 import { NavLink, useMatch } from "react-router-dom";
 import type { Folder } from "@schemas/store.schema";

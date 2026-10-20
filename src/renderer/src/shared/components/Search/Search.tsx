@@ -1,5 +1,6 @@
 import { FC, ReactNode } from "react";
-import { Input, Tag, Tooltip } from "antd";
+import { Input, Tag } from "antd";
+import { Tooltip } from "@renderer/shared/components/UI/Tooltip/Tooltip";
 import { Search as SearchIcon } from "lucide-react";
 
 import "./Search.scss";

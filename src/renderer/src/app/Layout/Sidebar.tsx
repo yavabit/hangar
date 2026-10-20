@@ -1,5 +1,5 @@
 import { FC, useEffect, useState } from "react";
-import { Tooltip } from "antd";
+import { Tooltip } from "@renderer/shared/components/UI/Tooltip/Tooltip";
 import { FolderPlus, LayoutGrid, PanelLeftClose, PanelLeftOpen, Settings, SquareTerminal, Star } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAppStore } from "@renderer/store/app.store";
