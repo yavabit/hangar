@@ -99,6 +99,15 @@ export const resolveTaskTrackerUrl = (
 	return own?.taskTrackerUrl?.trim() ?? defaultUrl.trim();
 };
 
+/** Цвет папки: свой или ближайшего родителя с цветом */
+export const resolveFolderColor = (
+	folders: readonly Pick<Folder, "id" | "parentId" | "color">[],
+	id: string | undefined,
+): string | undefined =>
+	getFolderPath(folders, id)
+		.reverse()
+		.find((folder) => folder.color)?.color;
+
 export const formatFolderPath = (
 	folders: readonly Pick<Folder, "id" | "parentId" | "name">[],
 	id: string | undefined,

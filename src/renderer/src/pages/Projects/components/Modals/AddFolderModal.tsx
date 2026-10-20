@@ -3,10 +3,12 @@ import { Form, Input, Modal } from "antd";
 import { FC, useCallback } from "react";
 import { getDescendantIds } from "@common/utils/folderTree";
 import { FolderSelect } from "@renderer/shared/components/FolderSelect/FolderSelect";
+import { FolderColorPicker } from "@renderer/shared/components/FolderColorPicker/FolderColorPicker";
+import { submitOnEnter } from "@renderer/shared/utils/submitOnEnter";
 import { useAppStore } from "@renderer/store/app.store";
 import { MAX_FOLDER_DEPTH, useFolderTree } from "@renderer/shared/hooks/useFolderTree";
 
-export type FolderFormValues = Pick<Folder, "name" | "description" | "parentId" | "taskTrackerUrl">;
+export type FolderFormValues = Pick<Folder, "name" | "description" | "parentId" | "taskTrackerUrl" | "color">;
 
 type AddOrEditFolderModalProps = {
 	isOpen: boolean;
@@ -24,6 +26,8 @@ export const AddOrEditFolderModal: FC<AddOrEditFolderModalProps> = ({ isOpen, ed
 	const parentId = Form.useWatch("parentId", form);
 
 	const isEdit = !!editModalData;
+	const inheritedColor = tree.colorOf(parentId);
+	const inheritedColorLabel = parentId && inheritedColor ? "Как у родительской папки" : "Без цвета";
 	const trackerSource = tree
 		.pathOf(parentId)
 		.reverse()
@@ -64,6 +68,7 @@ export const AddOrEditFolderModal: FC<AddOrEditFolderModalProps> = ({ isOpen, ed
 				description: values.description?.trim() || undefined,
 				parentId: values.parentId || undefined,
 				taskTrackerUrl: values.taskTrackerUrl?.trim() || undefined,
+				color: values.color || undefined,
 			},
 			editModalData?.id,
 		);
@@ -84,6 +89,7 @@ export const AddOrEditFolderModal: FC<AddOrEditFolderModalProps> = ({ isOpen, ed
 				form={form}
 				layout="vertical"
 				preserve={false}
+				onKeyDown={submitOnEnter(() => void handleOk())}
 				initialValues={
 					editModalData
 						? {
@@ -91,6 +97,7 @@ export const AddOrEditFolderModal: FC<AddOrEditFolderModalProps> = ({ isOpen, ed
 							description: editModalData.description,
 							parentId: editModalData.parentId,
 							taskTrackerUrl: editModalData.taskTrackerUrl,
+							color: editModalData.color,
 						}
 						: { parentId: defaultParentId }
 				}
@@ -108,6 +115,9 @@ export const AddOrEditFolderModal: FC<AddOrEditFolderModalProps> = ({ isOpen, ed
 					tooltip={`Папки вкладываются не глубже ${MAX_FOLDER_DEPTH} уровней. Недоступные варианты отмечены серым`}
 				>
 					<FolderSelect placeholder="На верхнем уровне" disabledReason={disabledReason} />
+				</Form.Item>
+				<Form.Item label="Цвет" name="color">
+					<FolderColorPicker inheritedColor={inheritedColor} inheritedLabel={inheritedColorLabel} />
 				</Form.Item>
 				<Form.Item
 					label="Таск-трекер"

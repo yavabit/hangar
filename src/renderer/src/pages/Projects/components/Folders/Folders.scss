@@ -25,8 +25,8 @@
 		width: 40px;
 		height: 40px;
 		border-radius: 11px;
-		color: var(--accent);
-		background: var(--accent-soft);
+		color: var(--folder-ink, var(--accent));
+		background: color-mix(in srgb, var(--folder-color, var(--accent)) 14%, transparent);
 
 		&--sm {
 			width: 28px;

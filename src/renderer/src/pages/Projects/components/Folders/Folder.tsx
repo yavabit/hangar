@@ -13,6 +13,7 @@ import { useFolderTree } from "@renderer/shared/hooks/useFolderTree";
 import { useUiStore, type ProjectsLayout } from "@renderer/store/ui.store";
 import { FOLDER_DRAG_TYPE } from "@renderer/shared/utils/dragAndDrop";
 import { startDragPreview } from "@renderer/shared/utils/dragPreview";
+import { folderColorStyle } from "@renderer/shared/utils/folderColor";
 import { formatRelativeTime } from "@renderer/shared/utils/relativeTime";
 import { getLatestActivity } from "@renderer/shared/utils/projectFilters";
 import { pluralize } from "@renderer/shared/utils/pluralize";
@@ -136,7 +137,7 @@ export const Folder: FC<FolderProps> = ({ folder, health, onDelete, onEdit, onOp
 	if (layout === "list") {
 		return wrap(
 			<div className="folder-row" onClick={() => navigate(`/folder/${folder.id}`)}>
-				<span className="folder-card__icon folder-card__icon--sm">
+				<span className="folder-card__icon folder-card__icon--sm" style={folderColorStyle(tree.colorOf(folder.id))}>
 					<FolderIcon size={16} strokeWidth={1.8} />
 				</span>
 				<div className="folder-row__main">
@@ -162,7 +163,7 @@ export const Folder: FC<FolderProps> = ({ folder, health, onDelete, onEdit, onOp
 			deleteConfirm={deleteConfirm}
 		>
 			<div className="folder-card__head">
-				<span className="folder-card__icon">
+				<span className="folder-card__icon" style={folderColorStyle(tree.colorOf(folder.id))}>
 					<FolderIcon size={20} strokeWidth={1.8} />
 				</span>
 				<div className="folder-card__titles">

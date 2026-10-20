@@ -8,6 +8,7 @@ import {
 	getFolderDepth,
 	getFolderPath,
 	getProjectsInTree,
+	resolveFolderColor,
 	MAX_FOLDER_DEPTH,
 } from "@common/utils/folderTree";
 import { useAppStore } from "@renderer/store/app.store";
@@ -22,6 +23,8 @@ export type FolderTree = {
 	/** «Работа / Заказчик 1» */
 	pathLabel: (id: string | undefined) => string;
 	depthOf: (id: string | undefined) => number;
+	/** Цвет папки с учётом родителей; undefined — акцентный */
+	colorOf: (id: string | undefined) => string | undefined;
 	/** Проекты папки вместе с вложенными */
 	projectsIn: (id: string) => Project[];
 	canCreateIn: (parentId: string | undefined) => boolean;
@@ -43,6 +46,7 @@ export const useFolderTree = (): FolderTree => {
 			pathOf: (id) => getFolderPath(folders, id),
 			pathLabel: (id) => formatFolderPath(folders, id),
 			depthOf: (id) => getFolderDepth(folders, id),
+			colorOf: (id) => resolveFolderColor(folders, id),
 			projectsIn: (id) => getProjectsInTree(folders, projects, id),
 			canCreateIn: (parentId) => canCreateIn(folders, parentId),
 			canMove: (id, parentId) => canMoveFolder(folders, id, parentId),

@@ -3,6 +3,7 @@ import { TreeSelect } from "antd";
 import { ChevronDown, Folder as FolderIcon, FolderOpen } from "lucide-react";
 import type { Folder } from "@schemas/store.schema";
 import { useFolderTree } from "@renderer/shared/hooks/useFolderTree";
+import { folderColorStyle } from "@renderer/shared/utils/folderColor";
 
 import "./FolderSelect.scss";
 
@@ -40,7 +41,7 @@ export const FolderSelect: FC<FolderSelectProps> = ({ value, onChange, placehold
 						path: tree.pathLabel(folder.id),
 						disabled: !!reason,
 						title: (
-							<span className="folder-select__node">
+							<span className="folder-select__node" style={folderColorStyle(tree.colorOf(folder.id))}>
 								<FolderIcon size={14} strokeWidth={1.9} />
 								<span className="folder-select__name">{folder.name}</span>
 								{reason && <span className="folder-select__reason">{reason}</span>}

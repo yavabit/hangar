@@ -29,6 +29,8 @@ export const FolderSchema = z.object({
 	description: z.string().optional(),
 	/** Родительская папка. Без неё папка лежит на верхнем уровне */
 	parentId: z.uuid().optional(),
+	/** Цвет папки. Без него папка берёт цвет родителя */
+	color: z.string().optional(),
 	/** Свой адрес таск-трекера: переопределяет адрес из настроек для проектов папки и вложенных папок */
 	taskTrackerUrl: z.string().optional(),
 	path: z.string().optional(),

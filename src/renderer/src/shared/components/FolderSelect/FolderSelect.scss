@@ -94,7 +94,7 @@
 
 	svg {
 		flex-shrink: 0;
-		color: var(--accent);
+		color: var(--folder-ink, var(--accent));
 	}
 }
 

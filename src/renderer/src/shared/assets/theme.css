@@ -285,3 +285,12 @@ code {
 .tooltip-anchor > .ant-btn:disabled {
   pointer-events: none;
 }
+
+/* Цвет папки для текста и значков. На светлом фоне яркие цвета затемняем, чтобы читались */
+[style*='--folder-color'] {
+  --folder-ink: var(--folder-color);
+}
+
+:root[data-theme='light'] [style*='--folder-color'] {
+  --folder-ink: color-mix(in srgb, var(--folder-color) 72%, #000);
+}

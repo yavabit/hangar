@@ -1,0 +1,39 @@
+.folder-color-picker {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+
+	&__swatch {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 26px;
+		height: 26px;
+		padding: 0;
+		border: 0;
+		border-radius: 50%;
+		background: var(--folder-color, var(--accent));
+		color: #ffffff;
+		cursor: pointer;
+		transition: transform 0.12s ease, box-shadow 0.12s ease;
+
+		&:hover {
+			transform: scale(1.12);
+		}
+
+		&:focus-visible {
+			outline: 2px solid var(--accent-ring);
+			outline-offset: 2px;
+		}
+
+		&--active {
+			box-shadow: 0 0 0 2px var(--glass-bg-strong), 0 0 0 4px var(--folder-color, var(--accent));
+		}
+
+		&--inherit {
+			border: 1.5px dashed var(--folder-ink, var(--accent));
+			background: color-mix(in srgb, var(--folder-color, var(--accent)) 22%, transparent);
+			color: var(--folder-ink, var(--accent));
+		}
+	}
+}

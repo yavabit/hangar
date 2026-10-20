@@ -9,7 +9,8 @@ import { ProjectPath } from "@renderer/shared/components/ProjectPath/ProjectPath
 import { StackAvatar } from "@renderer/shared/components/StackAvatar/StackAvatar";
 import { GitBadge } from "@renderer/shared/components/UI/GitBadge/GitBadge";
 import { formatRelativeTime } from "@renderer/shared/utils/relativeTime";
-import { formatFolderPath } from "@common/utils/folderTree";
+import { formatFolderPath, resolveFolderColor } from "@common/utils/folderTree";
+import { folderColorStyle } from "@renderer/shared/utils/folderColor";
 import { sortProjects } from "@renderer/shared/utils/projectFilters";
 import { getIpcErrorMessage } from "@renderer/shared/utils/ipcError";
 import type { GitBranches } from "@common/api/api.types";
@@ -341,7 +342,7 @@ export const PaletteView: FC<PaletteViewProps> = ({ onNavigate, onClose }) => {
 								renderProject(item.project)
 							) : (
 								<>
-									<span className="palette__icon palette__icon--folder">
+									<span className="palette__icon palette__icon--folder" style={folderColorStyle(resolveFolderColor(folders, item.folder.id))}>
 										<FolderIcon size={15} />
 									</span>
 									<div className="palette__main">

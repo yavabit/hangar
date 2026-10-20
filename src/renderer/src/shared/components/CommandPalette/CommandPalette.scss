@@ -92,8 +92,8 @@
 		color: var(--text-muted);
 
 		&--folder {
-			color: var(--accent);
-			background: var(--accent-soft);
+			color: var(--folder-ink, var(--accent));
+			background: color-mix(in srgb, var(--folder-color, var(--accent)) 14%, transparent);
 		}
 	}
 

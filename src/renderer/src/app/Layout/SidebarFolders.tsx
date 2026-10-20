@@ -11,6 +11,7 @@ import { useProjects } from "@renderer/shared/hooks/useProjects";
 import { ProjectDropZone } from "@renderer/shared/components/ProjectDropZone/ProjectDropZone";
 import { FOLDER_DRAG_TYPE } from "@renderer/shared/utils/dragAndDrop";
 import { startDragPreview } from "@renderer/shared/utils/dragPreview";
+import { folderColorStyle } from "@renderer/shared/utils/folderColor";
 
 const INDENT_PX = 14;
 
@@ -78,7 +79,7 @@ const FolderNode: FC<FolderNodeProps> = ({ folder, depth, tree, collapsed, activ
 								<ChevronRight size={13} strokeWidth={2} />
 							</button>
 						)}
-						<span className="sidebar__folder-mark">{collapsed ? folder.name.slice(0, 1).toUpperCase() : null}</span>
+						<span className="sidebar__folder-mark" style={folderColorStyle(tree.colorOf(folder.id))}>{collapsed ? folder.name.slice(0, 1).toUpperCase() : null}</span>
 						{!collapsed && (
 							<>
 								<span className="sidebar__item-label">{folder.name}</span>
