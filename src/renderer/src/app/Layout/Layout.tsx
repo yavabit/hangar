@@ -10,6 +10,8 @@ import "./Layout.scss";
 
 /**
  * Каркас главного окна: своя шапка вместо системной, стеклянный сайдбар и контент.
+ * Перетаскивание сбрасывается на уровне окна, после обработки броска: если карточку бросили в папку,
+ * она исчезает из списка раньше, чем получит событие окончания, и без этого осталась бы бледной.
  * Страницы переключаются без анимации: сдвиг страницы со стеклянными блоками заставляет GPU
  * при каждом запуске собирать тяжёлые шейдеры, и первый переход заметно подтормаживает
  */
@@ -20,6 +22,23 @@ export const FullLayout: FC = () => {
 	const setPaletteOpen = useUiStore((s) => s.setPaletteOpen);
 
 	useEffect(() => window.api.app.onNavigate((route) => navigate(route)), [navigate]);
+
+	useEffect(() => {
+		const reset = (): void => {
+			window.setTimeout(() => {
+				const { setDraggingProjectId, setDraggingFolderId } = useUiStore.getState();
+				setDraggingProjectId(null);
+				setDraggingFolderId(null);
+			});
+		};
+
+		window.addEventListener("drop", reset, true);
+		window.addEventListener("dragend", reset, true);
+		return () => {
+			window.removeEventListener("drop", reset, true);
+			window.removeEventListener("dragend", reset, true);
+		};
+	}, []);
 
 	return (
 		<div className="shell">
