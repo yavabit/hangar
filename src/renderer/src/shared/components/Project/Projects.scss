@@ -190,12 +190,6 @@
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 	gap: 14px;
-
-	/* Карточки за пределами экрана не раскладываются и не рисуются, пока до них не докрутят */
-	> * {
-		content-visibility: auto;
-		contain-intrinsic-size: auto 180px;
-	}
 }
 
 .project-list-rows {
@@ -203,11 +197,6 @@
 	flex-direction: column;
 	padding: 6px;
 	border-radius: var(--radius-lg);
-
-	> * {
-		content-visibility: auto;
-		contain-intrinsic-size: auto 52px;
-	}
 }
 
 .project-row {

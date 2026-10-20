@@ -223,6 +223,16 @@
 	&__drop {
 		height: auto;
 		border-radius: 9px;
+
+		&.project-drop-zone--active {
+			box-shadow: inset 0 0 0 1px var(--accent-ring);
+		}
+
+		&.project-drop-zone--over {
+			box-shadow: inset 0 0 0 2px var(--accent);
+			background: var(--accent-soft);
+			transform: none;
+		}
 	}
 
 	&__item--folder {
