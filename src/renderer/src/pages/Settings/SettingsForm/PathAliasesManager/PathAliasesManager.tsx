@@ -18,8 +18,9 @@ interface PathAliasesManagerProps {
 	onChange?: (value: PathAliasSchemaType[]) => void;
 }
 
+/** В имени алиаса — буквы любого алфавита, цифры, «_» и «-». Пробелы и слеши ломают путь «@alias/папка» */
 const cleanAliasName = (raw: string): string => {
-	let cleaned = raw.replace(/[^a-zA-Z0-9@_-]/g, "").replace(/(?!^)@/g, "");
+	let cleaned = raw.replace(/[^\p{L}\p{N}@_-]/gu, "").replace(/(?!^)@/g, "");
 	if (cleaned && !cleaned.startsWith("@")) {
 		cleaned = "@" + cleaned;
 	}

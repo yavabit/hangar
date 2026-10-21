@@ -14,7 +14,7 @@ export type ParsedAliasPath = {
 	rest: string;
 };
 
-const ALIAS_PATH_RE = /^(@[A-Za-z0-9_-]+)(?:[\\/]+(.*))?$/;
+const ALIAS_PATH_RE = /^(@[\p{L}\p{N}_-]+)(?:[\\/]+(.*))?$/u;
 
 const trimTrailingSeparators = (path: string): string => path.replace(/[\\/]+$/, "");
 
