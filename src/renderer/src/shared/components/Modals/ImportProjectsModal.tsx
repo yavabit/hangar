@@ -238,7 +238,7 @@ export const ImportProjectsModal: FC<ImportProjectsModalProps> = ({ isOpen, onCl
 													)}
 													{candidate.name}
 													{candidate.hasGit && (
-														<Tag icon={<GitBranch size={11} style={{ marginRight: 4, verticalAlign: -1 }} />} bordered={false}>
+														<Tag icon={<GitBranch size={11} style={{ marginRight: 4, verticalAlign: -1 }} />} variant="filled">
 															git
 														</Tag>
 													)}

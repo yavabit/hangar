@@ -7,8 +7,11 @@ export type SaveSettingsResult = {
 	warnings: string[];
 };
 
+/** Как process.platform в Node.js: типы Node интерфейсу недоступны */
+export type Platform = "aix" | "android" | "cygwin" | "darwin" | "freebsd" | "haiku" | "linux" | "netbsd" | "openbsd" | "sunos" | "win32";
+
 export type WindowInfo = {
-	platform: NodeJS.Platform;
+	platform: Platform;
 	/** Окно с полупрозрачным фоном Windows 11 (Mica) */
 	mica: boolean;
 };

@@ -38,7 +38,7 @@ export const Search: FC<SearchProps> = ({ value, placeholder = 'Поиск...', 
 							<Tag
 								closable
 								icon={scopeTag.icon}
-								bordered={false}
+								variant="filled"
 								className="search__scope-tag"
 								onClose={(e) => {
 									e.preventDefault();
