@@ -47,6 +47,18 @@
 		color: var(--text-faint);
 	}
 
+	&__description {
+		display: -webkit-box;
+		margin: 0;
+		overflow: hidden;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		font-size: 13px;
+		line-height: 1.4;
+		color: var(--text-muted);
+		overflow-wrap: anywhere;
+	}
+
 	&__path {
 		display: flex;
 		min-width: 0;
@@ -224,11 +236,26 @@
 		gap: 6px;
 		font-weight: 600;
 
+		/* Название сжимается только после описания: описание занимает остаток строки */
 		> span:first-child {
+			flex-shrink: 0;
+			max-width: 60%;
 			overflow: hidden;
 			text-overflow: ellipsis;
 			white-space: nowrap;
 		}
+	}
+
+	&__description {
+		flex: 1 1 0;
+		min-width: 0;
+		margin-left: 4px;
+		overflow: hidden;
+		font-size: 12px;
+		font-weight: 400;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		color: var(--text-muted);
 	}
 
 	&__path {

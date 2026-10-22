@@ -102,6 +102,7 @@ export const PaletteView: FC<PaletteViewProps> = ({ onNavigate, onClose }) => {
 				score:
 					Math.max(
 						matchScore(project.name, q, true),
+						matchScore(project.description, q) * 0.7,
 						matchScore(project.path, q) * 0.6,
 						matchScore(resolvePath(project.path), q) * 0.5,
 						matchScore(project.folderId ? folderNames.get(project.folderId) : undefined, q) * 0.5,

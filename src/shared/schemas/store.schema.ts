@@ -9,6 +9,8 @@ export const STORE_VERSION = 1;
 export const ProjectSchema = z.object({
 	id: z.uuid(),
 	name: z.string(),
+	/** Пара слов о проекте: по ним тоже ищется */
+	description: z.string().optional(),
 	/** Полный путь или путь через алиас: "@work/shop-frontend" */
 	path: z.string(),
 	/** Дата последнего изменения файлов проекта */

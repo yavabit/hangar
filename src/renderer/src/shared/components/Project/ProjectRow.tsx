@@ -29,6 +29,11 @@ const ProjectRowView: FC<ProjectViewProps> = ({ item, folder, health, onEdit }) 
 					<span title={item.name}>{item.name}</span>
 					<FavoriteStar isFavorite={item.isFavorite} onFavorite={toggleFavorite} itemId={item.id} />
 					{folder && <FolderChip folder={folder} />}
+					{item.description && (
+						<span className="project-row__description" title={item.description}>
+							{item.description}
+						</span>
+					)}
 				</div>
 				<div className="project-row__path">
 					<ProjectPath path={item.path} missing={missing} />

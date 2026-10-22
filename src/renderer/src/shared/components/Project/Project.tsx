@@ -56,6 +56,12 @@ const ProjectCard: FC<ProjectViewProps> = ({ item, folder, health, onEdit }) => 
 				</div>
 			</header>
 
+			{item.description && (
+				<p className="project-card__description" title={item.description}>
+					{item.description}
+				</p>
+			)}
+
 			<div className="project-card__path">
 				<ProjectPath path={item.path} missing={missing} />
 			</div>

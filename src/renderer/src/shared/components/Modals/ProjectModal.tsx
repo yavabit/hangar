@@ -16,6 +16,7 @@ import "./ProjectModal.scss";
 
 type ProjectFormValues = {
 	name: string;
+	description?: string;
 	path: string;
 	folderId?: Folder["id"];
 	gitUrl?: string;
@@ -60,6 +61,7 @@ export const ProjectModal: FC<ProjectModalProps> = ({ isOpen, onClose, project, 
 	const initialValues: Partial<ProjectFormValues> = project
 		? {
 			name: project.name,
+			description: project.description,
 			path: project.path,
 			folderId: folders.some((f) => f.id === project.folderId) ? project.folderId : undefined,
 			gitUrl: project.gitUrl,
@@ -100,6 +102,7 @@ export const ProjectModal: FC<ProjectModalProps> = ({ isOpen, onClose, project, 
 
 		const data = {
 			name: values.name.trim(),
+			description: values.description?.trim() || undefined,
 			path: values.path.trim(),
 			folderId: values.folderId,
 			gitUrl: values.gitUrl?.trim() || undefined,
@@ -164,6 +167,18 @@ export const ProjectModal: FC<ProjectModalProps> = ({ isOpen, onClose, project, 
 					rules={[{ required: true, whitespace: true, message: "Введите название проекта" }]}
 				>
 					<Input placeholder="Подставится из имени папки" />
+				</Form.Item>
+				<Form.Item
+					label="Описание"
+					name="description"
+					tooltip="Видно на карточке, по нему работает поиск: например, «бэкенд магазина, оплата и доставка»"
+				>
+					<Input.TextArea
+						placeholder="Необязательно: что это за проект"
+						autoSize={{ minRows: 1, maxRows: 4 }}
+						maxLength={300}
+						allowClear
+					/>
 				</Form.Item>
 				<Form.Item label="Папка" name="folderId">
 					<FolderSelect />

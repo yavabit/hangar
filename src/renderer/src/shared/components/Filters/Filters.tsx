@@ -25,7 +25,7 @@ const sortOptions: { value: ProjectSort; label: ReactNode }[] = [
 export const Filters: FC<FiltersProps> = ({
 	value,
 	onChange,
-	placeholder = "Поиск по названию, пути или репозиторию...",
+	placeholder = "Поиск по названию, описанию, пути или репозиторию...",
 	extra,
 	scopeTag,
 }) => {

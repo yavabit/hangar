@@ -27,7 +27,7 @@ export const matchesProject = (project: Project, search: string, resolvePath?: (
 		return true;
 	}
 
-	return [project.name, project.path, resolvePath?.(project.path), project.gitUrl].some((field) =>
+	return [project.name, project.description, project.path, resolvePath?.(project.path), project.gitUrl].some((field) =>
 		normalize(field).includes(query),
 	);
 };
