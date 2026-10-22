@@ -94,7 +94,13 @@ export const hardenWebContents = (window: BrowserWindow): void => {
 
 export const getPreloadPath = (): string => join(__dirname, "../preload/index.js");
 
-export function createMainWindow({ onHiddenToTray }: { onHiddenToTray: () => void }): BrowserWindow {
+type MainWindowOptions = {
+	onHiddenToTray: () => void;
+	/** Не показывать окно после загрузки: запуск при входе в систему сразу в трей */
+	startHidden?: boolean;
+};
+
+export function createMainWindow({ onHiddenToTray, startHidden = false }: MainWindowOptions): BrowserWindow {
 	const mica = supportsMica();
 	const colors = getThemeColors();
 	const isMac = process.platform === "darwin";
@@ -140,7 +146,9 @@ export function createMainWindow({ onHiddenToTray }: { onHiddenToTray: () => voi
 	window.on("closed", () => nativeTheme.off("updated", applyThemeColors));
 
 	window.on("ready-to-show", () => {
-		window.show();
+		if (!startHidden) {
+			window.show();
+		}
 	});
 
 	window.on("close", (event) => {

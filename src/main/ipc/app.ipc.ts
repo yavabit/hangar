@@ -3,6 +3,7 @@ import { ProjectsStorage } from "../storage/projects.storage";
 import { FoldersStorage } from "../storage/folders.storage";
 import { SettingsStorage } from "../storage/settings.storage";
 import { StatusService } from "../services/status.service";
+import { UpdateService } from "../services/update.service";
 import { getWindowInfo, sendToMainWindow, showMainWindow } from "../window";
 import { hidePalette, showPalette } from "../palette";
 import type { AppState } from "../../shared/api/api.types";
@@ -17,6 +18,8 @@ export function registerAppIpc(): void {
 			checkedAt: StatusService.getCheckedAt(),
 			window: getWindowInfo(),
 			version: app.getVersion(),
+			packaged: app.isPackaged,
+			update: UpdateService.getStatus(),
 		};
 	});
 

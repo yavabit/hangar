@@ -23,6 +23,30 @@ export type AppState = {
 	window: WindowInfo;
 	/** Версия приложения из package.json */
 	version: string;
+	/** Собранное приложение, а не запуск через npm run dev: автозапуск и обновления работают только в нём */
+	packaged: boolean;
+	update: UpdateStatus;
+};
+
+export type UpdateState =
+	/** В режиме разработки обновления не проверяются */
+	| { state: "disabled" }
+	| { state: "idle" }
+	| { state: "checking" }
+	| { state: "latest" }
+	| { state: "available"; version: string }
+	| { state: "downloading"; version: string; percent: number }
+	/** Скачано и поставится при перезапуске или выходе */
+	| { state: "ready"; version: string }
+	| { state: "error"; message: string };
+
+export type UpdateStatus = UpdateState & {
+	/** Когда проверка последний раз прошла успешно */
+	checkedAt: string | null;
+	/** Обновление ставится из приложения. На macOS без подписи Apple — только скачать со страницы релиза */
+	canInstall: boolean;
+	/** Страница релиза на GitHub */
+	releaseUrl: string;
 };
 
 /** Сведения о папке проекта, найденные на диске */
@@ -176,6 +200,16 @@ export interface ElectronApi {
 		openInMain: (route: string) => Promise<void>;
 		onNavigate: (callback: (route: string) => void) => () => void;
 	};
+	updates: {
+		getStatus: () => Promise<UpdateStatus>;
+		/** Проверка по кнопке: работает и при выключенной автоматической проверке */
+		check: () => Promise<void>;
+		download: () => Promise<void>;
+		/** Закрывает приложение, ставит скачанное обновление и запускает новую версию */
+		install: () => Promise<void>;
+		onStatus: (callback: (status: UpdateStatus) => void) => () => void;
+	};
+
 	/** Инструменты режима разработчика */
 	dev: {
 		getInfo: () => Promise<DevInfo>;

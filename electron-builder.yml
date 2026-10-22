@@ -4,6 +4,7 @@ directories:
   buildResources: build
 files:
   - '!**/.vscode/*'
+  - '!.github/**'
   - '!src/*'
   - '!electron.vite.config.{js,ts,mjs,cjs}'
   - '!{.eslintcache,eslint.config.mjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
@@ -24,21 +25,35 @@ nsis:
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
+# Без сертификата Apple: подпись ad-hoc, чтобы приложение запускалось на Apple Silicon.
+# Gatekeeper всё равно предупредит при первом запуске, обновления ставятся вручную
 mac:
-  entitlementsInherit: build/entitlements.mac.plist
+  identity: '-'
+  hardenedRuntime: false
   notarize: false
+  entitlementsInherit: build/entitlements.mac.plist
+  artifactName: ${name}-${version}-${arch}-mac.${ext}
+  target:
+    - target: dmg
+      arch: [arm64, x64]
+    # zip нужен для latest-mac.yml: по нему приложение узнаёт о новой версии
+    - target: zip
+      arch: [arm64, x64]
 dmg:
-  artifactName: ${name}-${version}.${ext}
+  artifactName: ${name}-${version}-${arch}.${ext}
 linux:
   target:
     - AppImage
-    - snap
     - deb
   maintainer: toscha.zhilenkov@gmail.com
   category: Development
 appImage:
   artifactName: ${name}-${version}.${ext}
 npmRebuild: false
+# Релизы на GitHub: CI загружает установщики в черновик релиза, после публикации черновика
+# приложения находят новую версию по latest.yml, latest-mac.yml и latest-linux.yml
 publish:
-  provider: generic
-  url: https://example.com/auto-updates
+  provider: github
+  owner: yavabit
+  repo: project-launcher
+  releaseType: draft

@@ -5,6 +5,7 @@ import { useUiStore } from "@renderer/store/ui.store";
 import { CommandPalette } from "@renderer/shared/components/CommandPalette/CommandPalette";
 import logo from "@renderer/shared/assets/logo/logo.svg";
 import { Sidebar } from "./Sidebar";
+import { useUpdateNotice } from "./useUpdateNotice";
 
 import "./Layout.scss";
 
@@ -22,6 +23,7 @@ export const FullLayout: FC = () => {
 	const setPaletteOpen = useUiStore((s) => s.setPaletteOpen);
 
 	useEffect(() => window.api.app.onNavigate((route) => navigate(route)), [navigate]);
+	useUpdateNotice();
 
 	useEffect(() => {
 		const reset = (): void => {

@@ -18,12 +18,15 @@ import { PathAliasesManager } from "./PathAliasesManager/PathAliasesManager";
 import { validatePathAliases } from "./PathAliasesManager/validatePathAliases";
 import { HotkeyInput } from "./HotkeyInput/HotkeyInput";
 import { useSettings } from "@renderer/shared/hooks/useSettings";
+import { useAppStore } from "@renderer/store/app.store";
 
 export const SettingsForm: FC = () => {
 
 	const { settings, updateSettings } = useSettings()
 
 	const [form] = Form.useForm<AppSettings>();
+	const openAtLogin = Form.useWatch(["startup", "openAtLogin"], form);
+	const packaged = useAppStore((s) => s.packaged);
 	const [modal, modalContextHolder] = Modal.useModal();
 
 	const [formEdited, setFormEdited] = useState(false);
@@ -56,7 +59,12 @@ export const SettingsForm: FC = () => {
 
 		setSaving(true);
 		const values = form.getFieldsValue(true) as AppSettings;
-		const saved = await updateSettings({ ...settings, common: values.common, statusRefresh: values.statusRefresh });
+		const saved = await updateSettings({
+			...settings,
+			common: values.common,
+			statusRefresh: values.statusRefresh,
+			startup: values.startup,
+		});
 		setSaving(false);
 
 		if (saved) {
@@ -236,6 +244,27 @@ export const SettingsForm: FC = () => {
 					valuePropName="checked"
 				>
 					<Switch checkedChildren="Вкл" unCheckedChildren="Выкл" />
+				</Form.Item>
+
+				<Divider titlePlacement="start">Запуск</Divider>
+
+				<Form.Item
+					name={["startup", "openAtLogin"]}
+					label="Запускать вместе с системой"
+					tooltip="Hangar откроется при входе в Windows, macOS или Linux, и глобальное сочетание клавиш будет работать сразу"
+					extra={packaged ? undefined : "При запуске через npm run dev настройка сохраняется, но в систему не записывается"}
+					valuePropName="checked"
+				>
+					<Switch checkedChildren="Вкл" unCheckedChildren="Выкл" />
+				</Form.Item>
+
+				<Form.Item
+					name={["startup", "startHidden"]}
+					label="Сразу сворачивать в трей"
+					tooltip="При автозапуске окно не показывается: Hangar ждёт в трее, пока вы его не вызовете"
+					valuePropName="checked"
+				>
+					<Switch checkedChildren="Вкл" unCheckedChildren="Выкл" disabled={!openAtLogin} />
 				</Form.Item>
 
 				<Divider titlePlacement="start">Обновление статусов</Divider>

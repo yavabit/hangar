@@ -7,11 +7,14 @@ import { registerAppIpc } from './ipc/app.ipc'
 import { registerFoldersIpc } from './ipc/folders.ipc'
 import { registerGitIpc } from './ipc/git.ipc'
 import { registerDevIpc } from './ipc/dev.ipc'
+import { registerUpdateIpc } from './ipc/update.ipc'
 import { store, validateStore } from './storage/store'
 import { SettingsStorage } from './storage/settings.storage'
 import { StatusService } from './services/status.service'
+import { UpdateService } from './services/update.service'
+import { applyAutostart, wasOpenedAtLogin } from './autostart'
 import { applyGlobalHotkey } from './hotkey'
-import { createTray, showTrayHintOnce } from './tray'
+import { createTray, notifyAboutUpdate, rebuildTrayMenu, showTrayHintOnce } from './tray'
 import { createMainWindow, getMainWindow, sendToRenderer, setQuitting, showMainWindow } from './window'
 import { createPaletteWindow } from './palette'
 
@@ -37,12 +40,17 @@ if (!app.requestSingleInstanceLock()) {
     registerFileSystemIpc()
     registerGitIpc()
     registerDevIpc()
+    registerUpdateIpc()
 
     app.on('browser-window-created', (_, window) => {
       optimizer.watchWindowShortcuts(window)
     })
 
-    const mainWindow = createMainWindow({ onHiddenToTray: showTrayHintOnce })
+    const settings = SettingsStorage.get()
+    const mainWindow = createMainWindow({
+      onHiddenToTray: showTrayHintOnce,
+      startHidden: settings.startup.startHidden && wasOpenedAtLogin(),
+    })
     createPaletteWindow()
 
     if (!validation.ok) {
@@ -55,7 +63,20 @@ if (!app.requestSingleInstanceLock()) {
     }
 
     createTray()
-    applyGlobalHotkey(SettingsStorage.get().common.globalHotkey)
+    applyGlobalHotkey(settings.common.globalHotkey)
+    // Путь к приложению мог измениться: AppImage после обновления, переустановка в другую папку
+    try {
+      applyAutostart(settings.startup)
+    } catch (error) {
+      console.error('Автозапуск не обновлён', error)
+    }
+
+    UpdateService.onStatus((status) => {
+      sendToRenderer('update:status', status)
+      rebuildTrayMenu()
+      notifyAboutUpdate(status)
+    })
+    UpdateService.init()
 
     let projectsTimer: NodeJS.Timeout | undefined
     store.onDidChange('projects', () => {

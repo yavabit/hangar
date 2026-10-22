@@ -71,6 +71,20 @@ export const AppearanceSettingsSchema = z.object({
 	theme: ThemeModeSchema,
 });
 
+export const StartupSettingsSchema = z.object({
+	/** Запускать Hangar при входе в систему */
+	openAtLogin: z.boolean(),
+	/** При автозапуске не показывать окно: приложение сразу уходит в трей */
+	startHidden: z.boolean(),
+});
+
+export const UpdateSettingsSchema = z.object({
+	/** Проверять обновления при запуске и раз в несколько часов */
+	autoCheck: z.boolean(),
+	/** Скачивать найденное обновление сразу, без подтверждения */
+	autoDownload: z.boolean(),
+});
+
 export const DeveloperSettingsSchema = z.object({
 	enabled: z.boolean(),
 });
@@ -79,6 +93,8 @@ export const AppSettingsSchema = z.object({
 	common: CommonSettingsSchema,
 	statusRefresh: StatusRefreshSettingsSchema,
 	appearance: AppearanceSettingsSchema,
+	startup: StartupSettingsSchema,
+	updates: UpdateSettingsSchema,
 	developer: DeveloperSettingsSchema,
 });
 
@@ -120,6 +136,14 @@ export const DEFAULT_SETTINGS: AppSettings = {
 	appearance: {
 		theme: "system",
 	},
+	startup: {
+		openAtLogin: false,
+		startHidden: true,
+	},
+	updates: {
+		autoCheck: true,
+		autoDownload: true,
+	},
 	developer: {
 		enabled: false,
 	},
@@ -130,5 +154,7 @@ export const withDefaultSettings = (settings: Partial<AppSettings> | undefined):
 	common: { ...DEFAULT_SETTINGS.common, ...settings?.common },
 	statusRefresh: { ...DEFAULT_SETTINGS.statusRefresh, ...settings?.statusRefresh },
 	appearance: { ...DEFAULT_SETTINGS.appearance, ...settings?.appearance },
+	startup: { ...DEFAULT_SETTINGS.startup, ...settings?.startup },
+	updates: { ...DEFAULT_SETTINGS.updates, ...settings?.updates },
 	developer: { ...DEFAULT_SETTINGS.developer, ...settings?.developer },
 });

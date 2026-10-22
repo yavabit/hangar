@@ -17,6 +17,10 @@ export interface NotificationOptions {
 	 * Продолжительность показа уведомления в секундах. По умолчанию - 3s
    */
 	duration?: number;
+	/**
+	 * Кнопки под текстом уведомления
+	 */
+	actions?: React.ReactNode;
 }
 
 export interface NotificationContextType {

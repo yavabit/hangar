@@ -5,6 +5,7 @@ import { PageHeader } from "@renderer/shared/components/PageHeader/PageHeader";
 import { ThemeSwitcher } from "@renderer/shared/components/ThemeSwitcher/ThemeSwitcher";
 import { SettingsForm } from "./SettingsForm/SettingsForm";
 import { DeveloperSettings } from "./DeveloperSettings/DeveloperSettings";
+import { UpdateSettings } from "./UpdateSettings/UpdateSettings";
 import { useAppStore } from "@renderer/store/app.store";
 
 import "./Settings.scss";
@@ -18,7 +19,10 @@ export const Settings: FC = () => {
 
 			<section className="settings-note">
 				<ShieldCheck size={16} strokeWidth={1.8} />
-				<span>Hangar ничего не отправляет в интернет: проекты и настройки хранятся локально только на этом устройстве.</span>
+				<span>
+					Проекты и настройки хранятся только на этом устройстве и никуда не отправляются. В интернет Hangar обращается
+					лишь за проверкой обновлений на GitHub — её можно выключить в блоке «Обновления».
+				</span>
 			</section>
 
 			<section className="settings-card glass">
@@ -33,6 +37,8 @@ export const Settings: FC = () => {
 			</section>
 
 			<SettingsForm />
+
+			<UpdateSettings />
 
 			<DeveloperSettings />
 

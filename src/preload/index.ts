@@ -56,6 +56,13 @@ const api: ElectronApi = {
 		openInMain: (route) => ipcRenderer.invoke("app:openInMain", route),
 		onNavigate: (callback) => subscribe("app:navigate", callback),
 	},
+	updates: {
+		getStatus: () => ipcRenderer.invoke("updates:getStatus"),
+		check: () => ipcRenderer.invoke("updates:check"),
+		download: () => ipcRenderer.invoke("updates:download"),
+		install: () => ipcRenderer.invoke("updates:install"),
+		onStatus: (callback) => subscribe("update:status", callback),
+	},
 	dev: {
 		getInfo: () => ipcRenderer.invoke("dev:getInfo"),
 		openDataFolder: () => ipcRenderer.invoke("dev:openDataFolder"),

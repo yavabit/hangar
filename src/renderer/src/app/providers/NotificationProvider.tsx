@@ -63,6 +63,7 @@ export const NotificationProvider: FC<{ children: ReactNode }> = ({ children }) 
       key,
       title: options.message,
       description: options.description,
+      actions: options.actions,
       duration: options.duration ?? 3,
       showProgress: true,
       icon: <Info size={20} style={{ color: "var(--accent)" }} />,

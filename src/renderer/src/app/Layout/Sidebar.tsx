@@ -18,17 +18,22 @@ type NavItemProps = {
 	label: string;
 	count?: number;
 	active?: boolean;
+	/** Точка на значке: есть что посмотреть, например новая версия */
+	dot?: boolean;
 	collapsed: boolean;
 };
 
-const NavItem: FC<NavItemProps> = ({ to, icon, label, count, active, collapsed }) => (
+const NavItem: FC<NavItemProps> = ({ to, icon, label, count, active, dot, collapsed }) => (
 	<Tooltip title={collapsed ? label : undefined} placement="right">
 		<NavLink
 			to={to}
 			className={({ isActive }) => `sidebar__item ${active ?? isActive ? "sidebar__item--active" : ""}`}
 			end
 		>
-			<span className="sidebar__item-icon">{icon}</span>
+			<span className="sidebar__item-icon">
+				{icon}
+				{dot && <span className="sidebar__dot" />}
+			</span>
 			{!collapsed && (
 				<>
 					<span className="sidebar__item-label">{label}</span>
@@ -65,6 +70,8 @@ export const Sidebar: FC = () => {
 	const { addFolder } = useFolders();
 	const [folderModalOpen, setFolderModalOpen] = useState(false);
 
+	const hasUpdate = useAppStore((s) => s.update.state === "available" || s.update.state === "ready");
+
 	const favoritesCount = projects.filter((p) => p.isFavorite).length;
 
 	return (
@@ -90,7 +97,13 @@ export const Sidebar: FC = () => {
 
 			<div className="sidebar__footer">
 				<nav className="sidebar__nav sidebar__nav--bottom" aria-label="Настройки">
-					<NavItem to="/settings" icon={<Settings size={16} strokeWidth={1.9} />} label="Настройки" collapsed={collapsed} />
+					<NavItem
+						to="/settings"
+						icon={<Settings size={16} strokeWidth={1.9} />}
+						label="Настройки"
+						dot={hasUpdate}
+						collapsed={collapsed}
+					/>
 				</nav>
 				<ThemeSwitcher compact={collapsed} />
 				{!collapsed && <StatusLine />}

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { DEFAULT_SETTINGS, type AppSettings, type Folder, type Project } from "@schemas/store.schema";
-import type { ProjectsHealth, WindowInfo } from "@common/api/api.types";
+import type { ProjectsHealth, UpdateStatus, WindowInfo } from "@common/api/api.types";
 
 export type AppStore = {
 	hydrated: boolean;
@@ -15,6 +15,8 @@ export type AppStore = {
 	checkedAt: string | null;
 	window: WindowInfo;
 	version: string;
+	packaged: boolean;
+	update: UpdateStatus;
 
 	load: () => Promise<void>;
 
@@ -28,6 +30,7 @@ export type AppStore = {
 
 	setHealth: (health: ProjectsHealth) => void;
 	setCheckedAt: (checkedAt: string) => void;
+	setUpdate: (update: UpdateStatus) => void;
 
 	setFolders: (f: Folder[]) => void;
 	addFolder: (f: Folder) => void;
@@ -55,6 +58,8 @@ export const useAppStore = create<AppStore>((set) => ({
 	checkedAt: null,
 	window: { platform: "win32", mica: false },
 	version: "",
+	packaged: false,
+	update: { state: "idle", checkedAt: null, canInstall: false, releaseUrl: "" },
 
 	// --- LOAD ---
 	load: async () => {
@@ -71,6 +76,8 @@ export const useAppStore = create<AppStore>((set) => ({
 				checkedAt: state.checkedAt,
 				window: state.window,
 				version: state.version,
+				packaged: state.packaged,
+				update: state.update,
 				hydrated: true,
 			});
 		} catch (e) {
@@ -117,6 +124,10 @@ export const useAppStore = create<AppStore>((set) => ({
 
 	setCheckedAt: (checkedAt) => {
 		set({ checkedAt });
+	},
+
+	setUpdate: (update) => {
+		set({ update });
 	},
 
 	// --- FOLDERS ---
