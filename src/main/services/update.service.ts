@@ -13,6 +13,9 @@ const CAN_INSTALL = process.platform !== "darwin";
 
 type Listener = (status: UpdateStatus) => void;
 
+/** 1.0.0-alpha.1, 1.2.0-beta.3 */
+const isPrereleaseVersion = (version: string): boolean => version.includes("-");
+
 let state: UpdateState = { state: "idle" };
 let checkedAt: string | null = null;
 let firstCheckTimer: NodeJS.Timeout | undefined;
@@ -66,7 +69,7 @@ export class UpdateService {
 
 		autoUpdater.on("error", (error) => this.set({ state: "error", message: errorText(error) }));
 
-		this.applySchedule();
+		this.applySettings();
 	}
 
 	static getStatus(): UpdateStatus {
@@ -84,12 +87,23 @@ export class UpdateService {
 		listeners.add(listener);
 	}
 
-	/** Проверка при запуске и по таймеру. Выключается в настройках, проверка по кнопке работает всегда */
-	static applySchedule(): void {
+	/**
+	 * Ранние версии и проверка при запуске и по таймеру. Автопроверка выключается в настройках,
+	 * проверка по кнопке работает всегда
+	 */
+	static applySettings(): void {
 		clearTimeout(firstCheckTimer);
 		clearInterval(checkTimer);
 
-		if (state.state === "disabled" || !SettingsStorage.get().updates.autoCheck) {
+		if (state.state === "disabled") {
+			return;
+		}
+
+		const settings = SettingsStorage.get().updates;
+		// Альфа-версии всегда смотрят и на pre-release: стабильного релиза новее может ещё не быть
+		autoUpdater.allowPrerelease = isPrereleaseVersion(app.getVersion()) || settings.prerelease;
+
+		if (!settings.autoCheck) {
 			return;
 		}
 

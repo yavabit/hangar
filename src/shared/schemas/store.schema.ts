@@ -83,6 +83,8 @@ export const UpdateSettingsSchema = z.object({
 	autoCheck: z.boolean(),
 	/** Скачивать найденное обновление сразу, без подтверждения */
 	autoDownload: z.boolean(),
+	/** Получать альфа- и бета-версии. На альфа-версии приложения они приходят всегда */
+	prerelease: z.boolean(),
 });
 
 export const DeveloperSettingsSchema = z.object({
@@ -143,6 +145,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
 	updates: {
 		autoCheck: true,
 		autoDownload: true,
+		prerelease: false,
 	},
 	developer: {
 		enabled: false,

@@ -32,7 +32,7 @@ export function registerSettingsIpc(): void {
 				warnings.push(`Не удалось изменить автозапуск: ${error instanceof Error ? error.message : String(error)}`);
 			}
 		}
-		UpdateService.applySchedule();
+		UpdateService.applySettings();
 		StatusService.applySchedule(() => !!getMainWindow()?.isVisible());
 		void StatusService.refresh("existence");
 

@@ -71,6 +71,7 @@ export const UpdateSettings: FC = () => {
 	const update = useAppStore((s) => s.update);
 	const version = useAppStore((s) => s.version);
 	const nextVersion = "version" in update ? update.version : null;
+	const onPrerelease = version.includes("-");
 	const disabled = update.state === "disabled";
 
 	const setUpdates = (patch: Partial<AppSettings["updates"]>): void => {
@@ -135,6 +136,22 @@ export const UpdateSettings: FC = () => {
 						</span>
 					</label>
 				)}
+				<label className="update-option">
+					<Switch
+						size="small"
+						checked={onPrerelease || settings.updates.prerelease}
+						disabled={disabled || onPrerelease}
+						onChange={(prerelease) => setUpdates({ prerelease })}
+					/>
+					<span>
+						Ранние версии
+						<span className="update-option__hint">
+							{onPrerelease
+								? "у вас альфа-версия, ранние версии приходят всегда"
+								: "альфы и беты: новое раньше, но возможны ошибки"}
+						</span>
+					</span>
+				</label>
 			</div>
 		</section>
 	);
