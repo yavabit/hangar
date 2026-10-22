@@ -45,8 +45,13 @@ export const Settings: FC = () => {
 			<footer className="settings-footer">
 				<Versions />
 				<div>
-					<span className="settings-footer__app">Hangar v{version}</span> · {window.electron.process.platform} · Разработано{" "}
-					<a href="https://github.com/yavabit">yavabit</a>
+					<span className="settings-footer__app">Hangar v{version}</span>
+				</div>
+				<div>
+					Разработано{" "}
+					<a href="https://github.com/yavabit">yavabit</a>{" "} · {" "}
+					Лицензия <a href="https://github.com/yavabit/project-launcher">GNU GPL v3</a>{" "} · {" "}
+					<a href="https://github.com/yavabit/hangar/blob/master/LICENSE">Репозиторий проекта</a>
 				</div>
 			</footer>
 		</div>
