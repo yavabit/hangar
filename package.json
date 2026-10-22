@@ -5,6 +5,7 @@
   "description": "Hangar — хаб для быстрого переключения между проектами",
   "main": "./out/main/index.js",
   "author": "yavabit toscha.zhilenkov@gmail.com",
+  "license": "GPL-3.0-or-later",
   "homepage": "https://github.com/yavabit/project-launcher",
   "scripts": {
     "format": "prettier --write .",
