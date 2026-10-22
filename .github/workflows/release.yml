@@ -1,6 +1,7 @@
 # Сборка установщиков для Windows, macOS и Linux по тегу версии.
-# npm version patch && git push --follow-tags → черновик релиза на GitHub с установщиками.
-# Пользователи получат обновление, когда черновик опубликуют
+# npm version prerelease --preid alpha && git push --follow-tags → черновик релиза на GitHub с установщиками.
+# Пользователи получат обновление, когда черновик опубликуют. Версии с дефисом (1.0.0-alpha.1)
+# помечаются как pre-release: их видят только альфа-версии приложения, стабильные — нет
 name: Release
 
 on:
@@ -29,8 +30,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          PRERELEASE=""
+          if [[ "$GITHUB_REF_NAME" == *-* ]]; then PRERELEASE="--prerelease"; fi
           gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1 ||
-            gh release create "$GITHUB_REF_NAME" --draft --title "Hangar ${GITHUB_REF_NAME#v}" --generate-notes
+            gh release create "$GITHUB_REF_NAME" --draft $PRERELEASE --title "Hangar ${GITHUB_REF_NAME#v}" --generate-notes
 
   build:
     needs: draft

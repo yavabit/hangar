@@ -75,7 +75,8 @@ export class UpdateService {
 			...state,
 			checkedAt,
 			canInstall: CAN_INSTALL,
-			releaseUrl: version ? `${RELEASES_URL}/tag/v${version}` : `${RELEASES_URL}/latest`,
+			// /releases/latest не показывает pre-release, а пока выходят только альфы — ведём на список релизов
+			releaseUrl: version ? `${RELEASES_URL}/tag/v${version}` : RELEASES_URL,
 		};
 	}
 

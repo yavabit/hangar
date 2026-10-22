@@ -59,17 +59,19 @@ npm run build:linux   # Linux
 Установщики для всех систем собирает GitHub Actions ([.github/workflows/release.yml](.github/workflows/release.yml)) по тегу версии:
 
 ```bash
-npm version patch          # 1.0.0 → 1.0.1: коммит и тег v1.0.1
+npm version prerelease --preid alpha   # 1.0.0-alpha.0 → 1.0.0-alpha.1: коммит и тег v1.0.0-alpha.1
 git push --follow-tags
 ```
+
+Пока приложение в альфе, версии вида `1.0.0-alpha.N`. Такие релизы помечаются на GitHub как pre-release: обновления до них получают только альфа-версии Hangar. Для полноценного релиза — `npm version 1.0.0`, дальше `npm version patch` / `minor`; альфа-версии обновятся и до стабильной.
 
 Сборки для Windows, macOS и Linux идут параллельно, около 10 минут. Результат — черновик релиза на GitHub:
 
 | Система | Файлы |
 | --- | --- |
-| Windows | `hangar-1.0.1-setup.exe` |
-| macOS | `hangar-1.0.1-arm64.dmg` (Apple Silicon), `hangar-1.0.1-x64.dmg` (Intel) и zip для проверки обновлений |
-| Linux | `hangar-1.0.1.AppImage`, `hangar_1.0.1_amd64.deb` |
+| Windows | `hangar-1.0.0-alpha.1-setup.exe` |
+| macOS | `hangar-1.0.0-alpha.1-arm64.dmg` (Apple Silicon), `hangar-1.0.0-alpha.1-x64.dmg` (Intel) и zip для проверки обновлений |
+| Linux | `hangar-1.0.0-alpha.1.AppImage`, `hangar_1.0.0-alpha.1_amd64.deb` |
 
 Рядом лежат `latest.yml`, `latest-mac.yml`, `latest-linux.yml` и `.blockmap` — по ним приложения узнают о новой версии и скачивают только изменившиеся части. Пока черновик не опубликован, пользователи его не видят; после публикации установленные копии найдут обновление при следующей проверке.
 
