@@ -36,7 +36,7 @@ export const ImportProjectsModal: FC<ImportProjectsModalProps> = ({ isOpen, onCl
 	const [depth, setDepth] = useState(2);
 	const [folderId, setFolderId] = useState<Folder["id"] | undefined>(defaultFolderId);
 	const [candidates, setCandidates] = useState<ScanCandidate[] | null>(null);
-	const [selected, setSelected] = useState<Set<string>>(new Set());
+	const [selected, setSelected] = useState<Set<string>>(() => new Set());
 	const [scanning, setScanning] = useState(false);
 	const [importing, setImporting] = useState(false);
 	const [error, setError] = useState<string | null>(null);

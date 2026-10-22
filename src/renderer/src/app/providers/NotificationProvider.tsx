@@ -71,7 +71,7 @@ export const NotificationProvider: FC<{ children: ReactNode }> = ({ children }) 
   };
 
   return (
-    <NotificationContext.Provider
+    <NotificationContext
       value={{
         showLoading,
         showSuccess,
@@ -81,6 +81,6 @@ export const NotificationProvider: FC<{ children: ReactNode }> = ({ children }) 
     >
       {contextHolder}
       {children}
-    </NotificationContext.Provider>
+    </NotificationContext>
   );
 };

@@ -47,13 +47,13 @@ export const ProjectModal: FC<ProjectModalProps> = ({ isOpen, onClose, project, 
 	const isEdit = !!project;
 
 	/** Название и ссылку на git подставляем сами, пока пользователь не ввёл их вручную */
-	const nameTouched = useRef(isEdit);
-	const gitTouched = useRef(isEdit);
+	const nameTouchedRef = useRef(isEdit);
+	const gitTouchedRef = useRef(isEdit);
 
 	useEffect(() => {
 		if (isOpen) {
-			nameTouched.current = isEdit;
-			gitTouched.current = isEdit;
+			nameTouchedRef.current = isEdit;
+			gitTouchedRef.current = isEdit;
 		}
 	}, [isOpen, isEdit]);
 
@@ -71,7 +71,7 @@ export const ProjectModal: FC<ProjectModalProps> = ({ isOpen, onClose, project, 
 	const handlePathInfo = useCallback(
 		(info: PathInfo | null) => {
 			setPathInfo(info);
-			if (info?.gitUrl && !gitTouched.current && !form.getFieldValue("gitUrl")) {
+			if (info?.gitUrl && !gitTouchedRef.current && !form.getFieldValue("gitUrl")) {
 				form.setFieldValue("gitUrl", info.gitUrl);
 			}
 		},
@@ -80,12 +80,12 @@ export const ProjectModal: FC<ProjectModalProps> = ({ isOpen, onClose, project, 
 
 	const handleValuesChange = (changed: Partial<ProjectFormValues>): void => {
 		if ("name" in changed) {
-			nameTouched.current = true;
+			nameTouchedRef.current = true;
 		}
 		if ("gitUrl" in changed) {
-			gitTouched.current = true;
+			gitTouchedRef.current = true;
 		}
-		if ("path" in changed && !nameTouched.current) {
+		if ("path" in changed && !nameTouchedRef.current) {
 			form.setFieldValue("name", getFolderName(resolvePath(changed.path ?? "")));
 		}
 	};

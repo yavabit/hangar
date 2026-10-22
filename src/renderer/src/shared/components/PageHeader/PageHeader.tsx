@@ -31,7 +31,7 @@ export const PageHeader: FC<PageHeaderProps> = ({ title, description, breadcrumb
 						);
 
 						return (
-							<span key={index} className="page-header__crumb">
+							<span key={crumb.to ?? "current"} className="page-header__crumb">
 								{index > 0 && <ChevronRight size={13} className="page-header__separator" />}
 								{crumb.to ? <Link to={crumb.to}>{content}</Link> : <span className="page-header__current">{content}</span>}
 							</span>

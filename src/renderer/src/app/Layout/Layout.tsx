@@ -26,8 +26,9 @@ export const FullLayout: FC = () => {
 	useUpdateNotice();
 
 	useEffect(() => {
+		let timer: number | undefined;
 		const reset = (): void => {
-			window.setTimeout(() => {
+			timer = window.setTimeout(() => {
 				const { setDraggingProjectId, setDraggingFolderId } = useUiStore.getState();
 				setDraggingProjectId(null);
 				setDraggingFolderId(null);
@@ -37,6 +38,7 @@ export const FullLayout: FC = () => {
 		window.addEventListener("drop", reset, true);
 		window.addEventListener("dragend", reset, true);
 		return () => {
+			window.clearTimeout(timer);
 			window.removeEventListener("drop", reset, true);
 			window.removeEventListener("dragend", reset, true);
 		};

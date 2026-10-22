@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useReducer, useState } from "react";
 import { Tooltip } from "@renderer/shared/components/UI/Tooltip/Tooltip";
 import { FolderPlus, LayoutGrid, PanelLeftClose, PanelLeftOpen, Settings, SquareTerminal, Star } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
@@ -47,10 +47,10 @@ const NavItem: FC<NavItemProps> = ({ to, icon, label, count, active, dot, collap
 /** Время последней полной проверки статусов, обновляется раз в полминуты */
 const StatusLine: FC = () => {
 	const checkedAt = useAppStore((s) => s.checkedAt);
-	const [, setTick] = useState(0);
+	const [, rerender] = useReducer((tick: number) => tick + 1, 0);
 
 	useEffect(() => {
-		const timer = setInterval(() => setTick((tick) => tick + 1), NOW_TICK_MS);
+		const timer = setInterval(rerender, NOW_TICK_MS);
 		return () => clearInterval(timer);
 	}, []);
 

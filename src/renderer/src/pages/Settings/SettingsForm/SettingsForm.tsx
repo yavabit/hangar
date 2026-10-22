@@ -120,7 +120,7 @@ export const SettingsForm: FC = () => {
 		});
 
 		return () => instance.destroy();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps, @eslint-react/exhaustive-deps
 	}, [blocker, modal]);
 
 	return (
