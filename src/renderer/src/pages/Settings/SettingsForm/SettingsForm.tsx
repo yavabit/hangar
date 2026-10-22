@@ -18,7 +18,6 @@ import { PathAliasesManager } from "./PathAliasesManager/PathAliasesManager";
 import { validatePathAliases } from "./PathAliasesManager/validatePathAliases";
 import { HotkeyInput } from "./HotkeyInput/HotkeyInput";
 import { useSettings } from "@renderer/shared/hooks/useSettings";
-import { useAppStore } from "@renderer/store/app.store";
 
 export const SettingsForm: FC = () => {
 
@@ -26,7 +25,6 @@ export const SettingsForm: FC = () => {
 
 	const [form] = Form.useForm<AppSettings>();
 	const openAtLogin = Form.useWatch(["startup", "openAtLogin"], form);
-	const packaged = useAppStore((s) => s.packaged);
 	const [modal, modalContextHolder] = Modal.useModal();
 
 	const [formEdited, setFormEdited] = useState(false);
@@ -252,7 +250,6 @@ export const SettingsForm: FC = () => {
 					name={["startup", "openAtLogin"]}
 					label="Запускать вместе с системой"
 					tooltip="Hangar откроется при входе в Windows, macOS или Linux, и глобальное сочетание клавиш будет работать сразу"
-					extra={packaged ? undefined : "При запуске через npm run dev настройка сохраняется, но в систему не записывается"}
 					valuePropName="checked"
 				>
 					<Switch checkedChildren="Вкл" unCheckedChildren="Выкл" />
@@ -298,7 +295,6 @@ export const SettingsForm: FC = () => {
 
 				<Form.Item
 					className={`settings-form__actions ${formEdited ? "settings-form__actions--sticky" : ""}`}
-					style={{ marginBottom: 0 }}
 				>
 					<Space>
 						<Button type="primary" htmlType="submit" disabled={!formEdited} loading={saving}>
