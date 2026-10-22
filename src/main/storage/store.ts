@@ -45,7 +45,8 @@ export const store = new StoreClass<StoreType>({
 	},
 });
 
-const backupStoreFile = (reason: string): string | null => {
+/** Копия файла данных рядом с ним: launcher-data.<reason>-<время>.json */
+export const backupStoreFile = (reason: string): string | null => {
 	if (!existsSync(store.path)) {
 		return null;
 	}

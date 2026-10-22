@@ -69,6 +69,10 @@ const api: ElectronApi = {
 		openDevTools: () => ipcRenderer.invoke("dev:openDevTools"),
 		relaunch: () => ipcRenderer.invoke("dev:relaunch"),
 		resetData: () => ipcRenderer.invoke("dev:resetData"),
+		exportData: () => ipcRenderer.invoke("dev:exportData"),
+		pickImport: () => ipcRenderer.invoke("dev:pickImport"),
+		applyImport: () => ipcRenderer.invoke("dev:applyImport"),
+		copyText: (text) => ipcRenderer.invoke("dev:copyText", text),
 	},
 };
 

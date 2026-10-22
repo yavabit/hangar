@@ -34,8 +34,10 @@
 		color: var(--text-muted);
 	}
 
+	/* Без переноса: в колонке с wrap браузер считает высоту сетки инструментов по одной карточке в ряд и растягивает ряды */
 	&--column {
 		flex-direction: column;
+		flex-wrap: nowrap;
 		align-items: stretch;
 	}
 
@@ -81,9 +83,9 @@
 .dev-tool {
 	display: flex;
 	align-items: flex-start;
-	gap: 12px;
+	gap: 10px;
 	min-width: 0;
-	padding: 12px 14px;
+	padding: 8px 12px;
 	border: 1px solid var(--divider);
 	border-radius: var(--radius-md);
 	background: var(--chip-bg);
@@ -107,15 +109,17 @@
 	&__body {
 		display: flex;
 		flex-direction: column;
-		gap: 2px;
+		gap: 0;
 		min-width: 0;
 	}
 
 	&__title {
 		font-weight: 600;
+		line-height: 20px;
 	}
 
 	&__text {
+		line-height: 17px;
 		overflow-wrap: anywhere;
 		font-size: 12px;
 		color: var(--text-muted);
@@ -129,6 +133,115 @@
 	&--danger:hover {
 		border-color: color-mix(in srgb, var(--danger) 45%, transparent);
 		background: var(--danger-soft);
+	}
+}
+
+.dev-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 12px 24px;
+	padding-top: 12px;
+	border-top: 1px solid var(--divider);
+
+	&__title {
+		font-weight: 600;
+	}
+
+	&__text {
+		max-width: 560px;
+		font-size: 12px;
+		color: var(--text-muted);
+	}
+}
+
+.dev-import {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+
+	&__meta {
+		font-size: 12px;
+		color: var(--text-muted);
+	}
+}
+
+.dev-info {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	gap: 12px;
+
+	&__actions {
+		display: flex;
+		gap: 8px;
+	}
+
+	&__group {
+		min-width: 0;
+		padding: 10px 14px;
+		border: 1px solid var(--divider);
+		border-radius: var(--radius-md);
+		background: var(--chip-bg);
+
+		/* Версии движка и пакетов: на всю ширину в несколько колонок, длинное имя сокращается, версия не переносится */
+		&--mono {
+			grid-column: 1 / -1;
+			font-family: var(--font-mono);
+
+			.dev-info__list {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+				column-gap: 24px;
+			}
+
+			.dev-info__row dt {
+				flex-shrink: 1;
+				min-width: 0;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+
+			.dev-info__row dd {
+				flex-shrink: 0;
+				white-space: nowrap;
+			}
+		}
+	}
+
+	&__title {
+		margin-bottom: 6px;
+		font-size: 11px;
+		font-weight: 600;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--text-faint);
+	}
+
+	&__list {
+		margin: 0;
+	}
+
+	&__row {
+		display: flex;
+		justify-content: space-between;
+		gap: 12px;
+		min-width: 0;
+		padding: 3px 0;
+		font-size: 12px;
+
+		dt {
+			flex-shrink: 0;
+			color: var(--text-muted);
+		}
+
+		dd {
+			min-width: 0;
+			margin: 0;
+			text-align: right;
+			overflow-wrap: anywhere;
+		}
 	}
 }
 

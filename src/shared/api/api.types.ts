@@ -124,8 +124,49 @@ export type GitBranches = {
 export type NewProject = Omit<Project, "id" | "lastModified"> & Partial<Pick<Project, "lastModified">>;
 
 export type DevInfo = {
-	dataFile: string;
-	userData: string;
+	app: {
+		version: string;
+		/** Собранное приложение или npm run dev */
+		packaged: boolean;
+		executable: string;
+		/** Время работы процесса, в секундах */
+		uptime: number;
+	};
+	system: {
+		/** «Windows 11 Home Single Language 10.0.26300» */
+		name: string;
+		platform: string;
+		arch: string;
+		cpu: string;
+		cores: number;
+		/** Память, в байтах */
+		memory: number;
+		locale: string;
+	};
+	/** Версии Electron, Chromium, Node.js, V8 и библиотек движка */
+	engine: Record<string, string>;
+	data: {
+		userData: string;
+		dataFile: string;
+		/** Размер файла данных, в байтах */
+		dataSize: number;
+		projects: number;
+		folders: number;
+		aliases: number;
+	};
+	/** Установленные версии пакетов из package.json на момент сборки */
+	packages: Record<string, string>;
+};
+
+/** Что лежит в выбранном для импорта файле: показывается перед заменой данных */
+export type DataImportPreview = {
+	file: string;
+	/** Версия Hangar, из которой сделана выгрузка */
+	appVersion: string | null;
+	exportedAt: string | null;
+	projects: number;
+	folders: number;
+	aliases: number;
 };
 
 /** Сведения о среде для интерфейса. Только чтение: доступа к IPC через них нет */
@@ -218,5 +259,13 @@ export interface ElectronApi {
 		relaunch: () => Promise<void>;
 		/** Стирает проекты, папки и настройки и перезапускает приложение */
 		resetData: () => Promise<void>;
+		/** Сохраняет все данные в файл. Возвращает путь или null, если пользователь отменил */
+		exportData: () => Promise<string | null>;
+		/** Выбор файла для импорта и проверка его содержимого. null — выбор отменён */
+		pickImport: () => Promise<DataImportPreview | null>;
+		/** Заменяет данные выбранным файлом: текущие сохраняются копией рядом, приложение перезапускается */
+		applyImport: () => Promise<void>;
+		/** Копирует текст в буфер обмена через main: странице разрешения на буфер не выдаются */
+		copyText: (text: string) => Promise<void>;
 	};
 }
