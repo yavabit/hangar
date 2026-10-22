@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import type { DevInfo } from "@common/api/api.types";
 import { useSettings } from "@renderer/shared/hooks/useSettings";
 import { useUiStore } from "@renderer/store/ui.store";
+import { useAppStore } from "@renderer/store/app.store";
 
 type ToolProps = {
 	icon: ReactNode;
@@ -31,6 +32,7 @@ export const DeveloperSettings: FC = () => {
 	const setOnboardingPreview = useUiStore((s) => s.setOnboardingPreview);
 	const [modal, modalContextHolder] = Modal.useModal();
 	const [info, setInfo] = useState<DevInfo | null>(null);
+	const packaged = useAppStore((s) => s.packaged);
 
 	const enabled = settings.developer.enabled;
 
@@ -44,8 +46,8 @@ export const DeveloperSettings: FC = () => {
 		modal.confirm({
 			title: "Стереть все данные?",
 			icon: <Trash2 size={22} color="var(--danger)" style={{ marginRight: 10 }} />,
-			content: "Будут удалены все проекты, папки, алиасы и настройки. Приложение перезапустится.",
-			okText: "Стереть и перезапустить",
+			content: `Будут удалены все проекты, папки, алиасы и настройки. ${packaged ? "Приложение перезапустится" : "Окна перезагрузятся"}.`,
+			okText: packaged ? "Стереть и перезапустить" : "Стереть",
 			okButtonProps: { danger: true },
 			cancelText: "Отмена",
 			onOk: async () => {
@@ -104,7 +106,7 @@ export const DeveloperSettings: FC = () => {
 					<Tool
 						icon={<Power size={16} />}
 						title="Перезапустить приложение"
-						text="Закрыть и снова открыть Hangar"
+						text={packaged ? "Закрыть и снова открыть Hangar" : "При npm run dev только перезагрузит окна: перезапуск закрыл бы dev-сервер"}
 						onClick={() => void window.api.dev.relaunch()}
 					/>
 					<Tool

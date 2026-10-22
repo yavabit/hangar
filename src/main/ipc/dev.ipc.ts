@@ -1,9 +1,19 @@
-import { app, ipcMain, shell } from "electron";
+import { app, BrowserWindow, ipcMain, shell } from "electron";
 import { store } from "../storage/store";
 import { resetTrayState } from "../tray";
 import type { DevInfo } from "../../shared/api/api.types";
 
+/**
+ * При npm run dev electron-vite завершается вместе с Electron: новый процесс остался бы без dev-сервера
+ * и держал бы блокировку одного экземпляра, из-за которой следующий npm run dev сразу закрывается.
+ * Поэтому в разработке окна только перезагружаются
+ */
 const relaunch = (): void => {
+	if (!app.isPackaged) {
+		BrowserWindow.getAllWindows().forEach((window) => window.reload());
+		return;
+	}
+
 	app.relaunch();
 	app.exit(0);
 };
