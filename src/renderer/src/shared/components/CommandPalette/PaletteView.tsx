@@ -242,11 +242,16 @@ export const PaletteView: FC<PaletteViewProps> = ({ onNavigate, onClose }) => {
 				<StackAvatar stacks={projectHealth?.stacks} name={project.name} size="sm" />
 				<div className="palette__main">
 					<div className="palette__title">
-						{project.name}
+						<span className="palette__name">{project.name}</span>
 						{project.isFavorite && <Star size={12} fill="#f5a524" color="#f5a524" />}
 						{missing && (
 							<span className="palette__missing">
 								<TriangleAlert size={11} /> нет папки
+							</span>
+						)}
+						{project.description && (
+							<span className="palette__description" title={project.description}>
+								{project.description}
 							</span>
 						)}
 					</div>
