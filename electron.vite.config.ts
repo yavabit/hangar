@@ -10,7 +10,10 @@ const readPackage = (path: string): PackageJson => JSON.parse(readFileSync(path,
 /** Установленные версии пакетов на момент сборки — для карточки «Информация» в режиме разработчика */
 const collectPackages = (): Record<string, string> => {
   const pkg = readPackage(resolve('package.json'))
-  const names = [...Object.keys(pkg.dependencies ?? {}), ...Object.keys(pkg.devDependencies ?? {})].sort()
+  // Пакеты со scope (@types/…, @electron-toolkit/…) — служебные, без них список короче
+  const names = [...Object.keys(pkg.dependencies ?? {}), ...Object.keys(pkg.devDependencies ?? {})]
+    .filter((name) => !name.startsWith('@'))
+    .sort()
 
   return Object.fromEntries(
     names.map((name) => {
@@ -27,6 +30,7 @@ export default defineConfig({
   main: {
     define: {
       __APP_PACKAGES__: JSON.stringify(collectPackages()),
+      __BUILD_DATE__: JSON.stringify(new Date().toISOString()),
     },
   },
   preload: {},

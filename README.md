@@ -36,7 +36,7 @@ npm run dev
 
 Для работы git-статусов нужен установленный `git` в `PATH`. Для открытия в IDE — CLI выбранной IDE (`code`, `webstorm`, `idea`), иначе используется ссылка-протокол IDE.
 
-npm 11 по умолчанию не запускает установочные скрипты пакетов. Скрипт Electron, который скачивает сам движок, разрешён в `allowScripts` в `package.json` — без него приложение после `npm install` не запустится.
+npm 11 по умолчанию не запускает установочные скрипты пакетов. Скрипт Electron, который скачивает сам движок, разрешён в `allowScripts` в `package.json` — без него приложение после `npm install` не запустится. Если после обновления Electron npm всё же не скачал движок (ошибка «Electron failed to install correctly»), запустите `node node_modules/electron/install.js`.
 
 ## Сборка
 

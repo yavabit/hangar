@@ -132,6 +132,10 @@ export type DevInfo = {
 		/** Собранное приложение или npm run dev */
 		packaged: boolean;
 		executable: string;
+		/** Когда собрано, ISO */
+		builtAt: string;
+		/** Когда установлена эта версия: дата создания файла приложения. null при npm run dev */
+		installedAt: string | null;
 		/** Время работы процесса, в секундах */
 		uptime: number;
 	};

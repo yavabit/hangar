@@ -36,6 +36,25 @@ const relaunch = (): void => {
 	app.exit(0);
 };
 
+/**
+ * Файл, который появляется на диске при установке и заменяется при обновлении: AppImage, пакет .app или exe.
+ * Его дата создания — дата установки текущей версии
+ */
+const installedFile = (): string => {
+	if (process.env.APPIMAGE) {
+		return process.env.APPIMAGE;
+	}
+	return process.platform === "darwin" ? join(process.execPath, "..", "..", "..") : process.execPath;
+};
+
+const getInstalledAt = async (): Promise<string | null> => {
+	if (!app.isPackaged) {
+		return null;
+	}
+	const info = await stat(installedFile()).catch(() => null);
+	return info ? info.birthtime.toISOString() : null;
+};
+
 const getInfo = async (): Promise<DevInfo> => {
 	const data = store.store;
 	const dataSize = await stat(store.path).then((s) => s.size).catch(() => 0);
@@ -45,6 +64,8 @@ const getInfo = async (): Promise<DevInfo> => {
 			version: app.getVersion(),
 			packaged: app.isPackaged,
 			executable: process.execPath,
+			builtAt: __BUILD_DATE__,
+			installedAt: await getInstalledAt(),
 			uptime: Math.round(process.uptime()),
 		},
 		system: {

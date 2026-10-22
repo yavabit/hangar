@@ -1,5 +1,5 @@
-import { FC, ReactNode, useState } from "react";
-import { Modal, Select, Switch } from "antd";
+import { FC, ReactNode } from "react";
+import { Modal, Switch } from "antd";
 import {
 	Bug,
 	Download,
@@ -12,7 +12,6 @@ import {
 	Upload,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import type { UpdateStatus } from "@common/api/api.types";
 import { useSettings } from "@renderer/shared/hooks/useSettings";
 import { useAppNotification } from "@renderer/shared/hooks/useAppNotification";
 import { getIpcErrorMessage } from "@renderer/shared/utils/ipcError";
@@ -38,32 +37,6 @@ const Tool: FC<ToolProps> = ({ icon, title, text, danger = false, onClick }) => 
 	</button>
 );
 
-const PREVIEW_RELEASE = "https://github.com/yavabit/project-launcher/releases/latest";
-
-/** Состояния обновления для проверки интерфейса: в npm run dev настоящие обновления не проверяются */
-const UPDATE_PREVIEWS: Record<string, UpdateStatus> = {
-	idle: { state: "idle", checkedAt: null, canInstall: true, releaseUrl: PREVIEW_RELEASE },
-	checking: { state: "checking", checkedAt: null, canInstall: true, releaseUrl: PREVIEW_RELEASE },
-	latest: { state: "latest", checkedAt: new Date().toISOString(), canInstall: true, releaseUrl: PREVIEW_RELEASE },
-	available: { state: "available", version: "9.9.9", checkedAt: null, canInstall: true, releaseUrl: PREVIEW_RELEASE },
-	"available-mac": { state: "available", version: "9.9.9", checkedAt: null, canInstall: false, releaseUrl: PREVIEW_RELEASE },
-	downloading: { state: "downloading", version: "9.9.9", percent: 42, checkedAt: null, canInstall: true, releaseUrl: PREVIEW_RELEASE },
-	ready: { state: "ready", version: "9.9.9", checkedAt: null, canInstall: true, releaseUrl: PREVIEW_RELEASE },
-	error: { state: "error", message: "net::ERR_INTERNET_DISCONNECTED", checkedAt: null, canInstall: true, releaseUrl: PREVIEW_RELEASE },
-};
-
-const UPDATE_PREVIEW_OPTIONS = [
-	{ value: "real", label: "Как на самом деле" },
-	{ value: "idle", label: "Ещё не проверялось" },
-	{ value: "checking", label: "Проверяем" },
-	{ value: "latest", label: "Последняя версия" },
-	{ value: "available", label: "Доступна новая" },
-	{ value: "available-mac", label: "Доступна новая (macOS)" },
-	{ value: "downloading", label: "Скачивается" },
-	{ value: "ready", label: "Готово к установке" },
-	{ value: "error", label: "Ошибка" },
-];
-
 /** Служебные инструменты: первый запуск, перенос данных, DevTools, сведения о сборке и системе */
 export const DeveloperSettings: FC = () => {
 	const navigate = useNavigate();
@@ -71,21 +44,10 @@ export const DeveloperSettings: FC = () => {
 	const { showSuccess, showError } = useAppNotification();
 	const setOnboardingPreview = useUiStore((s) => s.setOnboardingPreview);
 	const packaged = useAppStore((s) => s.packaged);
-	const setUpdate = useAppStore((s) => s.setUpdate);
 	const [modal, modalContextHolder] = Modal.useModal();
-	const [updatePreview, setUpdatePreview] = useState("real");
 
 	const enabled = settings.developer.enabled;
 	const relaunchText = packaged ? "Приложение перезапустится" : "Окна перезагрузятся";
-
-	const previewUpdate = (value: string): void => {
-		setUpdatePreview(value);
-		if (value === "real") {
-			void window.api.updates.getStatus().then(setUpdate);
-		} else {
-			setUpdate(UPDATE_PREVIEWS[value]);
-		}
-	};
 
 	const confirmReset = (): void => {
 		modal.confirm({
@@ -175,89 +137,65 @@ export const DeveloperSettings: FC = () => {
 					</div>
 					<Switch
 						checked={enabled}
-						onChange={(value) => {
-							if (!value && updatePreview !== "real") {
-								previewUpdate("real");
-							}
-							void updateSettings({ ...settings, developer: { enabled: value } }, { silent: true });
-						}}
+						onChange={(value) => void updateSettings({ ...settings, developer: { enabled: value } }, { silent: true })}
 					/>
 				</div>
 
 				{enabled && (
-					<>
-						<div className="dev-tools">
-							<Tool
-								icon={<Download size={16} />}
-								title="Выгрузить данные"
-								text="Проекты, папки и настройки в файл JSON"
-								onClick={() => void exportData()}
-							/>
-							<Tool
-								icon={<Upload size={16} />}
-								title="Загрузить данные"
-								text="Из файла выгрузки, например с другого компьютера"
-								onClick={() => void importData()}
-							/>
-							<Tool
-								icon={<Sparkles size={16} />}
-								title="Показать приветствие"
-								text="Экран первого запуска"
-								onClick={() => {
-									setOnboardingPreview(true);
-									navigate("/");
-								}}
-							/>
-							<Tool
-								icon={<RotateCw size={16} />}
-								title="Перезагрузить интерфейс"
-								text="Заново покажет заставку загрузки"
-								onClick={() => window.location.reload()}
-							/>
-							<Tool
-								icon={<Bug size={16} />}
-								title="Инструменты разработчика"
-								text="DevTools в отдельном окне"
-								onClick={() => void window.api.dev.openDevTools()}
-							/>
-							<Tool
-								icon={<FolderOpen size={16} />}
-								title="Папка с данными"
-								text="Файл данных, копии и workspace для VS Code"
-								onClick={() => void window.api.dev.openDataFolder()}
-							/>
-							<Tool
-								icon={<Power size={16} />}
-								title="Перезапустить приложение"
-								text={packaged ? "Закрыть и снова открыть Hangar" : "В npm run dev только перезагрузит окна"}
-								onClick={() => void window.api.dev.relaunch()}
-							/>
-							<Tool
-								icon={<Trash2 size={16} />}
-								title="Стереть все данные"
-								text="Проекты, папки и настройки будут удалены"
-								danger
-								onClick={confirmReset}
-							/>
-						</div>
-
-						<div className="dev-row">
-							<div>
-								<div className="dev-row__title">Статус обновления</div>
-								<div className="dev-row__text">
-									Подменяет статус в этом окне, чтобы посмотреть блок «Обновления», уведомление и точку в меню. Кнопки при
-									этом ничего не делают
-								</div>
-							</div>
-							<Select
-								size="small"
-								value={updatePreview}
-								options={UPDATE_PREVIEW_OPTIONS}
-								onChange={previewUpdate}
-								style={{ width: 220 }}
-							/>
-						</div>
-					</>
+					<div className="dev-tools">
+						<Tool
+							icon={<Download size={16} />}
+							title="Выгрузить данные"
+							text="Проекты, папки и настройки в файл JSON"
+							onClick={() => void exportData()}
+						/>
+						<Tool
+							icon={<Upload size={16} />}
+							title="Загрузить данные"
+							text="Из файла выгрузки, например с другого компьютера"
+							onClick={() => void importData()}
+						/>
+						<Tool
+							icon={<Sparkles size={16} />}
+							title="Показать приветствие"
+							text="Экран первого запуска"
+							onClick={() => {
+								setOnboardingPreview(true);
+								navigate("/");
+							}}
+						/>
+						<Tool
+							icon={<RotateCw size={16} />}
+							title="Перезагрузить интерфейс"
+							text="Заново покажет заставку загрузки"
+							onClick={() => window.location.reload()}
+						/>
+						<Tool
+							icon={<Bug size={16} />}
+							title="Инструменты разработчика"
+							text="DevTools в отдельном окне"
+							onClick={() => void window.api.dev.openDevTools()}
+						/>
+						<Tool
+							icon={<FolderOpen size={16} />}
+							title="Папка с данными"
+							text="Файл данных, копии и workspace для VS Code"
+							onClick={() => void window.api.dev.openDataFolder()}
+						/>
+						<Tool
+							icon={<Power size={16} />}
+							title="Перезапустить приложение"
+							text={packaged ? "Закрыть и снова открыть Hangar" : "В npm run dev только перезагрузит окна"}
+							onClick={() => void window.api.dev.relaunch()}
+						/>
+						<Tool
+							icon={<Trash2 size={16} />}
+							title="Стереть все данные"
+							text="Проекты, папки и настройки будут удалены"
+							danger
+							onClick={confirmReset}
+						/>
+					</div>
 				)}
 			</section>
 

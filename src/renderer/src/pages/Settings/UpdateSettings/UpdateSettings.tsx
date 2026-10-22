@@ -69,6 +69,8 @@ const UpdateAction: FC<{ update: UpdateStatus }> = ({ update }) => {
 export const UpdateSettings: FC = () => {
 	const { settings, updateSettings } = useSettings();
 	const update = useAppStore((s) => s.update);
+	const version = useAppStore((s) => s.version);
+	const nextVersion = "version" in update ? update.version : null;
 	const disabled = update.state === "disabled";
 
 	const setUpdates = (patch: Partial<AppSettings["updates"]>): void => {
@@ -81,7 +83,13 @@ export const UpdateSettings: FC = () => {
 				<div className="settings-card__head">
 					<RefreshCw size={18} strokeWidth={1.8} />
 					<div>
-						<div className="settings-card__title">Обновления</div>
+						<div className="settings-card__title">
+							Обновления
+							<span className="settings-card__version mono">
+								v{version}
+								{nextVersion && <> → v{nextVersion}</>}
+							</span>
+						</div>
 						<div className="settings-card__text">
 							{describe(update, settings.updates.autoCheck)}
 							{(update.state === "available" || update.state === "ready") && (

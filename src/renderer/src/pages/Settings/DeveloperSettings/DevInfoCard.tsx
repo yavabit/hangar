@@ -24,6 +24,9 @@ const formatUptime = (seconds: number): string => {
 	return hours ? `${hours} ч ${minutes} мин` : `${minutes} мин`;
 };
 
+const formatDate = (iso: string): string =>
+	new Date(iso).toLocaleString("ru-RU", { dateStyle: "medium", timeStyle: "short" });
+
 const colorGamut = (): string =>
 	["rec2020", "p3", "srgb"].find((gamut) => window.matchMedia(`(color-gamut: ${gamut})`).matches) ?? "-";
 
@@ -33,6 +36,8 @@ const buildGroups = (info: DevInfo, theme: string, mica: boolean): Group[] => [
 		rows: [
 			["Версия", info.app.version],
 			["Сборка", info.app.packaged ? "установленное приложение" : "npm run dev"],
+			["Собрано", formatDate(info.app.builtAt)],
+			["Установлено", info.app.installedAt ? formatDate(info.app.installedAt) : "-"],
 			["Работает", formatUptime(info.app.uptime)],
 			["Файл", info.app.executable],
 		],
