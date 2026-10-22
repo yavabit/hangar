@@ -75,7 +75,8 @@ export const loadRenderer = (window: BrowserWindow, query?: Record<string, strin
 
 /**
  * Окно показывает только интерфейс Hangar: ссылки http(s) открываются во внешнем браузере,
- * новые окна и переходы на другие адреса запрещены
+ * новые окна и переходы на другие адреса запрещены. Обычная ссылка без target="_blank" тоже
+ * уходит в браузер, а не пытается открыться в окне
  */
 export const hardenWebContents = (window: BrowserWindow): void => {
 	window.webContents.setWindowOpenHandler(({ url }) => {
@@ -86,8 +87,13 @@ export const hardenWebContents = (window: BrowserWindow): void => {
 	});
 
 	window.webContents.on("will-navigate", (event, url) => {
-		if (url !== window.webContents.getURL()) {
-			event.preventDefault();
+		if (url === window.webContents.getURL()) {
+			return;
+		}
+
+		event.preventDefault();
+		if (/^https?:\/\//i.test(url) && new URL(url).origin !== new URL(window.webContents.getURL()).origin) {
+			void shell.openExternal(url);
 		}
 	});
 };

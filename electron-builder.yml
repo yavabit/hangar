@@ -55,5 +55,5 @@ npmRebuild: false
 publish:
   provider: github
   owner: yavabit
-  repo: project-launcher
+  repo: hangar
   releaseType: draft

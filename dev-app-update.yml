@@ -1,4 +1,4 @@
 provider: github
 owner: yavabit
-repo: project-launcher
+repo: hangar
 updaterCacheDirName: hangar-updater

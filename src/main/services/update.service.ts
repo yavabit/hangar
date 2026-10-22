@@ -6,7 +6,7 @@ import { setQuitting } from "../window";
 
 const FIRST_CHECK_DELAY_MS = 30_000;
 const CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
-const RELEASES_URL = "https://github.com/yavabit/project-launcher/releases";
+const RELEASES_URL = "https://github.com/yavabit/hangar/releases";
 
 /** macOS не ставит обновления без подписи Apple: там новую версию скачивают со страницы релиза */
 const CAN_INSTALL = process.platform !== "darwin";
