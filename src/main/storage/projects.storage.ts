@@ -1,8 +1,26 @@
 import { store } from "./store";
+import { resolve } from "path";
+import { resolveAliasPath } from "../../shared/utils/pathAliases";
 
 import type { Project } from "../../shared/schemas/store.schema";
 
 export class ProjectsStorage {
+	static assertUniquePaths(paths: string[], excludeId?: string): void {
+		const aliases = store.get("settings").common.pathAliases;
+		const key = (path: string): string => {
+			const normalized = resolve(resolveAliasPath(path.trim(), aliases));
+			return process.platform === "win32" ? normalized.toLowerCase() : normalized;
+		};
+		const existing = new Set(this.getAll().filter((project) => project.id !== excludeId).map((project) => key(project.path)));
+		for (const path of paths) {
+			const normalized = key(path);
+			if (existing.has(normalized)) {
+				throw new Error(`Проект с таким путём уже добавлен: ${path}`);
+			}
+			existing.add(normalized);
+		}
+	}
+
 	static getAll(): Project[] {
 		return store.get("projects");
 	}
@@ -20,6 +38,7 @@ export class ProjectsStorage {
 	}
 
 	static addMany(items: Omit<Project, "id">[]): Project[] {
+		this.assertUniquePaths(items.map((item) => item.path));
 		const created = items.map((project) => ({ ...project, id: crypto.randomUUID() }));
 
 		store.set("projects", [...store.get("projects"), ...created]);
@@ -32,6 +51,9 @@ export class ProjectsStorage {
 		const projects = store.get("projects");
 
 		const index = projects.findIndex((project) => project.id === id);
+		if (index !== -1 && patch.path !== undefined && patch.path !== projects[index].path) {
+			this.assertUniquePaths([patch.path], id);
+		}
 
 		if (index !== -1) {
 			projects[index] = { ...projects[index], ...patch };

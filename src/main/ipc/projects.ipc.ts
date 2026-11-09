@@ -41,6 +41,7 @@ export function registerProjectsIpc(): void {
 	});
 
 	ipcMain.handle("projects:import", (_, items: ImportItem[], options: ImportOptions) => {
+		ProjectsStorage.assertUniquePaths(items.map(({ project }) => project.path));
 		const projects = items.map(({ project, dirs }) =>
 			withDefaults({
 				...project,
