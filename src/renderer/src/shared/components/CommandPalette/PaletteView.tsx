@@ -69,6 +69,7 @@ export const PaletteView: FC<PaletteViewProps> = ({ onNavigate, onClose }) => {
 	const { showSuccess, showError } = useAppNotification();
 
 	const [query, setQuery] = useState("");
+	const [favoritesOnly, setFavoritesOnly] = useState(false);
 	const [activeIndex, setActiveIndex] = useState(0);
 	const [branchMode, setBranchMode] = useState<{ project: Project; branches: BranchItem[] | null } | null>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -83,9 +84,10 @@ export const PaletteView: FC<PaletteViewProps> = ({ onNavigate, onClose }) => {
 
 	const items = useMemo((): PaletteItem[] => {
 		const q = query.trim().toLowerCase();
+		const visibleProjects = favoritesOnly ? projects.filter((project) => project.isFavorite) : projects;
 
 		if (!q) {
-			const recent = sortProjects(projects, "opened");
+			const recent = sortProjects(visibleProjects, "opened");
 			const ordered = [
 				...recent.filter((p) => p.lastOpenedAt),
 				...recent.filter((p) => !p.lastOpenedAt && p.isFavorite),
@@ -94,7 +96,7 @@ export const PaletteView: FC<PaletteViewProps> = ({ onNavigate, onClose }) => {
 			return ordered.slice(0, MAX_RESULTS).map((project) => ({ type: "project", key: project.id, project, score: 0 }));
 		}
 
-		const projectItems: PaletteItem[] = projects
+		const projectItems: PaletteItem[] = visibleProjects
 			.map((project) => ({
 				type: "project" as const,
 				key: project.id,
@@ -110,12 +112,12 @@ export const PaletteView: FC<PaletteViewProps> = ({ onNavigate, onClose }) => {
 			}))
 			.filter((item) => item.score > 5);
 
-		const folderItems: PaletteItem[] = folders
+		const folderItems: PaletteItem[] = (favoritesOnly ? [] : folders)
 			.map((folder) => ({ type: "folder" as const, key: folder.id, folder, score: Math.max(matchScore(folder.name, q, true) * 0.9, matchScore(folderNames.get(folder.id), q) * 0.6) }))
 			.filter((item) => item.score > 0);
 
 		return [...projectItems, ...folderItems].sort((a, b) => b.score - a.score).slice(0, MAX_RESULTS);
-	}, [query, projects, folders, folderNames, resolvePath]);
+	}, [query, projects, folders, folderNames, resolvePath, favoritesOnly]);
 
 	const branchItems = useMemo(() => {
 		const q = query.trim().toLowerCase();
@@ -277,7 +279,7 @@ export const PaletteView: FC<PaletteViewProps> = ({ onNavigate, onClose }) => {
 
 	return (
 		<div className="palette">
-			<label className="palette__input">
+			<div className="palette__input">
 				{branchMode ? (
 					<button
 						type="button"
@@ -305,8 +307,22 @@ export const PaletteView: FC<PaletteViewProps> = ({ onNavigate, onClose }) => {
 					}}
 					onKeyDown={handleKeyDown}
 				/>
+				{!branchMode && (
+					<button
+						type="button"
+						className={`palette__favorites ${favoritesOnly ? "palette__favorites--active" : ""}`}
+						aria-pressed={favoritesOnly}
+						onClick={() => {
+							setFavoritesOnly((value) => !value);
+							setActiveIndex(0);
+							inputRef.current?.focus();
+						}}
+					>
+						<Star size={15} fill={favoritesOnly ? "currentColor" : "none"} /> Избранное
+					</button>
+				)}
 				<kbd>Esc</kbd>
-			</label>
+			</div>
 
 			<div className="palette__list" ref={listRef} role="listbox">
 				{branchMode && !branchMode.branches && <div className="palette__empty">Загружаем ветки…</div>}
