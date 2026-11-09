@@ -23,7 +23,7 @@ export const ThemeSwitcher: FC<ThemeSwitcherProps> = ({ compact = false, withLab
 	const current = settings.appearance.theme;
 
 	const setTheme = (theme: ThemeMode): void => {
-		void updateSettings({ ...settings, appearance: { theme } }, { silent: true });
+		void updateSettings({ ...settings, appearance: { ...settings.appearance, theme } }, { silent: true });
 	};
 
 	if (compact) {

@@ -25,6 +25,7 @@ export function registerSettingsIpc(): void {
 		}
 
 		nativeTheme.themeSource = settings.appearance.theme;
+		getMainWindow()?.setAlwaysOnTop(settings.appearance.alwaysOnTop);
 		if (prev.startup.openAtLogin !== settings.startup.openAtLogin) {
 			try {
 				applyAutostart(settings.startup, true);

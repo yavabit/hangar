@@ -60,6 +60,7 @@ export const SettingsForm: FC = () => {
 		const saved = await updateSettings({
 			...settings,
 			common: values.common,
+			appearance: values.appearance,
 			statusRefresh: values.statusRefresh,
 			startup: values.startup,
 		});
@@ -225,6 +226,14 @@ export const SettingsForm: FC = () => {
 				</Form.Item>
 
 				<Divider titlePlacement="start">Быстрый доступ</Divider>
+
+				<Form.Item
+					name={["appearance", "alwaysOnTop"]}
+					label="Окно поверх других окон"
+					valuePropName="checked"
+				>
+					<Switch checkedChildren="Вкл" unCheckedChildren="Выкл" />
+				</Form.Item>
 
 				<Form.Item
 					name={["common", "globalHotkey"]}

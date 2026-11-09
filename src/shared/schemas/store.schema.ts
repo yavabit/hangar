@@ -71,6 +71,7 @@ export const ThemeModeSchema = z.enum(["system", "light", "dark"]);
 
 export const AppearanceSettingsSchema = z.object({
 	theme: ThemeModeSchema,
+	alwaysOnTop: z.boolean(),
 });
 
 export const StartupSettingsSchema = z.object({
@@ -139,6 +140,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
 	},
 	appearance: {
 		theme: "system",
+		alwaysOnTop: false,
 	},
 	startup: {
 		openAtLogin: false,
