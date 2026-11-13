@@ -108,7 +108,11 @@ export const rebuildTrayMenu = (): void => {
 };
 
 export function createTray(): void {
-	const image = nativeImage.createFromPath(icon).resize({ width: 16, height: 16, quality: "best" });
+	const source = nativeImage.createFromPath(icon);
+	const { width, height } = source.getSize();
+	const inset = Math.round(Math.min(width, height) * 0.04);
+	const image = source.crop({ x: inset, y: inset, width: width - 2 * inset, height: height - 2 * inset })
+		.resize({ width: 32, height: 32, quality: "best" });
 
 	tray = new Tray(image);
 	tray.setToolTip("Hangar");

@@ -131,7 +131,7 @@ export function createMainWindow({ onHiddenToTray, startHidden = false }: MainWi
 			}),
 		show: false,
 		alwaysOnTop: SettingsStorage.get().appearance.alwaysOnTop,
-		...(process.platform === "linux" ? { icon } : {}),
+		...(process.platform !== "darwin" ? { icon } : {}),
 		webPreferences: {
 			preload: getPreloadPath(),
 			sandbox: true,
