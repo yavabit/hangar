@@ -229,7 +229,7 @@ export const SettingsForm: FC = () => {
 
 				<Form.Item
 					name={["appearance", "alwaysOnTop"]}
-					label="Окно поверх других окон"
+					label="Поверх других окон"
 					valuePropName="checked"
 				>
 					<Switch checkedChildren="Вкл" unCheckedChildren="Выкл" />
