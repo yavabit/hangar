@@ -23,7 +23,7 @@ export const projectsApi: ProjectsApi = {
 
 	getNpmScripts: (id) => window.api.projects.getNpmScripts(id),
 
-	runCommand: (id, command) => window.api.projects.runCommand(id, command),
+	runCommand: (id, command, shell) => window.api.projects.runCommand(id, command, shell),
 
 	inspectPath: (projectPath) => window.api.projects.inspectPath(projectPath),
 

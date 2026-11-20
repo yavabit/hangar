@@ -1,12 +1,13 @@
 import { FC, useEffect, useState } from "react";
-import { Alert, Button, Empty, Form, Input, Modal, Space, Spin, Typography } from "antd";
+import { Alert, Button, Empty, Form, Input, Modal, Select, Space, Spin, Typography } from "antd";
 import { Pencil, Play, Plus, Terminal, Trash2 } from "lucide-react";
 import type { Project } from "@schemas/store.schema";
-import type { ProjectCommandRef, ProjectNpmScript } from "@common/api/api.types";
+import type { ProjectCommandRef, ProjectCommandShell, ProjectNpmScript } from "@common/api/api.types";
 import { projectsApi } from "@renderer/shared/api/projects.api";
 import { useProjects } from "@renderer/shared/hooks/useProjects";
 import { getIpcErrorMessage } from "@renderer/shared/utils/ipcError";
 import { CardAction } from "@renderer/shared/components/UI/CardAction/CardAction";
+import { useAppStore } from "@renderer/store/app.store";
 
 type CustomCommand = NonNullable<Project["commands"]>[number];
 
@@ -21,6 +22,14 @@ export const ProjectCommands: FC<{ project: Project; missing: boolean }> = ({ pr
 };
 
 const ProjectCommandsDialog: FC<{ project: Project; onClose: () => void }> = ({ project, onClose }) => {
+	const defaultConsole = useAppStore((s) => s.settings.common.defaultConsole);
+	const platform = useAppStore((s) => s.window.platform);
+	const options: { value: ProjectCommandShell; label: string }[] = platform === "win32"
+		? [{ value: "powershell", label: "PowerShell" }, { value: "cmd", label: "CMD" }, { value: "bash", label: "Bash" }]
+		: [{ value: "bash", label: "Bash" }, { value: "zsh", label: "Zsh" }];
+	const [shell, setShell] = useState<ProjectCommandShell>(() =>
+		options.find((option) => option.value === defaultConsole)?.value ?? options[0].value,
+	);
 	const [loading, setLoading] = useState(true);
 	const [running, setRunning] = useState<string | null>(null);
 	const [scripts, setScripts] = useState<ProjectNpmScript[]>([]);
@@ -32,7 +41,12 @@ const ProjectCommandsDialog: FC<{ project: Project; onClose: () => void }> = ({ 
 
 	useEffect(() => {
 		let active = true;
-		void projectsApi.getNpmScripts(project.id)
+		void Promise.resolve().then(() => {
+			if (typeof window.api?.projects?.getNpmScripts !== "function") {
+				throw new Error("Обновление приложения ещё не загружено. Перезапустите Hangar и попробуйте снова.");
+			}
+			return projectsApi.getNpmScripts(project.id);
+		})
 			.then((items) => { if (active) setScripts(items); })
 			.catch((e: unknown) => { if (active) setError(getIpcErrorMessage(e)); })
 			.finally(() => { if (active) setLoading(false); });
@@ -43,7 +57,7 @@ const ProjectCommandsDialog: FC<{ project: Project; onClose: () => void }> = ({ 
 		setRunning(`${ref.type}:${ref.id}`);
 		setError(null);
 		try {
-			await projectsApi.runCommand(project.id, ref);
+			await projectsApi.runCommand(project.id, ref, shell);
 			onClose();
 		} catch (e) {
 			setError(getIpcErrorMessage(e));
@@ -73,7 +87,11 @@ const ProjectCommandsDialog: FC<{ project: Project; onClose: () => void }> = ({ 
 	return (
 		<>
 			<Modal title={`Команды · ${project.name}`} open onCancel={onClose} footer={null} width={620} destroyOnHidden>
-				<Typography.Paragraph type="secondary">Команды запускаются в терминале из настроек, в папке проекта.</Typography.Paragraph>
+				<Typography.Paragraph type="secondary">Команды запускаются в папке проекта. Выбор действует только для этого запуска и не меняет настройки.</Typography.Paragraph>
+				<div className="project-commands__terminal">
+					<label htmlFor="project-command-shell">Оболочка</label>
+					<Select id="project-command-shell" value={shell} options={options} onChange={setShell} disabled={running !== null} style={{ width: 180 }} />
+				</div>
 				{error && <Alert type="error" showIcon title={error} style={{ marginBottom: 16 }} />}
 				<Spin spinning={loading}>
 					<div className="project-commands">
@@ -103,7 +121,7 @@ const ProjectCommandsDialog: FC<{ project: Project; onClose: () => void }> = ({ 
 			<Modal title={editor === "new" ? "Новая команда" : "Редактировать команду"} open={editor !== null} onCancel={() => setEditor(null)} onOk={() => void save()} okText="Сохранить" cancelText="Отмена" confirmLoading={saving} destroyOnHidden>
 				<Form form={form} layout="vertical" onFinish={() => void save()}>
 					<Form.Item name="name" label="Название" rules={[{ required: true, whitespace: true, message: "Введите название" }]}><Input autoFocus placeholder="Запустить приложение" /></Form.Item>
-					<Form.Item name="command" label="Команда" extra="Команда выполняется выбранной в настройках оболочкой в папке проекта." rules={[{ required: true, whitespace: true, message: "Введите команду" }]}><Input.TextArea autoSize={{ minRows: 2, maxRows: 5 }} placeholder="npm run dev" /></Form.Item>
+					<Form.Item name="command" label="Команда" extra="Команда выполняется выбранной оболочкой в папке проекта." rules={[{ required: true, whitespace: true, message: "Введите команду" }]}><Input.TextArea autoSize={{ minRows: 2, maxRows: 5 }} placeholder="npm run dev" /></Form.Item>
 				</Form>
 			</Modal>
 		</>

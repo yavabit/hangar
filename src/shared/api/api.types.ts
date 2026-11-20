@@ -128,6 +128,7 @@ export type NewProject = Omit<Project, "id" | "lastModified"> & Partial<Pick<Pro
 
 export type ProjectNpmScript = { name: string; command: string };
 export type ProjectCommandRef = { type: "npm" | "custom"; id: string };
+export type ProjectCommandShell = "cmd" | "powershell" | "bash" | "zsh";
 
 export type DevInfo = {
 	app: {
@@ -208,7 +209,7 @@ export interface ElectronApi {
 		/** Открывает консоль по умолчанию в папке проекта */
 		openTerminal: (id: string) => Promise<void>;
 		getNpmScripts: (id: string) => Promise<ProjectNpmScript[]>;
-		runCommand: (id: string, command: ProjectCommandRef) => Promise<void>;
+		runCommand: (id: string, command: ProjectCommandRef, shell: ProjectCommandShell) => Promise<void>;
 		inspectPath: (projectPath: string) => Promise<PathInfo>;
 		scan: (rootPath: string, depth: number) => Promise<ScanCandidate[]>;
 		/** Переводит полные пути проектов внутри папки алиаса на сам алиас */

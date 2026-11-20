@@ -3,7 +3,7 @@ import { execFile, spawn } from "child_process";
 import { promises as fs } from "fs";
 import { basename, join, relative, sep } from "path";
 import { Project } from "../../shared/schemas/store.schema";
-import type { OpenFolderResult, PathInfo, ScanCandidate, ProjectCommandRef, ProjectNpmScript } from "../../shared/api/api.types";
+import type { OpenFolderResult, PathInfo, ScanCandidate, ProjectCommandRef, ProjectNpmScript, ProjectCommandShell } from "../../shared/api/api.types";
 import { formatFolderPath, getProjectsInTree } from "../../shared/utils/folderTree";
 import { FoldersStorage } from "../storage/folders.storage";
 import { resolveAliasPath, toAliasPath } from "../../shared/utils/pathAliases";
@@ -192,12 +192,13 @@ export class ProjectService {
 			.map(([name, command]) => ({ name, command }));
 	}
 
-	static async runProjectCommand(id: string, ref: ProjectCommandRef): Promise<void> {
+	static async runProjectCommand(id: string, ref: ProjectCommandRef, consoleName: ProjectCommandShell): Promise<void> {
 		const { project, path } = await this.getExistingProjectPath(id);
 		if (!ref || typeof ref.id !== "string" || !["npm", "custom"].includes(ref.type)) {
 			throw new Error("Некорректная команда");
 		}
-		const consoleName = SettingsStorage.get().common.defaultConsole;
+		const supported = process.platform === "win32" ? ["cmd", "powershell", "bash"] : ["bash", "zsh"];
+		if (!supported.includes(consoleName)) throw new Error("Выбранная оболочка недоступна на этой системе");
 		let command: string;
 		if (ref.type === "npm") {
 			const script = (await this.getNpmScripts(id)).find((item) => item.name === ref.id);
