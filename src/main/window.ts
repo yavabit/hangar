@@ -3,6 +3,7 @@ import { release } from "os";
 import { join } from "path";
 import { is } from "@electron-toolkit/utils";
 import icon from "../../resources/icon.png?asset";
+import taskbarIcon from "../../resources/taskbar.png?asset";
 import type { WindowInfo } from "../shared/api/api.types";
 import { SettingsStorage } from "./storage/settings.storage";
 
@@ -131,7 +132,7 @@ export function createMainWindow({ onHiddenToTray, startHidden = false }: MainWi
 			}),
 		show: false,
 		alwaysOnTop: SettingsStorage.get().appearance.alwaysOnTop,
-		...(process.platform !== "darwin" ? { icon } : {}),
+		...(process.platform !== "darwin" ? { icon: process.platform === "win32" ? taskbarIcon : icon } : {}),
 		webPreferences: {
 			preload: getPreloadPath(),
 			sandbox: true,
