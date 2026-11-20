@@ -2,7 +2,7 @@ import { ipcMain } from "electron";
 
 import { ProjectsStorage } from "../storage/projects.storage";
 import { Project } from "../../shared/schemas/store.schema";
-import type { ImportItem, ImportOptions, NewProject } from "../../shared/api/api.types";
+import type { ImportItem, ImportOptions, NewProject, ProjectCommandRef } from "../../shared/api/api.types";
 import { FoldersStorage } from "../storage/folders.storage";
 import { ProjectService } from "../services/projects.service";
 import { StatusService } from "../services/status.service";
@@ -81,6 +81,9 @@ export function registerProjectsIpc(): void {
 	ipcMain.handle("projects:openTerminal", (_, id: Project["id"]) => {
 		return ProjectService.openProjectTerminal(id);
 	});
+
+	ipcMain.handle("projects:getNpmScripts", (_, id: string) => ProjectService.getNpmScripts(id));
+	ipcMain.handle("projects:runCommand", (_, id: string, command: ProjectCommandRef) => ProjectService.runProjectCommand(id, command));
 
 	ipcMain.handle("projects:inspectPath", (_, projectPath: string) => {
 		return ProjectService.inspectPath(projectPath);

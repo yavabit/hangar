@@ -3,7 +3,7 @@ import { execFile, spawn } from "child_process";
 import { promises as fs } from "fs";
 import { basename, join, relative, sep } from "path";
 import { Project } from "../../shared/schemas/store.schema";
-import type { OpenFolderResult, PathInfo, ScanCandidate } from "../../shared/api/api.types";
+import type { OpenFolderResult, PathInfo, ScanCandidate, ProjectCommandRef, ProjectNpmScript } from "../../shared/api/api.types";
 import { formatFolderPath, getProjectsInTree } from "../../shared/utils/folderTree";
 import { FoldersStorage } from "../storage/folders.storage";
 import { resolveAliasPath, toAliasPath } from "../../shared/utils/pathAliases";
@@ -171,6 +171,83 @@ export class ProjectService {
 	static async openProjectTerminal(id: Project["id"]): Promise<void> {
 		const { path } = await this.getExistingProjectPath(id);
 		await this.openTerminal(path, SettingsStorage.get().common.defaultConsole);
+	}
+
+	static async getNpmScripts(id: string): Promise<ProjectNpmScript[]> {
+		const { path } = await this.getExistingProjectPath(id);
+		let raw: string;
+		try {
+			raw = await fs.readFile(join(path, "package.json"), "utf8");
+		} catch (error) {
+			if ((error as NodeJS.ErrnoException).code === "ENOENT") return [];
+			throw error;
+		}
+		let manifest: unknown;
+		try { manifest = JSON.parse(raw); } catch { throw new Error("Не удалось прочитать package.json: некорректный JSON"); }
+		if (!manifest || typeof manifest !== "object" || !("scripts" in manifest)) return [];
+		const scripts = manifest.scripts;
+		if (!scripts || typeof scripts !== "object" || Array.isArray(scripts)) return [];
+		return Object.entries(scripts)
+			.filter((entry): entry is [string, string] => typeof entry[1] === "string")
+			.map(([name, command]) => ({ name, command }));
+	}
+
+	static async runProjectCommand(id: string, ref: ProjectCommandRef): Promise<void> {
+		const { project, path } = await this.getExistingProjectPath(id);
+		if (!ref || typeof ref.id !== "string" || !["npm", "custom"].includes(ref.type)) {
+			throw new Error("Некорректная команда");
+		}
+		const consoleName = SettingsStorage.get().common.defaultConsole;
+		let command: string;
+		if (ref.type === "npm") {
+			const script = (await this.getNpmScripts(id)).find((item) => item.name === ref.id);
+			if (!script) throw new Error("Скрипт больше не найден в package.json");
+			if (!/^[\w:.][\w:.-]*$/.test(script.name)) throw new Error("Имя npm-скрипта содержит неподдерживаемые символы");
+			command = `npm run ${script.name}`;
+		} else {
+			const custom = project.commands?.find((item) => item.id === ref.id);
+			if (!custom) throw new Error("Команда проекта не найдена");
+			command = custom.command;
+		}
+		await this.openTerminalWithCommand(path, consoleName, command);
+	}
+
+	private static async openTerminalWithCommand(cwd: string, consoleName: string, command: string): Promise<void> {
+		if (process.platform === "win32") {
+			const shellName = consoleName === "cmd" ? "cmd.exe" : consoleName === "bash" || consoleName === "zsh" ? "bash.exe" : "powershell.exe";
+			await this.ensureInPath(shellName);
+			let args: string[];
+			if (shellName === "powershell.exe") {
+				args = ["-NoExit", "-EncodedCommand", Buffer.from(command, "utf16le").toString("base64")];
+			} else {
+				const dir = await fs.mkdtemp(join(app.getPath("temp"), "hangar-command-"));
+				const isCmd = shellName === "cmd.exe";
+				const file = join(dir, isCmd ? "run.cmd" : "run.sh");
+				await fs.writeFile(file, isCmd ? `@chcp 65001 >nul\r\n${command}\r\n` : `${command}\n`, { encoding: "utf8", mode: 0o600 });
+				args = isCmd ? ["/d", "/k", `"${file}"`] : ["--rcfile", `"${file}"`, "-i"];
+			}
+			const psQuote = (value: string): string => `'${value.replace(/'/g, "''")}'`;
+			const launch = `Start-Process -FilePath ${psQuote(shellName)} -WorkingDirectory ${psQuote(cwd)} -ArgumentList @(${args.map(psQuote).join(",")})`;
+			const encoded = Buffer.from(launch, "utf16le").toString("base64");
+			await new Promise<void>((resolve, reject) => execFile("powershell.exe", ["-NoProfile", "-NonInteractive", "-EncodedCommand", encoded], { windowsHide: true }, (error) => error ? reject(error) : resolve()));
+			return;
+		}
+		const shellName = consoleName === "zsh" ? "/bin/zsh" : "/bin/bash";
+		if (process.platform === "darwin") {
+			const shellQuote = (value: string): string => `'${value.replace(/'/g, "'\\''")}'`;
+			const terminalCommand = `cd ${shellQuote(cwd)} && ${shellQuote(shellName)} -c ${shellQuote(command)}`;
+			const appleString = terminalCommand.replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/\r?\n/g, "\\n");
+			await new Promise<void>((resolve, reject) => execFile("osascript", ["-e", `tell application "Terminal" to do script "${appleString}"`, "-e", 'tell application "Terminal" to activate'], (error) => error ? reject(error) : resolve()));
+			return;
+		}
+		for (const terminal of ["x-terminal-emulator", "gnome-terminal", "konsole", "xterm"]) {
+			try {
+				const separator = terminal === "gnome-terminal" ? "--" : "-e";
+				await this.spawnDetached(terminal, [separator, shellName, "-c", `${command}\nexec ${shellName} -i`], cwd);
+				return;
+			} catch { continue; }
+		}
+		throw new Error("Не удалось найти терминал");
 	}
 
 	private static async openTerminal(cwd: string, consoleName: string): Promise<void> {

@@ -21,6 +21,10 @@ export const projectsApi: ProjectsApi = {
 
 	openTerminal: (id) => window.api.projects.openTerminal(id),
 
+	getNpmScripts: (id) => window.api.projects.getNpmScripts(id),
+
+	runCommand: (id, command) => window.api.projects.runCommand(id, command),
+
 	inspectPath: (projectPath) => window.api.projects.inspectPath(projectPath),
 
 	scan: (rootPath, depth) => window.api.projects.scan(rootPath, depth),

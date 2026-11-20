@@ -11,6 +11,11 @@ export const ProjectSchema = z.object({
 	name: z.string(),
 	/** Пара слов о проекте: по ним тоже ищется */
 	description: z.string().optional(),
+	commands: z.array(z.object({
+		id: z.uuid(),
+		name: z.string().trim().min(1),
+		command: z.string().trim().min(1),
+	})).optional(),
 	/** Полный путь или путь через алиас: "@work/shop-frontend" */
 	path: z.string(),
 	/** Дата последнего изменения файлов проекта */

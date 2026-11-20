@@ -5,6 +5,7 @@ import type { Project } from "@schemas/store.schema";
 import { CardAction } from "@renderer/shared/components/UI/CardAction/CardAction";
 import { GitStatus } from "@renderer/shared/components/UI/GitStatus/GitStatus";
 import { useProjects } from "@renderer/shared/hooks/useProjects";
+import { ProjectCommands } from "./ProjectCommands";
 
 const MISSING_HINT = "Папка не найдена. Исправьте путь в настройках проекта";
 
@@ -29,6 +30,7 @@ export const ProjectActions: FC<ProjectActionsProps> = ({ project, health, onEdi
 				onClick={() => void openProjectInIde(project.id)}
 			/>
 			<GitStatus gitUrl={project.gitUrl} git={missing ? null : health?.git} />
+			<ProjectCommands project={project} missing={missing} />
 			<CardAction
 				title={missing ? MISSING_HINT : "Открыть в проводнике"}
 				icon={<FolderOpen size={15} strokeWidth={1.9} />}
