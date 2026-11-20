@@ -27,6 +27,7 @@ type PaletteItem =
 type BranchItem = { name: string; remote: boolean; current: boolean };
 
 type PaletteViewProps = {
+	standalone?: boolean;
 	/** Перейти на страницу: в главном окне — роутером, из окна поиска — через main */
 	onNavigate: (route: string) => void;
 	/** Действие выполнено или нажат Esc */
@@ -60,11 +61,11 @@ const matchScore = (text: string | undefined, query: string, fuzzy = false): num
 };
 
 /** Содержимое быстрого поиска: общее для окна по Ctrl+K и отдельного окна по глобальному хоткею */
-export const PaletteView: FC<PaletteViewProps> = ({ onNavigate, onClose }) => {
+export const PaletteView: FC<PaletteViewProps> = ({ onNavigate, onClose, standalone = false }) => {
 	const projects = useAppStore((s) => s.projects);
 	const folders = useAppStore((s) => s.folders);
 	const health = useAppStore((s) => s.health);
-	const { openProjectInIde, openProjectFolder, openProjectTerminal } = useProjects();
+	const { openProjectInIde, openProjectFolder, openProjectTerminal } = useProjects({ silentSuccess: standalone });
 	const { resolvePath } = usePathAliases();
 	const { showSuccess, showError } = useAppNotification();
 
@@ -76,7 +77,10 @@ export const PaletteView: FC<PaletteViewProps> = ({ onNavigate, onClose }) => {
 	const listRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
-		inputRef.current?.focus();
+		const focus = (): void => { inputRef.current?.focus(); };
+		focus();
+		window.addEventListener("focus", focus);
+		return () => window.removeEventListener("focus", focus);
 	}, [branchMode]);
 
 	/** Полный путь папки: «Работа / Заказчик 1» — по нему и ищем, и показываем */
@@ -198,7 +202,7 @@ export const PaletteView: FC<PaletteViewProps> = ({ onNavigate, onClose }) => {
 
 		if (e.key === "ArrowDown") {
 			e.preventDefault();
-			setActiveIndex((i) => Math.min(i + 1, count - 1));
+			setActiveIndex((i) => Math.max(0, Math.min(i + 1, count - 1)));
 		} else if (e.key === "ArrowUp") {
 			e.preventDefault();
 			setActiveIndex((i) => Math.max(i - 1, 0));
@@ -395,7 +399,11 @@ export const PaletteView: FC<PaletteViewProps> = ({ onNavigate, onClose }) => {
 						<span><kbd>Ctrl</kbd><kbd>B</kbd> ветка</span>
 					</>
 				)}
-				<span className="palette__brand">Hangar</span>
+				{standalone ? (
+					<button type="button" className="palette__brand palette__brand--button" onClick={() => onNavigate("/")}>
+						Открыть Hangar
+					</button>
+				) : <span className="palette__brand">Hangar</span>}
 			</div>
 		</div>
 	);

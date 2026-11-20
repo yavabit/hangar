@@ -23,7 +23,7 @@ type UseProjectType = {
 	openProjectTerminal: (id: Project["id"]) => Promise<void>;
 }
 
-export const useProjects = (): UseProjectType => {
+export const useProjects = (options?: { silentSuccess?: boolean }): UseProjectType => {
 	const projects = useAppStore((s) => s.projects);
 	const addLocal = useAppStore((s) => s.addProject);
 	const updateLocal = useAppStore((s) => s.updateProject);
@@ -172,7 +172,7 @@ export const useProjects = (): UseProjectType => {
 	const openProjectFolder = async (id: Project["id"]): Promise<void> => {
 		try {
 			await projectsApi.openFolder(id);
-			showSuccess("project_open_folder", {
+			if (!options?.silentSuccess) showSuccess("project_open_folder", {
 				message: "Папка проекта открыта",
 				description: findProject(id)?.name,
 				duration: 2,
@@ -190,7 +190,7 @@ export const useProjects = (): UseProjectType => {
 		try {
 			const updated = await projectsApi.openInIde(id);
 			updateLocal(id, updated);
-			showSuccess("project_open_ide", {
+			if (!options?.silentSuccess) showSuccess("project_open_ide", {
 				message: "Проект открыт в IDE",
 				description: updated.name,
 				duration: 2,

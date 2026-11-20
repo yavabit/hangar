@@ -210,6 +210,20 @@
 		margin-left: auto;
 		font-weight: 600;
 		color: var(--text-muted);
+
+		&--button {
+			padding: 4px 6px;
+			border: 0;
+			border-radius: 6px;
+			background: transparent;
+			font: inherit;
+			font-weight: 600;
+			cursor: pointer;
+			&:hover, &:focus-visible {
+				background: var(--accent-soft);
+				color: var(--accent);
+			}
+		}
 	}
 
 	kbd {

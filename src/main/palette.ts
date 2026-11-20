@@ -57,9 +57,8 @@ export function showPalette(): void {
 		width: PALETTE_WIDTH,
 		height: PALETTE_HEIGHT,
 	});
-	window.show();
-	window.focus();
 	window.webContents.send("palette:shown");
+	window.show();
 }
 
 export function hidePalette(): void {

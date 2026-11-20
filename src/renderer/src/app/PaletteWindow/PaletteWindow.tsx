@@ -34,6 +34,7 @@ export const PaletteWindow: FC = () => {
 				{hydrated && (
 					<PaletteView
 						key={session}
+						standalone
 						onNavigate={(route) => void window.api.app.openInMain(route)}
 						onClose={hide}
 					/>
