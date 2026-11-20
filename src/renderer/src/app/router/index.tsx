@@ -7,16 +7,20 @@ import { FolderPage } from "@renderer/pages/Folder/FolderPage";
 import { Favorites } from "@renderer/pages/Favorites/Favorites";
 import { Scripts } from "@renderer/pages/Scripts/Scripts";
 import { Settings } from "@renderer/pages/Settings/Settings";
+import { RouteError } from "./RouteError";
+
+const errorElement = <RouteError />;
 
 const router = createMemoryRouter([
 	{
 		element: <FullLayout />,
+		errorElement,
 		children: [
-			{ path: "/", element: <Projects /> },
-			{ path: "/folder/:id", element: <FolderPage /> },
-			{ path: "/fav", element: <Favorites /> },
-			{ path: "/scripts", element: <Scripts /> },
-			{ path: "/settings", element: <Settings /> },
+			{ path: "/", element: <Projects />, errorElement },
+			{ path: "/folder/:id", element: <FolderPage />, errorElement },
+			{ path: "/fav", element: <Favorites />, errorElement },
+			{ path: "/scripts", element: <Scripts />, errorElement },
+			{ path: "/settings", element: <Settings />, errorElement },
 			{ path: "*", element: <Navigate to="/" replace /> },
 		],
 	},

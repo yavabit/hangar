@@ -1,0 +1,15 @@
+.route-error {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: min(70vh, 620px);
+	padding: 32px;
+
+	&__panel { width: min(100%, 560px); padding: 36px; border-radius: var(--radius-xl); }
+	&__icon { display: inline-flex; padding: 12px; border-radius: 14px; background: var(--danger-soft); color: var(--danger); }
+	h1 { margin: 20px 0 8px; font-size: 24px; }
+	p { margin: 0 0 24px; color: var(--text-muted); }
+	&__details { margin-top: 24px; color: var(--text-muted); }
+	&__details summary { cursor: pointer; }
+	&__details pre { max-height: 220px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; }
+}
