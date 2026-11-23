@@ -31,13 +31,16 @@ export function createPaletteWindow(): BrowserWindow {
 		alwaysOnTop: true,
 		webPreferences: {
 			preload: getPreloadPath(),
+			backgroundThrottling: false,
 			sandbox: true,
 			contextIsolation: true,
 			nodeIntegration: false,
 		},
 	});
 
-	window.on("blur", () => window.hide());
+	window.on("blur", () => {
+		if (window.isVisible()) window.hide();
+	});
 	window.on("hide", () => window.webContents.send("palette:hidden"));
 	hardenWebContents(window);
 	loadRenderer(window, { window: "palette" });
