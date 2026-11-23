@@ -6,6 +6,7 @@ const PALETTE_WIDTH = 760;
 const PALETTE_HEIGHT = 560;
 
 let palette: BrowserWindow | null = null;
+let visibilitySequence = 0;
 
 const getPalette = (): BrowserWindow | null => (palette && !palette.isDestroyed() ? palette : null);
 
@@ -18,6 +19,7 @@ export function createPaletteWindow(): BrowserWindow {
 		width: PALETTE_WIDTH,
 		height: PALETTE_HEIGHT,
 		show: false,
+		...(process.platform === "win32" ? { opacity: 0 } : {}),
 		frame: false,
 		transparent: true,
 		backgroundColor: "#00000000",
@@ -39,7 +41,7 @@ export function createPaletteWindow(): BrowserWindow {
 	});
 
 	window.on("blur", () => {
-		if (window.isVisible()) window.hide();
+		if (window.isVisible()) hidePalette();
 	});
 	window.on("hide", () => window.webContents.send("palette:hidden"));
 	hardenWebContents(window);
@@ -69,9 +71,29 @@ export function showPalette(): void {
 		window.focus();
 		return;
 	}
+	const sequence = ++visibilitySequence;
 	window.show();
+	if (process.platform === "win32") {
+		const reveal = (): void => {
+			if (!window.isDestroyed() && window.isVisible() && sequence === visibilitySequence) window.setOpacity(1);
+		};
+		const fallback = setTimeout(reveal, 1000);
+		void window.webContents.executeJavaScript("new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))")
+			.then(() => {
+				clearTimeout(fallback);
+				reveal();
+			})
+			.catch(() => {
+				clearTimeout(fallback);
+				reveal();
+			});
+	}
 }
 
 export function hidePalette(): void {
-	getPalette()?.hide();
+	const window = getPalette();
+	if (!window || !window.isVisible()) return;
+	visibilitySequence++;
+	if (process.platform === "win32") window.setOpacity(0);
+	window.hide();
 }
