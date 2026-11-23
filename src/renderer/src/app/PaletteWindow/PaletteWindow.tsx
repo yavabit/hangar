@@ -7,7 +7,7 @@ import "./PaletteWindow.scss";
 
 /**
  * Отдельное окно быстрого поиска для глобального сочетания клавиш.
- * При каждом показе содержимое пересоздаётся: пустой запрос и фокус в поле ввода.
+ * После скрытия содержимое сбрасывается, чтобы следующий показ не перерисовывал окно.
  */
 export const PaletteWindow: FC = () => {
 	const hydrated = useAppStore((s) => s.hydrated);
@@ -15,7 +15,7 @@ export const PaletteWindow: FC = () => {
 
 	useAppSync();
 
-	useEffect(() => window.api.app.onPaletteShown(() => setSession((value) => value + 1)), []);
+	useEffect(() => window.api.app.onPaletteHidden(() => setSession((value) => value + 1)), []);
 
 	const hide = (): void => {
 		void window.api.app.hidePalette();

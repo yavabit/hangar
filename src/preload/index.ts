@@ -54,7 +54,7 @@ const api: ElectronApi = {
 		get: () => ipcRenderer.invoke("app:get"),
 		showPalette: () => ipcRenderer.invoke("app:showPalette"),
 		hidePalette: () => ipcRenderer.invoke("app:hidePalette"),
-		onPaletteShown: (callback) => subscribe("palette:shown", () => callback()),
+		onPaletteHidden: (callback) => subscribe("palette:hidden", () => callback()),
 		openInMain: (route) => ipcRenderer.invoke("app:openInMain", route),
 		onNavigate: (callback) => subscribe("app:navigate", callback),
 	},

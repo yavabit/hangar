@@ -38,6 +38,7 @@ export function createPaletteWindow(): BrowserWindow {
 	});
 
 	window.on("blur", () => window.hide());
+	window.on("hide", () => window.webContents.send("palette:hidden"));
 	hardenWebContents(window);
 	loadRenderer(window, { window: "palette" });
 
@@ -51,13 +52,20 @@ export function showPalette(): void {
 	const display = screen.getDisplayNearestPoint(screen.getCursorScreenPoint());
 	const { x, y, width, height } = display.workArea;
 
-	window.setBounds({
+	const bounds = {
 		x: Math.round(x + (width - PALETTE_WIDTH) / 2),
 		y: Math.round(y + height * 0.16),
 		width: PALETTE_WIDTH,
 		height: PALETTE_HEIGHT,
-	});
-	window.webContents.send("palette:shown");
+	};
+	const current = window.getBounds();
+	if (current.x !== bounds.x || current.y !== bounds.y || current.width !== bounds.width || current.height !== bounds.height) {
+		window.setBounds(bounds);
+	}
+	if (window.isVisible()) {
+		window.focus();
+		return;
+	}
 	window.show();
 }
 

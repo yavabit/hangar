@@ -77,7 +77,7 @@ export const PaletteView: FC<PaletteViewProps> = ({ onNavigate, onClose, standal
 	const listRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
-		const focus = (): void => { inputRef.current?.focus(); };
+		const focus = (): void => { inputRef.current?.focus({ preventScroll: true }); };
 		focus();
 		window.addEventListener("focus", focus);
 		return () => window.removeEventListener("focus", focus);
@@ -131,7 +131,13 @@ export const PaletteView: FC<PaletteViewProps> = ({ onNavigate, onClose, standal
 	const count = branchMode ? branchItems.length : items.length;
 
 	useEffect(() => {
-		listRef.current?.querySelector(`[data-index="${activeIndex}"]`)?.scrollIntoView({ block: "nearest" });
+		const list = listRef.current;
+		const item = list?.querySelector<HTMLElement>(`[data-index="${activeIndex}"]`);
+		if (!list || !item) return;
+		const listRect = list.getBoundingClientRect();
+		const itemRect = item.getBoundingClientRect();
+		if (itemRect.top < listRect.top) list.scrollTop -= listRect.top - itemRect.top;
+		else if (itemRect.bottom > listRect.bottom) list.scrollTop += itemRect.bottom - listRect.bottom;
 	}, [activeIndex]);
 
 	const resetQuery = (): void => {

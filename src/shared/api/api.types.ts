@@ -249,7 +249,7 @@ export interface ElectronApi {
 		showPalette: () => Promise<void>;
 		hidePalette: () => Promise<void>;
 		/** Окно быстрого поиска показано: пора очистить запрос и поставить фокус */
-		onPaletteShown: (callback: () => void) => () => void;
+		onPaletteHidden: (callback: () => void) => () => void;
 		/** Показывает главное окно и открывает в нём страницу */
 		openInMain: (route: string) => Promise<void>;
 		onNavigate: (callback: (route: string) => void) => () => void;
